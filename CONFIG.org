@@ -511,9 +511,25 @@ myKeys =
         , ("M4-l", spawn "slock")                      -- Lock screen
         , ("M4-<Space>", spawn "/home/arthur/Applications/keyboard_layout_switcher.sh") -- Switch layout ru/en
 
-    -- KB_GROUP alt+TAB functionality
-        , ("M4-<Tab>", spawn "rofi -show window -line-padding 4 -lines 6 -padding 50 -hide-scrollbar -show-icons -drun-icon-theme 'Arc-X-D' -font 'Droid Sans Regular 10'")
-        , ("M4-S-<Tab>", nextMatch Backward (return True)) -- navigate aka alt+tab
+    -- KB_GROUP default alt+TAB functionality
+        , ("M-<Tab>", nextMatch Backward (return True)) -- navigate aka alt+tab
+        , ("M-S-<Tab>", spawn "rofi -show window -line-padding 4 -lines 6 -padding 50 -hide-scrollbar -show-icons -drun-icon-theme 'Arc-X-D' -font 'Droid Sans Regular 10'") -- get list of all open windows
+
+    -- KB_GROUP Layouts
+        , ("M4-<Tab>", sendMessage NextLayout)                                  -- Switch to next layout
+        , ("M-S-m", sendMessage (MT.Toggle NBFULL) >> sendMessage ToggleStruts) -- Toggles noborder/full
+
+    -- KB_GROUP Increase/decrease windows in the master pane or the stack
+        , ("M-S-<Up>", sendMessage (IncMasterN 1))      -- Increase # of clients master pane
+        , ("M-S-<Down>", sendMessage (IncMasterN (-1))) -- Decrease # of clients master pane
+        , ("M-C-<Up>", increaseLimit)                   -- Increase # of windows
+        , ("M-C-<Down>", decreaseLimit)                 -- Decrease # of windows
+
+    -- KB_GROUP Window resizing
+        , ("M-M4-h", sendMessage Shrink)                -- Shrink horiz window width
+        , ("M-M4-l", sendMessage Expand)                -- Expand horiz window width
+        , ("M-M4-j", sendMessage MirrorShrink)          -- Shrink vert window width
+        , ("M-M4-k", sendMessage MirrorExpand)          -- Expand vert window width
 
     -- KB_GROUP numpad layouts
         --, ("M-<KP_End>", spawn "dolphin")
@@ -596,22 +612,6 @@ myKeys =
         , ("M-<Backspace>", promote)      -- Moves focused window to master, others maintain order
         , ("M-S-<Tab>", rotSlavesDown)    -- Rotate all windows except master and keep focus in place
         , ("M-C-<Tab>", rotAllDown)       -- Rotate all the windows in the current stack
-
-    -- KB_GROUP Layouts
-        , ("M-<Tab>", sendMessage NextLayout)           -- Switch to next layout
-        , ("M-S-m", sendMessage (MT.Toggle NBFULL) >> sendMessage ToggleStruts) -- Toggles noborder/full
-
-    -- KB_GROUP Increase/decrease windows in the master pane or the stack
-        , ("M-S-<Up>", sendMessage (IncMasterN 1))      -- Increase # of clients master pane
-        , ("M-S-<Down>", sendMessage (IncMasterN (-1))) -- Decrease # of clients master pane
-        , ("M-C-<Up>", increaseLimit)                   -- Increase # of windows
-        , ("M-C-<Down>", decreaseLimit)                 -- Decrease # of windows
-
-    -- KB_GROUP Window resizing
-        , ("M-M4-h", sendMessage Shrink)                -- Shrink horiz window width
-        , ("M-M4-l", sendMessage Expand)                -- Expand horiz window width
-        , ("M-M4-j", sendMessage MirrorShrink)          -- Shrink vert window width
-        , ("M-M4-k", sendMessage MirrorExpand)          -- Expand vert window width
 
     -- KB_GROUP Sublayouts
     -- This is used to push windows to tabbed sublayouts, or pull them out of it.
