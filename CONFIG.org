@@ -1878,73 +1878,73 @@ key_bindings:
 #+END_SRC
 * Fish
 #+BEGIN_SRC  haskell :tangle /home/arthur/.config/fish/config.fish
-### ADDIN                                                                                                                                                                                                                        G TO THE PATH
+### ADDING TO THE PATH
 # First line removes the path; second line sets it.  Without the first line,
-# your path                                                                                                                                                                                                                      gets massive and fish becomes very slow.
+# your path gets massive and fish becomes very slow.
 set -e fish_user_paths
 set -U fish_user_paths $HOME/.local/bin $HOME/Applications $fish_user_paths
 
 ### EXPORT ###
-set fish_                                                                                                                                                                                                                        greetin                                                                                                              g                                 # Supresses fish's intro messa                                              ge
+set fish_greeting                                 # Supresses fish's intro message
 set TERM "xterm-256color"                         # Sets the terminal type
 set EDITOR "emacsclient -t -a ''"                 # $EDITOR use Emacs in terminal
-set VISUAL "emacsclient -c -a emacs"              # $VISUAL use Emacs in                                                                                                                                                         GUI mode
+set VISUAL "emacsclient -c -a emacs"              # $VISUAL use Emacs in GUI mode
 
-### SET MANPA                                                                                                                                                                                                                    GER
+### SET MANPAGER
 ### Uncomment only one of these!
 
-### "bat" as manpa                                                                                                                                                                                                               ger
-# set -x MANPA                                                                                                                                                                                                                   GER "sh -c 'col -bx | bat -l man -p'"
+### "bat" as manpager
+# set -x MANPAGER "sh -c 'col -bx | bat -l man -p'"
 
-### "vim" as manpa                                                                                                                                                                                                               ger
-# set -x MANPA                                                                                                                                                                                                                   GER '/bin/bash -c "vim -MRn -c \"set buftype=nofile showtabline=0 ft=man ts=8 nomod nolist norelativenumber nonu noma\" -c \"normal L\" -c \"nmap q :qa<CR>\"</dev/tty <(col -b)"'
+### "vim" as manpager
+# set -x MANPAGER '/bin/bash -c "vim -MRn -c \"set buftype=nofile showtabline=0 ft=man ts=8 nomod nolist norelativenumber nonu noma\" -c \"normal L\" -c \"nmap q :qa<CR>\"</dev/tty <(col -b)"'
 
-### "nvim" as manpa                                                                                                                                                                                                              ger
-set -x MANPA                                                                                                                                                                                                                     GER "nvim -c 'set ft=man' -"
+### "nvim" as manpager
+set -x MANPAGER "nvim -c 'set ft=man' -"
 
 ### SET EITHER DEFAULT EMACS MODE OR VI MODE ###
-function fish_user_key_bindin                                                                                                                                                                                                    gs
-  # fish_default_key_bindin                                                                                                                                                                                                      gs
-  fish_vi_key_bindin                                                                                                                                                                                                             gs
+function fish_user_key_bindings
+  # fish_default_key_bindings
+  fish_vi_key_bindings
 end
 ### END OF VI MODE ###
 
-### AUTOCOMPLETE AND HI                                                                                                                                                                                                          GHLI                                                                                                                 GHT COLORS ###
+### AUTOCOMPLETE AND HIGHLIGHT COLORS ###
 set fish_color_normal brcyan
-set fish_color_autosu                                                                                                                                                                                                            g                                                                                                                    gestion '#7d7d7d'
+set fish_color_autosuggestion '#7d7d7d'
 set fish_color_command brcyan
 set fish_color_error '#ff6c6b'
 set fish_color_param brcyan
 
 ### SPARK ###
-set -                                                                                                                                                                                                                            g spark_version 1.0.0
+set -g spark_version 1.0.0
 
-complete -xc spark -n __fish_use_subcommand -a --help -d "Show usa                                                                                                                                                               ge help"
+complete -xc spark -n __fish_use_subcommand -a --help -d "Show usage help"
 complete -xc spark -n __fish_use_subcommand -a --version -d "$spark_version"
-complete -xc spark -n __fish_use_subcommand -a --min -d "Minimum ran                                                                                                                                                             ge value"
-complete -xc spark -n __fish_use_subcommand -a --max -d "Maximum ran                                                                                                                                                             ge value"
+complete -xc spark -n __fish_use_subcommand -a --min -d "Minimum range value"
+complete -xc spark -n __fish_use_subcommand -a --max -d "Maximum range value"
 
-function spark -d "sparkline                                                                                                                                                                                                     generator"
+function spark -d "sparkline generator"
     if isatty
-        switch "$ar                                                                                                                                                                                                              gv"
+        switch "$argv"
             case {,-}-v{ersion,}
                 echo "spark version $spark_version"
             case {,-}-h{elp,}
-                echo "usa                                                                                                                                                                                                        ge: spark [--min=<n> --max=<n>] <numbers...>  Draw sparklines"
+                echo "usage: spark [--min=<n> --max=<n>] <numbers...>  Draw sparklines"
                 echo "examples:"
                 echo "       spark 1 2 3 4"
                 echo "       seq 100 | sort -R | spark"
-                echo "       awk \\\$0=len                                                                                                                                                                                       gth spark.fish | spark"
+                echo "       awk \\\$0=length spark.fish | spark"
             case \*
-                echo $ar                                                                                                                                                                                                         gv | spark $ar                                                                                                       gv
+                echo $argv | spark $argv
         end
         return
     end
 
-    command awk -v FS="[[:space:],]*" -v ar                                                                                                                                                                                      gv="$ar                                                                                                              gv" '
-        BE                                                                                                                                                                                                                       GIN {
-            min = match(ar                                                                                                                                                                                                       gv, /--min=[0-9]+/) ? substr(ar                                                                                      gv, RSTART + 6, RLEN                                                                                          GTH - 6) + 0 : ""
-            max = match(ar                                                                                                                                                                                                       gv, /--max=[0-9]+/) ? substr(ar                                                                                      gv, RSTART + 6, RLEN                                                                                          GTH - 6) + 0 : ""
+    command awk -v FS="[[:space:],]*" -v argv="$argv" '
+        BEGIN {
+            min = match(argv, /--min=[0-9]+/) ? substr(argv, RSTART + 6, RLENGTH - 6) + 0 : ""
+            max = match(argv, /--max=[0-9]+/) ? substr(argv, RSTART + 6, RLENGTH - 6) + 0 : ""
         }
         {
             for (i = j = 1; i <= NF; i++) {
@@ -1974,12 +1974,12 @@ end
 ### FUNCTIONS ###
 # Spark functions
 function letters
-    cat $ar                                                                                                                                                                                                                      gv | awk -vFS='' '{for(i=1;i<=NF;i++){ if($i~/[a-zA-Z]/) { w[tolower($i)]++} } }END{for(i in w) print i,w[i]}' | sort | cut -c 3- | spark | lolcat
-    printf  '%s\n' 'abcdef                                                                                                                                                                                                       ghijklmnopqrstuvwxyz'  ' ' | lolcat
+    cat $argv | awk -vFS='' '{for(i=1;i<=NF;i++){ if($i~/[a-zA-Z]/) { w[tolower($i)]++} } }END{for(i in w) print i,w[i]}' | sort | cut -c 3- | spark | lolcat
+    printf  '%s\n' 'abcdefghijklmnopqrstuvwxyz'  ' ' | lolcat
 end
 
 function commits
-                                                                                                                                                                                                                                 git lo                                                                                                               g --author="$ar                                                                                               gv" --format=format:%ad --date=short | uniq -c | awk '{print $1}' | spark | lolcat
+    git log --author="$argv" --format=format:%ad --date=short | uniq -c | awk '{print $1}' | spark | lolcat
 end
 
 # Functions needed for !! and !$
@@ -1992,7 +1992,7 @@ function __history_previous_command
   end
 end
 
-function __history_previous_command_ar                                                                                                                                                                                           guments
+function __history_previous_command_arguments
   switch (commandline -t)
   case "!"
     commandline -t ""
@@ -2001,74 +2001,74 @@ function __history_previous_command_ar                                          
     commandline -i '$'
   end
 end
-# The bindin                                                                                                                                                                                                                     gs for !! and !$
-if [ $fish_key_bindin                                                                                                                                                                                                            gs = "fish_vi_key_bindin                                                                                             gs" ];
+# The bindings for !! and !$
+if [ $fish_key_bindings = "fish_vi_key_bindings" ];
   bind -Minsert ! __history_previous_command
-  bind -Minsert '$' __history_previous_command_ar                                                                                                                                                                                guments
+  bind -Minsert '$' __history_previous_command_arguments
 else
   bind ! __history_previous_command
-  bind '$' __history_previous_command_ar                                                                                                                                                                                         guments
+  bind '$' __history_previous_command_arguments
 end
 
-# Function for creatin                                                                                                                                                                                                           g a backup file
+# Function for creating a backup file
 # ex: backup file.txt
 # result: copies file as file.txt.bak
-function backup --ar                                                                                                                                                                                                             gument filename
+function backup --argument filename
     cp $filename $filename.bak
 end
 
-# Function for copyin                                                                                                                                                                                                            g files and directories, even recursively.
+# Function for copying files and directories, even recursively.
 # ex: copy DIRNAME LOCATIONS
 # result: copies the directory and all of its contents.
 function copy
-    set count (count $ar                                                                                                                                                                                                         gv | tr -d \n)
-    if test "$count" = 2; and test -d "$ar                                                                                                                                                                                       gv[1]"
-	set from (echo $ar                                                                                                                                                                                                           gv[1] | trim-ri                                                                                                      ght /)
-	set to (echo $ar                                                                                                                                                                                                             gv[2])
+    set count (count $argv | tr -d \n)
+    if test "$count" = 2; and test -d "$argv[1]"
+	set from (echo $argv[1] | trim-right /)
+	set to (echo $argv[2])
         command cp -r $from $to
     else
-        command cp $ar                                                                                                                                                                                                           gv
+        command cp $argv
     end
 end
 
-# Function for printin                                                                                                                                                                                                           g a column (splits input on whitespace)
+# Function for printing a column (splits input on whitespace)
 # ex: echo 1 2 3 | coln 3
 # output: 3
 function coln
     while read -l input
-        echo $input | awk '{print $'$ar                                                                                                                                                                                          gv[1]'}'
+        echo $input | awk '{print $'$argv[1]'}'
     end
 end
 
-# Function for printin                                                                                                                                                                                                           g a row
+# Function for printing a row
 # ex: seq 3 | rown 3
 # output: 3
-function rown --ar                                                                                                                                                                                                               gument index
+function rown --argument index
     sed -n "$index p"
 end
 
-# Function for i                                                                                                                                                                                                                 gnorin                                                                                                               g the first 'n' lines
+# Function for ignoring the first 'n' lines
 # ex: seq 10 | skip 5
-# results: prints everythin                                                                                                                                                                                                      g but the first 5 lines
-function skip --ar                                                                                                                                                                                                               gument n
+# results: prints everything but the first 5 lines
+function skip --argument n
     tail +(math 1 + $n)
 end
 
-# Function for takin                                                                                                                                                                                                             g the first 'n' lines
+# Function for taking the first 'n' lines
 # ex: seq 10 | take 5
 # results: prints only the first 5 lines
-function take --ar                                                                                                                                                                                                               gument number
+function take --argument number
     head -$number
 end
 
-# Function for or                                                                                                                                                                                                                g-a                                                                                                                  genda
-function or                                                                                                                                                                                                                      g-search -d "send a search strin                                                                                     g to or                                                                                                       g-mode"
-    set -l output (/usr/bin/emacsclient -a "" -e "(messa                                                                                                                                                                         ge \"%s\" (mapconcat #'substrin                                                                                      g-no-properties \
-        (mapcar #'or                                                                                                                                                                                                             g-link-display-format \
-        (or                                                                                                                                                                                                                      g-ql-query \
-        :select #'or                                                                                                                                                                                                             g-                                                                                                                   get-headin                                                                                                    g \
-        :from  (or                                                                                                                                                                                                               g-a                                                                                                                  genda-files) \
-        :where (or                                                                                                                                                                                                               g-ql--query-strin                                                                                                    g-to-sexp \"$ar                                                                                               gv\"))) \
+# Function for org-agenda
+function org-search -d "send a search string to org-mode"
+    set -l output (/usr/bin/emacsclient -a "" -e "(message \"%s\" (mapconcat #'substring-no-properties \
+        (mapcar #'org-link-display-format \
+        (org-ql-query \
+        :select #'org-get-heading \
+        :from  (org-agenda-files) \
+        :where (org-ql--query-string-to-sexp \"$argv\"))) \
         \"
     \"))")
     printf $output
@@ -2080,10 +2080,10 @@ end
 ### ALIASES ###
 alias clear='/bin/clear; echo; echo; seq 1 (tput cols) | sort -R | spark | lolcat; echo; echo'
 
-# root privile                                                                                                                                                                                                                   ges
+# root privileges
 alias doas="doas --"
 
-# navi                                                                                                                                                                                                                           gation
+# navigation
 alias ..='cd ..'
 alias ...='cd ../..'
 alias .3='cd ../../..'
@@ -2096,79 +2096,79 @@ alias em='/usr/bin/emacs -nw'
 alias emacs="emacsclient -c -a 'emacs'"
 alias doomsync="~/.emacs.d/bin/doom sync"
 alias doomdoctor="~/.emacs.d/bin/doom doctor"
-alias doomup                                                                                                                                                                                                                     grade="~/.emacs.d/bin/doom up                                                                                        grade"
-alias doompur                                                                                                                                                                                                                    ge="~/.emacs.d/bin/doom pur                                                                                          ge"
+alias doomupgrade="~/.emacs.d/bin/doom upgrade"
+alias doompurge="~/.emacs.d/bin/doom purge"
 
-# Chan                                                                                                                                                                                                                           gin                                                                                                                  g "ls" to "exa"
-alias l='exa -al --color=always --                                                                                                                                                                                               group-directories-first' # my preferred listin                                                                       g
-alias la='exa -a --color=always --                                                                                                                                                                                               group-directories-first'  # all files and dirs
-alias ll='exa -l --color=always --                                                                                                                                                                                               group-directories-first'  # lon                                                                                      g format
-alias lt='exa -aT --color=always --                                                                                                                                                                                              group-directories-first' # tree listin                                                                               g
-alias l.='exa -a | e                                                                                                                                                                                                             grep "^\."'
+# Changing "ls" to "exa"
+alias l='exa -al --color=always --group-directories-first' # my preferred listing
+alias la='exa -a --color=always --group-directories-first'  # all files and dirs
+alias ll='exa -l --color=always --group-directories-first'  # long format
+alias lt='exa -aT --color=always --group-directories-first' # tree listing
+alias l.='exa -a | egrep "^\."'
 
 # pacman and yay
-alias pacsyu='sudo pacman -Syyu'                 # update only standard pk                                                                                                                                                       gs
-alias yaysua='yay -Sua --noconfirm'              # update only AUR pk                                                                                                                                                            gs (yay)
-alias yaysyu='yay -Syu --noconfirm'              # update standard pk                                                                                                                                                            gs and AUR pk                                                                                                        gs (yay)
-alias parsua='paru -Sua --noconfirm'             # update only AUR pk                                                                                                                                                            gs (paru)
-alias parsyu='paru -Syu --noconfirm'             # update standard pk                                                                                                                                                            gs and AUR pk                                                                                                        gs (paru)
+alias pacsyu='sudo pacman -Syyu'                 # update only standard pkgs
+alias yaysua='yay -Sua --noconfirm'              # update only AUR pkgs (yay)
+alias yaysyu='yay -Syu --noconfirm'              # update standard pkgs and AUR pkgs (yay)
+alias parsua='paru -Sua --noconfirm'             # update only AUR pkgs (paru)
+alias parsyu='paru -Syu --noconfirm'             # update standard pkgs and AUR pkgs (paru)
 alias unlock='sudo rm /var/lib/pacman/db.lck'    # remove pacman lock
-alias cleanup='sudo pacman -Rns (pacman -Qtdq)'  # remove orphaned packa                                                                                                                                                         ges
+alias cleanup='sudo pacman -Rns (pacman -Qtdq)'  # remove orphaned packages
 
-#                                                                                                                                                                                                                                get fastest mirrors
+# get fastest mirrors
 alias mirror="sudo reflector -f 30 -l 30 --number 10 --verbose --save /etc/pacman.d/mirrorlist"
 alias mirrord="sudo reflector --latest 50 --number 20 --sort delay --save /etc/pacman.d/mirrorlist"
 alias mirrors="sudo reflector --latest 50 --number 20 --sort score --save /etc/pacman.d/mirrorlist"
-alias mirrora="sudo reflector --latest 50 --number 20 --sort a                                                                                                                                                                   ge --save /etc/pacman.d/mirrorlist"
+alias mirrora="sudo reflector --latest 50 --number 20 --sort age --save /etc/pacman.d/mirrorlist"
 
-# Colorize                                                                                                                                                                                                                       grep output (                                                                                                        good for lo                                                                                                   g files)
-alias                                                                                                                                                                                                                            grep='                                                                                                               grep --color=auto'
-alias e                                                                                                                                                                                                                          grep='e                                                                                                              grep --color=auto'
-alias f                                                                                                                                                                                                                          grep='f                                                                                                              grep --color=auto'
+# Colorize grep output (good for log files)
+alias grep='grep --color=auto'
+alias egrep='egrep --color=auto'
+alias fgrep='fgrep --color=auto'
 
-# confirm before overwritin                                                                                                                                                                                                      g somethin                                                                                                           g
+# confirm before overwriting something
 alias cp="cp -i"
 alias mv='mv -i'
 alias rm='rm -i'
 
-# addin                                                                                                                                                                                                                          g fla                                                                                                                gs
+# adding flags
 alias df='df -h'                          # human-readable sizes
 alias free='free -m'                      # show sizes in MB
-alias lynx='lynx -cf                                                                                                                                                                                                             g=~/.lynx/lynx.cf                                                                                                    g -lss=~/.lynx/lynx.lss -vikeys'
-alias vifm='./.confi                                                                                                                                                                                                             g/vifm/scripts/vifmrun'
-alias ncmpcpp='ncmpcpp ncmpcpp_directory=$HOME/.confi                                                                                                                                                                            g/ncmpcpp/'
-alias mocp='mocp -M "$XD                                                                                                                                                                                                         G_CONFI                                                                                                              G_HOME"/moc -O MOCDir="$XD                                                                                    G_CONFI                                                                                                                                                                                           G_HOME"/moc'
+alias lynx='lynx -cfg=~/.lynx/lynx.cfg -lss=~/.lynx/lynx.lss -vikeys'
+alias vifm='./.config/vifm/scripts/vifmrun'
+alias ncmpcpp='ncmpcpp ncmpcpp_directory=$HOME/.config/ncmpcpp/'
+alias mocp='mocp -M "$XDG_CONFIG_HOME"/moc -O MOCDir="$XDG_CONFIG_HOME"/moc'
 
 # ps
 alias psa="ps auxf"
-alias ps                                                                                                                                                                                                                         grep="ps aux |                                                                                                       grep -v                                                                                                       grep |                                                                                                                                                                                            grep -i -e VSZ -e"
+alias psgrep="ps aux | grep -v grep | grep -i -e VSZ -e"
 alias psmem='ps auxf | sort -nr -k 4'
 alias pscpu='ps auxf | sort -nr -k 3'
 
-# Mer                                                                                                                                                                                                                            ge Xresources
-alias mer                                                                                                                                                                                                                        ge='xrdb -mer                                                                                                        ge ~/.Xresources'
+# Merge Xresources
+alias merge='xrdb -merge ~/.Xresources'
 
-#                                                                                                                                                                                                                                git
-alias addup='                                                                                                                                                                                                                    git add -u'
-alias addall='                                                                                                                                                                                                                   git add .'
-alias branch='                                                                                                                                                                                                                   git branch'
-alias checkout='                                                                                                                                                                                                                 git checkout'
-alias clone='                                                                                                                                                                                                                    git clone'
-alias commit='                                                                                                                                                                                                                   git commit -m'
-alias fetch='                                                                                                                                                                                                                    git fetch'
-alias pull='                                                                                                                                                                                                                     git pull ori                                                                                                         gin'
-alias push='                                                                                                                                                                                                                     git push ori                                                                                                         gin'
-alias ta                                                                                                                                                                                                                         g='                                                                                                                  git ta                                                                                                        g'
-alias newta                                                                                                                                                                                                                      g='                                                                                                                  git ta                                                                                                        g -a'
+# git
+alias addup='git add -u'
+alias addall='git add .'
+alias branch='git branch'
+alias checkout='git checkout'
+alias clone='git clone'
+alias commit='git commit -m'
+alias fetch='git fetch'
+alias pull='git pull origin'
+alias push='git push origin'
+alias tag='git tag'
+alias newtag='git tag -a'
 
-#                                                                                                                                                                                                                                get error messa                                                                                                      ges from journalctl
+# get error messages from journalctl
 alias jctl="journalctl -p 3 -xb"
 
-#                                                                                                                                                                                                                                gp                                                                                                                   g encryption
-# verify si                                                                                                                                                                                                                      gnature for isos
-alias                                                                                                                                                                                                                            gp                                                                                                                   g-check="                                                                                                     gp                                                                                                                                                                                                g2 --keyserver-options auto-key-retrieve --verify"
+# gpg encryption
+# verify signature for isos
+alias gpg-check="gpg2 --keyserver-options auto-key-retrieve --verify"
 # receive the key of a developer
-alias                                                                                                                                                                                                                            gp                                                                                                                   g-retrieve="                                                                                                  gp                                                                                                                                                                                                g2 --keyserver-options auto-key-retrieve --receive-keys"
+alias gpg-retrieve="gpg2 --keyserver-options auto-key-retrieve --receive-keys"
 
 # youtube-dl
 alias yta-aac="youtube-dl --extract-audio --audio-format aac "
@@ -2182,37 +2182,36 @@ alias yta-wav="youtube-dl --extract-audio --audio-format wav "
 alias ytv-best="youtube-dl -f bestvideo+bestaudio "
 
 # switch between shells
-# I do not recommend switchin                                                                                                                                                                                                    g default SHELL from bash.
-alias tobash="sudo chsh $USER -s /bin/bash && echo 'Now lo                                                                                                                                                                       g out.'"
-alias tozsh="sudo chsh $USER -s /bin/zsh && echo 'Now lo                                                                                                                                                                         g out.'"
-alias tofish="sudo chsh $USER -s /bin/fish && echo 'Now lo                                                                                                                                                                       g out.'"
+# I do not recommend switching default SHELL from bash.
+alias tobash="sudo chsh $USER -s /bin/bash && echo 'Now log out.'"
+alias tozsh="sudo chsh $USER -s /bin/zsh && echo 'Now log out.'"
+alias tofish="sudo chsh $USER -s /bin/fish && echo 'Now log out.'"
 
-# bare                                                                                                                                                                                                                           git repo alias for dotfiles
-alias confi                                                                                                                                                                                                                      g="/usr/bin/                                                                                                         git --                                                                                                        git-dir=$HOME/dotfiles --work-tree=$HOME"
+# bare git repo alias for dotfiles
+alias config="/usr/bin/git --git-dir=$HOME/dotfiles --work-tree=$HOME"
 
 # termbin
 alias tb="nc termbin.com 9999"
 
 # the terminal rickroll
-alias rr='curl -s -L https://raw.                                                                                                                                                                                                githubusercontent.com/keroserene/rickrollrc/master/roll.sh | bash'
+alias rr='curl -s -L https://raw.githubusercontent.com/keroserene/rickrollrc/master/roll.sh | bash'
 
 # Unlock LBRY tips
-alias tips="lbrynet txo spend --type=support --is_not_my_input --blockin                                                                                                                                                         g"
+alias tips="lbrynet txo spend --type=support --is_not_my_input --blocking"
 
 ### DTOS ###
-# Copy/paste all content of /etc/dtos over to home folder. A backup of confi                                                                                                                                                     g is created. (Be careful runnin                                                                                     g this!)
-alias dtoscopy='[ -d ~/.confi                                                                                                                                                                                                    g ] || mkdir ~/.confi                                                                                                g && cp -Rf ~/.confi                                                                                          g ~/.confi                                                                                                                                                                                        g-backup-(date +%Y.%m.%d-%H.%M.%S) && cp -rf /etc/dtos/* ~'
+# Copy/paste all content of /etc/dtos over to home folder. A backup of config is created. (Be careful running this!)
+alias dtoscopy='[ -d ~/.config ] || mkdir ~/.config && cp -Rf ~/.config ~/.config-backup-(date +%Y.%m.%d-%H.%M.%S) && cp -rf /etc/dtos/* ~'
 # Backup contents of /etc/dtos to a backup folder in $HOME.
 alias dtosbackup='cp -Rf /etc/dtos ~/dtos-backup-(date +%Y.%m.%d-%H.%M.%S)'
 
 ### RANDOM COLOR SCRIPT ###
-#                                                                                                                                                                                                                                Get this script from my                                                                                              GitLab:                                                                                                       gitlab.com/dwt1/shell-color-scripts
+# Get this script from my GitLab: gitlab.com/dwt1/shell-color-scripts
 # Or install it from the Arch User Repository: shell-color-scripts
 colorscript random
 
-### SETTIN                                                                                                                                                                                                                       G THE STARSHIP PROMPT ###
+### SETTING THE STARSHIP PROMPT ###
 starship init fish | source
-
 #+END_SRC
 * Doom emacs
 ** BEACON ADDON
