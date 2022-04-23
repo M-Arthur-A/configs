@@ -573,7 +573,8 @@ myKeys =
     -- KB_GROUP Useful programs to have a keybinding for launch
         , ("M-<Return>", spawn (myTerminal))
         , ("M-b", spawn (myBrowser))
-        , ("M-a", spawn ("pamac-manager"))
+        , ("M-a a", spawn ("pamac-manager"))
+        , ("M-a m", spawn ("manjaro-settings-manager"))
         , ("M4-e", spawn ("dolphin"))
         -- , ("M1-h", spawn (myTerminal ++ " -e htop"))
 
