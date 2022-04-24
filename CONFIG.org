@@ -290,9 +290,9 @@ myAppGrid = [ ("Blender", "Blender")
             , ("VSCode", "code-oss")
             , ("Firefox", "firefox")
             , ("Gimp", "gimp")
+            , ("ProtonVPN", "protonvpn")
             , ("KDEconnect", "kdeconnect-app")
             , ("Audacity", "audacity")]
-            , ("ProtonVPN", "protonvpn")
 #+END_SRC
 
 ** Scratchpads
