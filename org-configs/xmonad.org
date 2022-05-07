@@ -3,21 +3,19 @@
 
 [[../CONFIG.org][BACK]]
 * Table of Contents :toc:
-- [[#xmonad][Xmonad]]
-  - [[#about-this-config][About This Config]]
-  - [[#imports][Imports]]
-  - [[#variables][Variables]]
-  - [[#autostart-the-startup-hook][Autostart (The Startup Hook)]]
-  - [[#gridselect][Gridselect]]
-  - [[#scratchpads][Scratchpads]]
-  - [[#layouts][Layouts]]
-  - [[#workspaces][Workspaces]]
-  - [[#managehook][Managehook]]
-  - [[#keybindings][Keybindings]]
-  - [[#main][Main]]
+- [[#about-this-config][About This Config]]
+- [[#imports][Imports]]
+- [[#variables][Variables]]
+- [[#autostart-the-startup-hook][Autostart (The Startup Hook)]]
+- [[#gridselect][Gridselect]]
+- [[#scratchpads][Scratchpads]]
+- [[#layouts][Layouts]]
+- [[#workspaces][Workspaces]]
+- [[#managehook][Managehook]]
+- [[#keybindings][Keybindings]]
+- [[#main][Main]]
 
-* Xmonad
-** About This Config
+* About This Config
 #+CAPTION: XMonad Scrot
 #+ATTR_HTML: :alt XMonad Scrot :title XMonad Scrot :align left
 [[https://gitlab.com/dwt1/dotfiles/-/raw/master/.screenshots/dotfiles05-thumb.png]]
@@ -34,7 +32,7 @@ Keep in mind, that my configs are purposely bloated with examples of what you ca
 
 NOTE: You will also need DT's xmobar config, which is located here: https://gitlab.com/dwt1/dotfiles/-/tree/master/.config/xmobar
 
-** Imports
+* Imports
 These are Haskell modules that we must import so that we can use their functions later in the config.
 
 #+BEGIN_SRC haskell :tangle /home/arthur/.xmonad/xmonad.hs
@@ -123,7 +121,7 @@ import XMonad.Util.SpawnOnce
 import Colors.Dracula
 #+END_SRC
 
-** Variables
+* Variables
 It's nice to assign values to stuff that you will use more than once in the config. Setting values for things like font, terminal and editor means you only have to change the value here to make changes globally.
 
 #+BEGIN_SRC haskell :tangle /home/arthur/.xmonad/xmonad.hs
@@ -169,7 +167,7 @@ numPadKeysP = [ "<KP_End>",  "<KP_Down>", "<KP_Page_Down>" -- 1, 2, 3
              , "<KP_Insert>"] -- 0
 #+END_SRC
 
-** Autostart (The Startup Hook)
+* Autostart (The Startup Hook)
 These are commands we want XMonad to execute on startup, such as running a compositor, setting our wallpaper, starting the emacs daemon, and starting our system tray and the applications that belong in it.
 
 #+BEGIN_SRC haskell :tangle /home/arthur/.xmonad/xmonad.hs
@@ -212,7 +210,7 @@ Select only =ONE= of the following four ways to set the wallpaper.
     spawnOnce "xdotool mousemove 1280 720"
 #+END_SRC
 
-** Gridselect
+* Gridselect
 GridSelect displays items (programs, open windows, etc.) in a 2D grid and lets the user select from it with the cursor/hjkl keys or the mouse.
 
 #+BEGIN_SRC haskell :tangle /home/arthur/.xmonad/xmonad.hs
@@ -261,7 +259,7 @@ myAppGrid = [ ("Blender", "Blender")
             , ("Audacity", "audacity")]
 #+END_SRC
 
-** Scratchpads
+* Scratchpads
 Allows to have several floating scratchpads running different applications.  Import Util.NamedScratchpad and bind a key to namedScratchpadSpawnAction.  In the example below, I have created named scratchpads for:
 + alacritty -- my terminal
 + mocp -- a terminal music player
@@ -300,7 +298,7 @@ myScratchPads = [ NS "terminal" spawnTerm findTerm manageTerm
                  l = 0.70 -w
 #+END_SRC
 
-** Layouts
+* Layouts
 Defining the layouts that I want to have available.
 
 #+BEGIN_SRC haskell :tangle /home/arthur/.xmonad/xmonad.hs
@@ -420,7 +418,7 @@ myLayoutHook = avoidStruts $ mouseResize $ windowArrange $ T.toggleLayouts float
                                  -- ||| tallAccordion
 #+END_SRC
 
-** Workspaces
+* Workspaces
 I have made my workspaces in xmobar "clickable." Clickable workspaces means the mouse can be used to switch workspaces. This requires /xdotool/ to be installed. You need to use UnsafeStdInReader instead of simply StdInReader in your xmobar config so you can pass actions to it.
 
 #+begin_src haskell :tangle /home/arthur/.xmonad/xmonad.hs
@@ -434,7 +432,7 @@ clickable ws = "<action=xdotool key alt+"++show i++">"++ws++"</action>"
 
 #+END_SRC
 
-** Managehook
+* Managehook
 Sets some rules for certain programs. Examples include forcing certain programs to always float, or to always appear on a certain workspace.  Forcing programs to a certain workspace with a doShift requires xdotool if you are using clickable workspaces. You need the className or title of the program. Use xprop to get this info.
 
 #+BEGIN_SRC haskell :tangle /home/arthur/.xmonad/xmonad.hs
@@ -541,7 +539,7 @@ myLogHook c u0 u1 = do
                    }
 #+END_SRC
 
-** Keybindings
+* Keybindings
 I am using the Xmonad.Util.EZConfig module which allows keybindings to be written in simpler, emacs-like format.  The Super/Windows key is 'M4'.  The ALT key is 'M1'.  SHIFT is 'S' and CTR is 'C'. Mod key is 'M'.
 
 #+BEGIN_SRC haskell :tangle /home/arthur/.xmonad/xmonad.hs
@@ -688,7 +686,7 @@ myKeys =
     -- KB_GROUP Emacs (SUPER-e followed by a key)
         , ("M-e e", spawn (myEmacs ++ ("--eval '(dashboard-refresh-buffer)'")))   -- emacs dashboard
         , ("M-e c", spawn (myEmacs ++ ("/home/arthur/CONFIG.org")))   -- open CONFIG.ORG
-        , ("M-e n", spawn (myEmacs ++ ("/home/arthur/Documents/orgNotes/roam/20220507152159-notes.org")))   -- open roam notes system
+        , ("M-e n", spawn (myEmacs ++ ("/home/arthur/Project/Notes/roam/20220507152159-notes.org")))   -- open roam notes system
         , ("M-e b", spawn (myEmacs ++ ("--eval '(ibuffer)'")))   -- list buffers
         , ("M-e d", spawn (myEmacs ++ ("--eval '(dired nil)'"))) -- dired
         , ("M-e i", spawn (myEmacs ++ ("--eval '(erc)'")))       -- erc irc client
@@ -725,7 +723,7 @@ myKeys =
 -- END_KEYS
 #+END_SRC
 
-** Main
+* Main
 This is the "main" of XMonad. This where everything in our configs comes together and works.
 
 #+BEGIN_SRC haskell :tangle /home/arthur/.xmonad/xmonad.hs
