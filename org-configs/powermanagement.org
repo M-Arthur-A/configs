@@ -1,0 +1,14 @@
+#+TITLE: Powermanagement
+#+STARTUP: overview
+
+[[../CONFIG.org][BACK]]
+* Table of Contents :toc:
+- [[#power-management][Power management]]
+
+* Power management
+to auto hibernate after sleep in systemd
+/etc/systemd/sleep.conf
+#+BEGIN_SRC
+[Sleep]
+HibernateDelaySec=10min
+#+END_SRC
