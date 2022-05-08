@@ -4,6 +4,12 @@
 [[../CONFIG.org][BACK]]
 * Table of Contents :toc:
 - [[#beacon-addon][BEACON ADDON]]
+- [[#sidebar][SIDEBAR]]
+  - [[#general][General]]
+  - [[#sidebar-1][Sidebar]]
+  - [[#toggling-sidebar][Toggling sidebar]]
+  - [[#filter-sidebar][Filter sidebar]]
+  - [[#configuration-mode][Configuration mode]]
 - [[#bookmarks-and-buffers][BOOKMARKS AND BUFFERS]]
   - [[#bookmarks][Bookmarks]]
   - [[#buffers][Buffers]]
@@ -54,6 +60,239 @@ Never loose your cursor
 #+BEGIN_SRC emacs-lisp :tangle /home/arthur/.config/doom/config.el
 (beacon-mode 1)
 #+END_SRC
+* SIDEBAR
+https://github.com/rougier/dotemacs/blob/master/dotemacs.org
+** General
+This section is meant to ease the writing of the configuration file using a dedicated minor mode (~my/config-mode~) with a few key bindings:
+
+=C-c n s   : Toggle navigation sidebar
+=C-c C-p=   : Go to previous subsection
+=C-c C-n=   : Go to next subsection
+=C-c C-S-p= : Go to previous section
+=C-c C-S-n= : Go to next section
+=C-c t=     : Fold code blocks
+=C-c f=     : Filter block visibility (sidebar)
+=C-c C-v t= : Export (tangle) code
+=C-c C-v s= : Execute current subsection
+
+Before being able to use it, you need to execute the whole subtree using [[help:org-babel-execute-subtree][org-babel-execute-subtree]] (generally bound to =C-c C-v s=).
+
+A shortcut for emacs-lisp source blocks. Type "<S" (in org-mode) then press tab.
+
+#+begin_src emacs-lisp :tangle /home/arthur/.config/doom/config.el
+(require 'org-tempo)
+
+(add-to-list 'org-structure-template-alist
+             '("S" . "src emacs-lisp"))
+#+end_src
+** Sidebar
+#+begin_src emacs-lisp :tangle /home/arthur/.config/doom/config.el
+(require 'imenu)
+(require 'imenu-list)
+
+(defun my/org-tree-to-indirect-buffer ()
+  "Create indirect buffer, narrow it to current subtree and unfold blocks"
+
+  (org-tree-to-indirect-buffer)
+  (org-show-block-all)
+  (setq-local my/org-blocks-hidden nil))
+
+(defun my/org-sidebar ()
+  "Open an imenu list on the left that allow navigation."
+
+  (interactive)
+  (setq imenu-list-after-jump-hook #'my/org-tree-to-indirect-buffer
+        imenu-list-position 'left
+        imenu-list-size 36
+        imenu-list-focus-after-activation t)
+
+  (let ((heading (substring-no-properties (or (org-get-heading t t t t) ""))))
+    (when (buffer-base-buffer)
+      (switch-to-buffer (buffer-base-buffer)))
+    (imenu-list-minor-mode)
+    (imenu-list-stop-timer)
+    (hl-line-mode)
+    (face-remap-add-relative 'hl-line :inherit 'nano-strong-i)
+    (setq header-line-format
+          '(:eval
+            (nano-modeline-render nil
+                                  (buffer-name imenu-list--displayed-buffer)
+                                  "(outline)"
+                                  "")))
+    (setq-local cursor-type nil)
+    (when (> (length heading) 0)
+      (goto-char (point-min))
+      (search-forward heading)
+      (imenu-list-display-dwim))))
+#+end_src
+** Toggling sidebar
+#+begin_src emacs-lisp :tangle /home/arthur/.config/doom/config.el
+(defun my/org-sidebar-toggle ()
+  "Toggle the org-sidebar"
+
+  (interactive)
+  (if (get-buffer-window "*Ilist*")
+      (progn
+        (quit-window nil (get-buffer-window "*Ilist*"))
+        (switch-to-buffer (buffer-base-buffer)))
+    (my/org-sidebar)))
+#+end_src
+
+Make sure tangle is applied to the base buffer and not the subtree:
+#+begin_src emacs-lisp :tangle /home/arthur/.config/doom/config.el
+(defun my/org-babel-tangle ()
+  "Write code blocks to source-specific files from the base buffer."
+
+  (interactive)
+  (with-current-buffer (or (buffer-base-buffer)
+                           (current-buffer))
+    (org-babel-tangle)))
+#+end_src
+
+Toggle code blocks folding, starting folded.
+#+begin_src emacs-lisp :tangle /home/arthur/.config/doom/config.el
+(defvar my/org-blocks-hidden nil)
+
+(defun my/org-toggle-blocks ()
+  "Toggle code blocks folding."
+
+  (interactive)
+  (if my/org-blocks-hidden
+      (org-show-block-all)
+    (org-hide-block-all))
+  (setq-local my/org-blocks-hidden (not my/org-blocks-hidden)))
+
+(add-hook 'config-mode-hook #'my/org-toggle-blocks)
+#+end_src
+** Filter sidebar
+#+begin_src emacs-lisp :tangle /home/arthur/.config/doom/config.el
+(bind-key "C-c f" #'my/org-imenu-filter)
+#+end_src
+
+3 levels for org-imenu:
+#+begin_src emacs-lisp :tangle /home/arthur/.config/doom/config.el
+(defvar my/org-imenu-filter-history
+  '("BINDING" "HOOK" "ADVICE" "FACE" "MODE" "DEFER"
+    "PERSONAL" "INACTIVE" "BUGFIX" "OTHER" "TIMER" "OS")
+  "Filter history list.")
+
+(defvar my/org-imenu-filter-function
+  (cdr (org-make-tags-matcher "*"))
+  "Filter function to decide if a headline is kept")
+
+(defun my/org-imenu-filter ()
+  "Define and apply a new filter"
+
+  (interactive)
+  (let* ((match (consult-completing-read-multiple
+                 "FILTER: "
+                 my/org-imenu-filter-history
+                 nil nil nil
+                 'my/org-imenu-filter-history))
+         (match (mapconcat #'identity match " ")))
+    (when (string= "" match)
+      (setq match "*"))
+    (setq my/org-imenu-filter-function
+          (cdr (org-make-tags-matcher match)))
+    (imenu-list-refresh)))
+
+
+(defun my/org-imenu-filter-tree (&optional bound parent-match)
+  "Build a imenu list using current filter function"
+
+  (let* ((headlines '()))
+    (save-excursion
+      (org-with-wide-buffer
+       (unless bound
+         (setq bound (point-max))
+         (goto-char (point-min)))
+       (while (re-search-forward org-heading-regexp bound t)
+         (let* ((element (org-element-at-point))
+                (begin (org-element-property :begin element))
+                (end (org-element-property :end element))
+                (marker (copy-marker begin))
+                (level (org-element-property :level element))
+
+                (match (save-excursion
+                         (goto-char begin)
+                         (funcall my/org-imenu-filter-function
+                                  nil (org-get-tags) level)))
+
+                (title (org-element-property :raw-value element))
+                (title (org-link-display-format
+                        (substring-no-properties title)))
+                (title (propertize title 'org-imenu-marker marker
+                                         'org-imenu t))
+                (children (my/org-imenu-filter-tree end match)))
+           (goto-char end)
+
+           (cond ((> (length children) 0)
+                  (add-to-list 'headlines (append (list title) children) t))
+                 ((or match parent-match)
+                  (add-to-list 'headlines (cons title marker) t)))))))
+    headlines))
+
+(advice-add #'org-imenu-get-tree :override #'my/org-imenu-filter-tree)
+#+end_src
+** Configuration mode
+#+begin_src emacs-lisp :tangle /home/arthur/.config/doom/config.el
+(defun my/config-mode-prev-header ()
+  "Move to previous header"
+
+  (interactive)
+  (with-current-buffer "*Ilist*"
+    (search-backward-regexp "^  ")
+    (imenu-list-display-dwim)))
+
+(defun my/config-mode-next-header ()
+  "Move to next header"
+
+  (interactive)
+  (with-current-buffer "*Ilist*"
+    (forward-line)
+    (search-forward-regexp "^  ")
+    (imenu-list-display-dwim)))
+
+(defun my/config-mode-prev-section ()
+  "Move to previous section"
+
+  (interactive)
+  (with-current-buffer "*Ilist*"
+    (search-backward-regexp "\\+ " nil nil 2)
+    (forward-line)
+    (imenu-list-display-dwim)))
+
+(defun my/config-mode-next-section ()
+  "Move to next section"
+
+  (interactive)
+  (with-current-buffer "*Ilist*"
+    (previous-line)
+    (search-forward-regexp "\\+ ")
+    (forward-line)
+    (imenu-list-display-dwim)))
+#+end_src
+
+A minor mode for configuration
+#+begin_src emacs-lisp :tangle /home/arthur/.config/doom/config.el
+(define-minor-mode my/config-mode
+  "Configuration mode"
+
+  :init-value nil
+  :global nil
+  :keymap (let ((map (make-sparse-keymap)))
+            (bind-key "C-c C-p"   #'my/config-mode-prev-header map)
+            (bind-key "C-c C-n"   #'my/config-mode-next-header map)
+            (bind-key "C-c C-S-p" #'my/config-mode-prev-section map)
+            (bind-key "C-c C-S-n" #'my/config-mode-next-section map)
+            (bind-key "C-c n s"   #'my/org-sidebar-toggle map)
+            (bind-key "C-c C-v t" #'my/org-babel-tangle map)
+            (bind-key "C-c t"     #'my/org-toggle-blocks map)
+            map)
+  (if my/config-mode
+      (my/org-sidebar)))
+#+end_src
+
 * BOOKMARKS AND BUFFERS
 Doom Emacs uses 'SPC b' for keybindings related to bookmarks and buffers.
 ** Bookmarks
@@ -363,6 +602,9 @@ Setting the theme to doom-one.  To try out new themes, I set a keybinding for co
       :desc "Load new theme" "h t" #'counsel-load-theme)
 #+END_SRC
 
+#+RESULTS:
+: counsel-load-theme
+
 * ELFEED
 An RSS newsfeed reader for Emacs.
 
@@ -478,15 +720,15 @@ Settings related to fonts within Doom Emacs:
 + 'font-lock-keyword-face' -- for keywords with special significance like 'setq' in elisp.
 
 #+BEGIN_SRC emacs-lisp :tangle /home/arthur/.config/doom/config.el
-(setq doom-font (font-spec :family "Source Code Pro" :size 15)
-      doom-variable-pitch-font (font-spec :family "Ubuntu" :size 15)
-      doom-big-font (font-spec :family "Source Code Pro" :size 24))
+(setq doom-font (font-spec :family "CascadiaCode" :size 24)
+      doom-variable-pitch-font (font-spec :family "Ubuntu" :size 24)
+      doom-big-font (font-spec :family "Source Code Pro" :size 36))
 (after! doom-themes
   (setq doom-themes-enable-bold t
         doom-themes-enable-italic t))
 (custom-set-faces!
-  '(font-lock-comment-face :slant italic)
-  '(font-lock-keyword-face :slant italic))
+  '(font-lock-comment-face :family "Source Code Pro" :slant italic)
+  '(font-lock-keyword-face :family "Source Code Pro" :slant italic))
 #+END_SRC
 
 * INSERT DATE
