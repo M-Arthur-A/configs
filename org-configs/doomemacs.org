@@ -3,6 +3,7 @@
 
 [[../CONFIG.org][BACK]]
 * Table of Contents :toc:
+- [[#input-method][INPUT METHOD]]
 - [[#beacon-addon][BEACON ADDON]]
 - [[#sidebar][SIDEBAR]]
   - [[#general][General]]
@@ -56,6 +57,10 @@
 - [[#winner-mode][WINNER MODE]]
 - [[#zap-to-char][ZAP TO CHAR]]
 
+* INPUT METHOD
+#+BEGIN_SRC emacs-lisp :tangle /home/arthur/.config/doom/config.el
+(setq default-input-method "russian-computer")
+#+end_src
 * BEACON ADDON
 Never loose your cursor
 #+BEGIN_SRC emacs-lisp :tangle /home/arthur/.config/doom/config.el

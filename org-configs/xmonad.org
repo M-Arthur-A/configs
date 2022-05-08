@@ -184,6 +184,7 @@ myStartupHook = do
     spawnOnce "picom"
     spawnOnce "nm-applet"
     spawnOnce "volumeicon"
+    spawnOnce "~/Applications/keyboard_layout_switcher.sh"
     spawnOnce "numlockx &"
     spawnOnce "klipper &"
     spawnOnce "xsetroot -cursor_name left_ptr"
