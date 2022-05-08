@@ -10,6 +10,7 @@
   - [[#toggling-sidebar][Toggling sidebar]]
   - [[#filter-sidebar][Filter sidebar]]
   - [[#configuration-mode][Configuration mode]]
+- [[#yasnippet][YASNIPPET]]
 - [[#bookmarks-and-buffers][BOOKMARKS AND BUFFERS]]
   - [[#bookmarks][Bookmarks]]
   - [[#buffers][Buffers]]
@@ -61,7 +62,6 @@ Never loose your cursor
 (beacon-mode 1)
 #+END_SRC
 * SIDEBAR
-https://github.com/rougier/dotemacs/blob/master/dotemacs.org
 ** General
 This section is meant to ease the writing of the configuration file using a dedicated minor mode (~my/config-mode~) with a few key bindings:
 
@@ -292,7 +292,12 @@ A minor mode for configuration
   (if my/config-mode
       (my/org-sidebar)))
 #+end_src
-
+* YASNIPPET
+#+begin_src emacs-lisp :tangle /home/arthur/.config/doom/config.el
+(yas-global-mode 1)
+(add-hook 'yas-minor-mode-hook (lambda ()
+                                 (yas-activate-extra-mode 'fundamental-mode)))
+#+end_src
 * BOOKMARKS AND BUFFERS
 Doom Emacs uses 'SPC b' for keybindings related to bookmarks and buffers.
 ** Bookmarks
