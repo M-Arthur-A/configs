@@ -730,7 +730,8 @@ Settings related to fonts within Doom Emacs:
 + 'font-lock-keyword-face' -- for keywords with special significance like 'setq' in elisp.
 
 #+BEGIN_SRC emacs-lisp :tangle /home/arthur/.config/doom/config.el
-(setq doom-font (font-spec :family "CascadiaCode" :size 24)
+;; (setq doom-font (font-spec :family "Cascadia Code" :size 24)
+(setq doom-font (font-spec :family "Source Code Pro" :size 24)
       doom-variable-pitch-font (font-spec :family "Ubuntu" :size 24)
       doom-big-font (font-spec :family "Source Code Pro" :size 36))
 (after! doom-themes
