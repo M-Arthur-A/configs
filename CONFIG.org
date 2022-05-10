@@ -2,6 +2,7 @@
 :ID:       6617d79b-c880-4459-8f50-eb161796f3f9
 :END:
 #+TITLE: Main config
+#+filetags: :hub:
 #+STARTUP: overview
 
 * [[./org-configs/xmonad.org][XMONAD]]
