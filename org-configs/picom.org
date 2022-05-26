@@ -2,9 +2,9 @@
 #+STARTUP: overview
 
 [[../CONFIG.org][BACK]]
-* Table of Contents :toc:
-- [[#picom][Picom]]
 
+to change gtk-theme use =lxappearance=
+to change qt-theme  use =qt5ct=
 * Picom
 This is Xorg compositor
 https://github.com/jonaburg/picom

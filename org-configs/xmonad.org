@@ -123,7 +123,16 @@ import Colors.Dracula
 
 * Variables
 It's nice to assign values to stuff that you will use more than once in the config. Setting values for things like font, terminal and editor means you only have to change the value here to make changes globally.
+--------------------------------------------------------------------
+There is a way to define modkey as CAPS_LOCK:
+#+begin_src haskell
+xmodmap -e "remove Lock = Caps_Lock"
+xmodmap -e "clear mod2"
+xmodmap -e "add Mod2 = Caps_Lock"
 
+#define MODKEY Mod2Mask
+#+end_src
+--------------------------------------------------------------------
 #+BEGIN_SRC haskell :tangle /home/arthur/.xmonad/xmonad.hs
 myFont :: String
 myFont = "xft:SauceCodePro Nerd Font Mono:regular:size=9:antialias=true:hinting=true"
