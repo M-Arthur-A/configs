@@ -38,6 +38,9 @@
   - [[#ivy-posframe][IVY-POSFRAME]]
   - [[#ivy-keybindings][IVY KEYBINDINGS]]
 - [[#line-settings][LINE SETTINGS]]
+- [[#lsp-mode][LSP-MODE]]
+  - [[#change-tab-indent-for-c-languages][change tab indent for C languages]]
+  - [[#run-executable][run executable]]
 - [[#modeline][MODELINE]]
 - [[#mouse-support][MOUSE SUPPORT]]
 - [[#neotree][NEOTREE]]
@@ -48,6 +51,7 @@
   - [[#org-journal][Org-journal]]
   - [[#org-publish][Org-publish]]
   - [[#org-roam][Org-roam]]
+  - [[#org-jupyter][Org-jupyter]]
 - [[#password-store][PASSWORD STORE]]
 - [[#perspective][PERSPECTIVE]]
 - [[#rainbow-mode][RAINBOW MODE]]
@@ -471,7 +475,8 @@ Open the eshell     (SPC e s)\
 \nOpen dired file manager (SPC d d)   \
 List of keybindings (SPC h b b)")
   ;;(setq dashboard-startup-banner 'logo) ;; use standard emacs logo as banner
-  (setq dashboard-startup-banner "~/.config/doom/doom-emacs-dash.png")  ;; use custom image as banner
+  ;; (setq dashboard-startup-banner "~/.config/doom/doom-emacs-dash.png")  ;; use custom image as banner
+  (setq dashboard-startup-banner "~/.config/doom/doom-emacs-logo.txt")  ;; use custom text as banner
   (setq dashboard-center-content nil) ;; set to 't' for centered content
   (setq dashboard-items '((recents . 5)
                           (agenda . 5 )
@@ -842,7 +847,30 @@ I set comment-line to 'SPC TAB TAB' which is a rather comfortable keybinding for
        :desc "Toggle line highlight globally" "H" #'global-hl-line-mode
        :desc "Toggle truncate lines" "t" #'toggle-truncate-lines))
 #+END_SRC
-
+* LSP-MODE
+** change tab indent for C languages
+#+begin_src emacs-lisp :tangle /home/arthur/.config/doom/config.el
+(use-package cc-mode
+  :init
+  (defun my-c-mode-hook()
+    (setq c-basic-offset 2
+          c-label-offset 0
+          tab-width 2
+          indent-tabs-mode nil))
+  (add-hook 'c-mode-hook 'my-c-mode-hook)
+  (add-hook 'c-mode-hook 'lsp-treemacs-symbols)
+  (add-hook 'c-mode-hook 'lsp))
+#+end_src
+** run executable
+~SPC c .~ to run executable from bin folder of current project
+#+begin_src emacs-lisp :tangle /home/arthur/.config/doom/config.el
+(defun cpp-project-exe-run ()
+  (shell-command (expand-file-name
+                  "bin/*"
+                  (file-name-directory (buffer-file-name)))))
+(map! :leader
+      :desc "Execute from ./bin/*" "c ." #'(lambda () (interactive) (cpp-project-exe-run)))
+#+end_src
 * MODELINE
 The modeline is the bottom status bar that appears in Emacs windows.  For more information on what is available to configure in the Doom modeline, check out:
 https://github.com/seagle0128/doom-modeline
@@ -1011,7 +1039,35 @@ We need ox-man for "Org eXporting" to manpage format and ox-gemini for exporting
   :config
   (org-roam-setup))
 #+end_src
+** Org-jupyter
+#+BEGIN_SRC emacs-lisp :tangle /home/arthur/.config/doom/config.el
+(use-package jupyter)
+;;  :straight t)
 
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((emacs-lisp . t) ;; Other languages
+   (shell . t)
+   ;; Python & Jupyter
+   (python . t)
+   (jupyter . t)))
+
+;;(require 'conda)
+(use-package conda
+;;  :straight t
+  :config
+  (setq conda-anaconda-home (expand-file-name "~/anaconda3/"))
+  (setq conda-env-home-directory (expand-file-name "~/anaconda3/"))
+  (setq conda-env-subdirectory "envs"))
+
+(unless (getenv "CONDA_DEFAULT_ENV")
+  (conda-env-activate "base"))
+
+(defun my/jupyter-refresh-kernelspecs ()
+  "Refresh Jupyter kernelspecs"
+  (interactive)
+  (jupyter-available-kernelspecs t))
+#+END_SRC
 * PASSWORD STORE
 Uses the standard Unix password store "pass".
 
