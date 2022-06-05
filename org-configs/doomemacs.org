@@ -858,8 +858,10 @@ I set comment-line to 'SPC TAB TAB' which is a rather comfortable keybinding for
           tab-width 2
           indent-tabs-mode nil))
   (add-hook 'c-mode-hook 'my-c-mode-hook)
-  (add-hook 'c-mode-hook 'lsp-treemacs-symbols)
+  (add-hook 'cpp-mode-hook 'my-c-mode-hook)
+  ;; (add-hook 'c++-mode-hook 'lsp-treemacs-symbols)
   (add-hook 'c-mode-hook 'lsp))
+  (add-hook 'cpp-mode-hook 'lsp)
 #+end_src
 ** run executable
 ~SPC c .~ to run executable from bin folder of current project
