@@ -190,13 +190,14 @@ myStartupHook = do
     spawnOnce "lxsession"
     -- setting displays
     spawnOnce "xrandr --output HDMI-0 --off --output HDMI-1 --off --output HDMI-2 --off --output DP-0 --primary --mode 2560x1440 --pos 0x0 --rotate normal --output DP-1 --off --output DP-2 --off --output DP-3 --off --output DP-4 --mode 2560x1080 --pos 2560x180 --rotate normal --output DP-5 --off"
-    spawnOnce "picom"
+    spawnOnce "picom --xrender-sync-fence"
     spawnOnce "nm-applet"
     spawnOnce "volumeicon"
     spawnOnce "~/Applications/Kensington_Expert_Setup.sh"
     spawnOnce "numlockx &"
     spawnOnce "klipper &"
     spawnOnce "xsetroot -cursor_name left_ptr"
+    spawnOnce "systemctl --user start syncthing.service"
     spawnOnce "/usr/bin/emacs --daemon" -- emacs daemon for the emacsclient
     spawnOnce "export QT_QPA_PLATFORMTHEME=\"qt5ct\"" -- emacs daemon for the emacsclient
     -- spawnOn "2:code" "emacs" -- spawn app in specific workspace
@@ -214,6 +215,8 @@ Select only =ONE= of the following four ways to set the wallpaper.
     -- spawnOnce "xargs xwallpaper --stretch < ~/.cache/wall"
     -- spawnOnce "~/.fehbg &"  -- set last saved feh wallpaper
     spawnOnce "feh --randomize --bg-fill /usr/share/backgrounds/dtos-backgrounds/*"  -- feh set random wallpaper
+    spawnOnce "setxkbmap -layout us,ru -option grp:win_space_toggle"  -- keyboard_layout_switcher analog
+    spawnOnce "kbdd"  -- kbd layout for each app
     -- spawnOnce "nitrogen --restore &"   -- if you prefer nitrogen to feh
     setWMName "LG3D" -- for java compitability
     -- set mouse start position
@@ -255,18 +258,18 @@ spawnSelected' lst = gridselect conf lst >>= flip whenJust spawn
                    }
 
 myAppGrid = [ ("Blender", "Blender")
-            , ("Onlyoffice", "onlyoffice")
+            , ("Lutris", "lutris")
             , ("LibreOffice", "libreoffice")
             , ("Emacs", "emacsclient -c -a emacs")
             , ("Pycharm", "pycharm")
             , ("Eclipse", "eclipse")
-            , ("Godot", "godot")
+            , ("Onlyoffice", "onlyoffice")
             , ("VSCode", "code-oss")
-            , ("Firefox", "firefox")
+            , ("Bottles", "gamemoderun bottles")
             , ("Gimp", "gimp")
             , ("ProtonVPN", "protonvpn")
             , ("KDEconnect", "kdeconnect-app")
-            , ("Audacity", "audacity")]
+            , ("Steam", "gamemoderun steam")]
 #+END_SRC
 
 * Scratchpads
@@ -468,8 +471,8 @@ myManageHook = composeAll
      , className =? "klipper"         --> doCenterFloat
      --, className =? "tdrop"           --> doCenterFloat
      , title =? "Oracle VM VirtualBox Manager"  --> doFloat
-     , title =? "Mozilla Firefox"     --> doShift ( myWorkspaces !! 1 )
-     , className =? "Brave-browser"   --> doShift ( myWorkspaces !! 1 )
+     , title =? "Mozilla Firefox"     --> doShift ( myWorkspaces !! 2 )
+     , className =? "Brave-browser"   --> doShift ( myWorkspaces !! 2 )
      , className =? "mpv"             --> doShift ( myWorkspaces !! 7 )
      --, className =? "Gimp"            --> doShift ( myWorkspaces !! 8 )
      , className =? "VirtualBox Manager" --> doShift  ( myWorkspaces !! 6 )
@@ -561,7 +564,7 @@ myKeys =
         , ("M4-S-r", spawn "xmonad --restart")         -- Restarts xmonad
         , ("M4-S-l", io exitSuccess)                   -- Quits xmonad
         , ("M4-l", spawn "slock")                      -- Lock screen
-        , ("M4-<Space>", spawn "/home/arthur/Applications/keyboard_layout_switcher.sh") -- Switch layout ru/en
+        -- , ("M4-<Space>", spawn "/home/arthur/Applications/keyboard_layout_switcher.sh") -- Switch layout ru/en
 
     -- KB_GROUP default alt+TAB functionality
         , ("M-<BackSpace>", nextMatch Backward (return True)) -- navigate aka alt+tab

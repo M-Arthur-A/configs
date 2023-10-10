@@ -217,13 +217,25 @@ alias dtosbackup='cp -Rf /etc/dtos ~/dtos-backup-(date +%Y.%m.%d-%H.%M.%S)'
 ### SETTING THE STARSHIP PROMPT ###
 starship init fish | source
 #+END_SRC
+* Variables
+#+BEGIN_SRC  haskell :tangle /home/arthur/.config/fish/config.fish
+set MANPAGER "vim -M +MANPAGER -"
+#+end_SRC
 * Aliases
 #+BEGIN_SRC  haskell :tangle /home/arthur/.config/fish/config.fish
 ### ALIASES ###
+# SSH
+alias sshserv='ssh -i ~/.ssh/id_rsa_serv serv@192.168.1.4  -L 18384:localhost:8384'
+alias sshruvds='ssh -i ~/.ssh/id_rsa_ruvds user@93.95.97.126'
+
+# tools
 alias clear='/bin/clear; echo; echo; seq 1 (tput cols) | sort -R | spark | lolcat; echo; echo'
 
 # change wallpaper
 alias wallpaper="feh --randomize --bg-fill /usr/share/backgrounds/dtos-backgrounds/*"
+
+# connect joystick
+alias joystick="bluetoothctl power on ; bluetoothctl connect 5C:BA:37:BB:2F:DC"
 
 # root privileges
 alias doas="doas --"

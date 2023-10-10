@@ -5,6 +5,12 @@
 * Table of Contents :toc:
 - [[#input-method][INPUT METHOD]]
 - [[#beacon-addon][BEACON ADDON]]
+- [[#bookmarks-and-buffers][BOOKMARKS AND BUFFERS]]
+  - [[#bookmarks][Bookmarks]]
+  - [[#buffers][Buffers]]
+  - [[#keybindings-within-ibuffer-mode][Keybindings within ibuffer mode]]
+- [[#docker][DOCKER]]
+  - [[#lsp][lsp]]
 - [[#sidebar][SIDEBAR]]
   - [[#general][General]]
   - [[#sidebar-1][Sidebar]]
@@ -12,10 +18,7 @@
   - [[#filter-sidebar][Filter sidebar]]
   - [[#configuration-mode][Configuration mode]]
 - [[#yasnippet][YASNIPPET]]
-- [[#bookmarks-and-buffers][BOOKMARKS AND BUFFERS]]
-  - [[#bookmarks][Bookmarks]]
-  - [[#buffers][Buffers]]
-  - [[#keybindings-within-ibuffer-mode][Keybindings within ibuffer mode]]
+- [[#open-links-in-browser][OPEN LINKS IN BROWSER]]
 - [[#calendar][CALENDAR]]
 - [[#centaur-tabs][CENTAUR-TABS]]
 - [[#dashboard][DASHBOARD]]
@@ -38,9 +41,17 @@
   - [[#ivy-posframe][IVY-POSFRAME]]
   - [[#ivy-keybindings][IVY KEYBINDINGS]]
 - [[#line-settings][LINE SETTINGS]]
+- [[#link-open-in-browser][LINK OPEN IN BROWSER]]
 - [[#lsp-mode][LSP-MODE]]
   - [[#change-tab-indent-for-c-languages][change tab indent for C languages]]
-  - [[#run-executable][run executable]]
+  - [[#run-executable-c][run executable c++]]
+  - [[#debug-c][debug c++]]
+  - [[#python-lsp-pyright][python lsp-pyright]]
+  - [[#use-poetry][use poetry]]
+  - [[#run-python-pudb-debugger-in-poetry-env][run python pudb debugger in poetry env]]
+  - [[#tramp-register-lsp-mode][tramp register lsp-mode]]
+  - [[#ruff-python-linter-with-flymake-archive][ruff python linter with flymake (ARCHIVE)]]
+  - [[#ruff-python-linter-with-flycheck][ruff python linter with flycheck]]
 - [[#modeline][MODELINE]]
 - [[#mouse-support][MOUSE SUPPORT]]
 - [[#neotree][NEOTREE]]
@@ -55,11 +66,17 @@
 - [[#password-store][PASSWORD STORE]]
 - [[#perspective][PERSPECTIVE]]
 - [[#rainbow-mode][RAINBOW MODE]]
-- [[#registers][REGISTERS]]
+- [[#relative-numbers][RELATIVE NUMBERS]]
+- [[#registers-and-recentf][REGISTERS and RECENTF]]
+- [[#spell-check][SPELL CHECK]]
+  - [[#spell-fu-better][spell-fu (better)]]
+  - [[#flyspell-mode-deprecated][flyspell-mode (deprecated)]]
 - [[#shells][SHELLS]]
 - [[#splits][SPLITS]]
+- [[#transperancy][TRANSPERANCY]]
 - [[#winner-mode][WINNER MODE]]
 - [[#zap-to-char][ZAP TO CHAR]]
+- [[#last][LAST]]
 
 * INPUT METHOD
 #+BEGIN_SRC emacs-lisp :tangle /home/arthur/.config/doom/config.el
@@ -69,6 +86,60 @@
 Never loose your cursor
 #+BEGIN_SRC emacs-lisp :tangle /home/arthur/.config/doom/config.el
 (beacon-mode 1)
+#+END_SRC
+* BOOKMARKS AND BUFFERS
+Doom Emacs uses 'SPC b' for keybindings related to bookmarks and buffers.
+** Bookmarks
+Bookmarks are somewhat like registers in that they record positions you can jump to.  Unlike registers, they have long names, and they persist automatically from one Emacs session to the next. The prototypical use of bookmarks is to record where you were reading in various files.
+
+#+BEGIN_SRC emacs-lisp :tangle /home/arthur/.config/doom/config.el
+(map! :leader
+      (:prefix ("b". "buffer")
+       :desc "List bookmarks" "L" #'list-bookmarks
+       :desc "Save current bookmarks to bookmark file" "w" #'bookmark-save))
+#+END_SRC
+
+** Buffers
+Regarding /buffers/, the text you are editing in Emacs resides in an object called a /buffer/. Each time you visit a file, a buffer is used to hold the file’s text. Each time you invoke Dired, a buffer is used to hold the directory listing.  /Ibuffer/ is a program that lists all of your Emacs /buffers/, allowing you to navigate between them and filter them.
+
+| COMMAND         | DESCRIPTION          | KEYBINDING |
+|-----------------+----------------------+------------|
+| ibuffer         | Launch ibuffer       | SPC b i    |
+| kill-buffer     | Kill current buffer  | SPC b k    |
+| next-buffer     | Goto next buffer     | SPC b n    |
+| previous-buffer | Goto previous buffer | SPC b p    |
+| save-buffer     | Save current buffer  | SPC b s    |
+
+** Keybindings within ibuffer mode
+| COMMAND                           | DESCRIPTION                            | KEYBINDING |
+|-----------------------------------+----------------------------------------+------------|
+| ibuffer-mark-forward              | Mark the buffer                        | m          |
+| ibuffer-unmark-forward            | Unmark the buffer                      | u          |
+| ibuffer-do-kill-on-deletion-marks | Kill the marked buffers                | x          |
+| ibuffer-filter-by-content         | Ibuffer filter by content              | f c        |
+| ibuffer-filter-by-directory       | Ibuffer filter by directory            | f d        |
+| ibuffer-filter-by-filename        | Ibuffer filter by filename (full path) | f f        |
+| ibuffer-filter-by-mode            | Ibuffer filter by mode                 | f m        |
+| ibuffer-filter-by-name            | Ibuffer filter by name                 | f n        |
+| ibuffer-filter-disable            | Disable ibuffer filter                 | f x        |
+| ibuffer-do-kill-lines             | Hide marked buffers                    | g h        |
+| ibuffer-update                    | Restore hidden buffers                 | g H        |
+
+#+begin_src emacs-lisp :tangle /home/arthur/.config/doom/config.el
+(evil-define-key 'normal ibuffer-mode-map
+  (kbd "f c") 'ibuffer-filter-by-content
+  (kbd "f d") 'ibuffer-filter-by-directory
+  (kbd "f f") 'ibuffer-filter-by-filename
+  (kbd "f m") 'ibuffer-filter-by-mode
+  (kbd "f n") 'ibuffer-filter-by-name
+  (kbd "f x") 'ibuffer-filter-disable
+  (kbd "g h") 'ibuffer-do-kill-lines
+  (kbd "g H") 'ibuffer-update)
+#+end_src
+* DOCKER
+** lsp
+#+BEGIN_SRC emacs-lisp :tangle /home/arthur/.config/doom/config.el
+(add-hook 'js-mode-hook #'lsp)
 #+END_SRC
 * SIDEBAR
 ** General
@@ -307,54 +378,10 @@ A minor mode for configuration
 (add-hook 'yas-minor-mode-hook (lambda ()
                                  (yas-activate-extra-mode 'fundamental-mode)))
 #+end_src
-* BOOKMARKS AND BUFFERS
-Doom Emacs uses 'SPC b' for keybindings related to bookmarks and buffers.
-** Bookmarks
-Bookmarks are somewhat like registers in that they record positions you can jump to.  Unlike registers, they have long names, and they persist automatically from one Emacs session to the next. The prototypical use of bookmarks is to record where you were reading in various files.
-
-#+BEGIN_SRC emacs-lisp :tangle /home/arthur/.config/doom/config.el
-(map! :leader
-      (:prefix ("b". "buffer")
-       :desc "List bookmarks" "L" #'list-bookmarks
-       :desc "Save current bookmarks to bookmark file" "w" #'bookmark-save))
-#+END_SRC
-
-** Buffers
-Regarding /buffers/, the text you are editing in Emacs resides in an object called a /buffer/. Each time you visit a file, a buffer is used to hold the file’s text. Each time you invoke Dired, a buffer is used to hold the directory listing.  /Ibuffer/ is a program that lists all of your Emacs /buffers/, allowing you to navigate between them and filter them.
-
-| COMMAND         | DESCRIPTION          | KEYBINDING |
-|-----------------+----------------------+------------|
-| ibuffer         | Launch ibuffer       | SPC b i    |
-| kill-buffer     | Kill current buffer  | SPC b k    |
-| next-buffer     | Goto next buffer     | SPC b n    |
-| previous-buffer | Goto previous buffer | SPC b p    |
-| save-buffer     | Save current buffer  | SPC b s    |
-
-** Keybindings within ibuffer mode
-| COMMAND                           | DESCRIPTION                            | KEYBINDING |
-|-----------------------------------+----------------------------------------+------------|
-| ibuffer-mark-forward              | Mark the buffer                        | m          |
-| ibuffer-unmark-forward            | Unmark the buffer                      | u          |
-| ibuffer-do-kill-on-deletion-marks | Kill the marked buffers                | x          |
-| ibuffer-filter-by-content         | Ibuffer filter by content              | f c        |
-| ibuffer-filter-by-directory       | Ibuffer filter by directory            | f d        |
-| ibuffer-filter-by-filename        | Ibuffer filter by filename (full path) | f f        |
-| ibuffer-filter-by-mode            | Ibuffer filter by mode                 | f m        |
-| ibuffer-filter-by-name            | Ibuffer filter by name                 | f n        |
-| ibuffer-filter-disable            | Disable ibuffer filter                 | f x        |
-| ibuffer-do-kill-lines             | Hide marked buffers                    | g h        |
-| ibuffer-update                    | Restore hidden buffers                 | g H        |
-
+* OPEN LINKS IN BROWSER
 #+begin_src emacs-lisp :tangle /home/arthur/.config/doom/config.el
-(evil-define-key 'normal ibuffer-mode-map
-  (kbd "f c") 'ibuffer-filter-by-content
-  (kbd "f d") 'ibuffer-filter-by-directory
-  (kbd "f f") 'ibuffer-filter-by-filename
-  (kbd "f m") 'ibuffer-filter-by-mode
-  (kbd "f n") 'ibuffer-filter-by-name
-  (kbd "f x") 'ibuffer-filter-disable
-  (kbd "g h") 'ibuffer-do-kill-lines
-  (kbd "g H") 'ibuffer-update)
+(setq browse-url-browser-function 'browse-url-generic
+      browse-url-generic-program "firefox")
 #+end_src
 * CALENDAR
 Let's make a 12-month calendar available so we can have a calendar app that, when we click on time/date in xmobar, we get a nice 12-month calendar to view.
@@ -485,8 +512,9 @@ List of keybindings (SPC h b b)")
                           (registers . 5)))
   :config
   (dashboard-setup-startup-hook)
-  (dashboard-modify-heading-icons '((recents . "file-text")
-                                    (bookmarks . "book"))))
+  ;; (dashboard-modify-heading-icons '((recents . "file-text")
+  ;;                                   (bookmarks . "book")))
+)
 #+end_src
 
 ** Dashboard in Emacsclient
@@ -686,12 +714,15 @@ One of the media players available for Emacs is emms, which stands for Emacs Mul
 
 * EMOJIS
 Emojify is an Emacs extension to display emojis. It can display github style emojis like :smile: or plain ascii ones like :).
-
+~SPC-i-e~
+:smile:
 #+begin_src emacs-lisp :tangle /home/arthur/.config/doom/config.el
 (use-package emojify
   :hook (after-init . global-emojify-mode))
-#+end_src
 
+;; enable
+(add-hook 'after-init-hook #'global-emojify-mode)
+#+end_src
 * EVALUATE ELISP EXPRESSIONS
 Changing some keybindings from their defaults to better fit with Doom Emacs, and to avoid conflicts with my window managers which sometimes use the control key in their keybindings.  By default, Doom Emacs does not use 'SPC e' for anything, so I choose to use the format 'SPC e' plus 'key' for these (I also use 'SPC e' for 'eww' keybindings).
 
@@ -736,15 +767,24 @@ Settings related to fonts within Doom Emacs:
 
 #+BEGIN_SRC emacs-lisp :tangle /home/arthur/.config/doom/config.el
 ;; (setq doom-font (font-spec :family "Cascadia Code" :size 24)
-(setq doom-font (font-spec :family "Source Code Pro" :size 24)
-      doom-variable-pitch-font (font-spec :family "Ubuntu" :size 24)
-      doom-big-font (font-spec :family "Source Code Pro" :size 36))
+;; (setq doom-font (font-spec :family "Source Code Pro" :size 24)
+;;       doom-variable-pitch-font (font-spec :family "Ubuntu" :size 24)
+;;       doom-big-font (font-spec :family "Source Code Pro" :size 36))
+;; (after! doom-themes
+;;   (setq doom-themes-enable-bold t
+;;         doom-themes-enable-italic t))
+;; (custom-set-faces!
+;;   '(font-lock-comment-face :family "Source Code Pro" :slant italic)
+;;   '(font-lock-keyword-face :family "Source Code Pro" :slant italic))
+(setq doom-font (font-spec :family "Hack" :size 28)
+      doom-variable-pitch-font (font-spec :family "Hack" :size 28)
+      doom-big-font (font-spec :family "Hack" :size 36))
 (after! doom-themes
   (setq doom-themes-enable-bold t
         doom-themes-enable-italic t))
 (custom-set-faces!
-  '(font-lock-comment-face :family "Source Code Pro" :slant italic)
-  '(font-lock-keyword-face :family "Source Code Pro" :slant italic))
+  '(font-lock-comment-face :family "Hack" :slant italic)
+  '(font-lock-keyword-face :family "Hack" :slant italic))
 #+END_SRC
 
 * INSERT DATE
@@ -812,7 +852,7 @@ Available functions (positions) for 'ivy-posframe-display-functions-alist'
       ivy-posframe-height-alist
       '((swiper . 20)
         (dmenu . 20)
-        (t . 10)))
+        (t . 20)))
 (ivy-posframe-mode 1) ; 1 enables posframe-mode, 0 disables it.
 #+END_SRC
 
@@ -847,6 +887,18 @@ I set comment-line to 'SPC TAB TAB' which is a rather comfortable keybinding for
        :desc "Toggle line highlight globally" "H" #'global-hl-line-mode
        :desc "Toggle truncate lines" "t" #'toggle-truncate-lines))
 #+END_SRC
+* LINK OPEN IN BROWSER
+begin_src emacs-lisp :tangle /home/arthur/.config/doom/config.el
+#+begin_src emacs-lisp
+(dolist (scheme '("ftp" "http" "https" "mailto" "news"))
+  (org-link-set-parameters scheme
+               :follow
+               (lambda (url arg)
+                 (browse-url (concat scheme ":" url) arg))))
+
+(setq browse-url-browser-function #'browse-url-firefox)
+
+#+end_src
 * LSP-MODE
 ** change tab indent for C languages
 #+begin_src emacs-lisp :tangle /home/arthur/.config/doom/config.el
@@ -863,7 +915,7 @@ I set comment-line to 'SPC TAB TAB' which is a rather comfortable keybinding for
   (add-hook 'c-mode-hook 'lsp))
   (add-hook 'cpp-mode-hook 'lsp)
 #+end_src
-** run executable
+** run executable c++
 ~SPC c .~ to run executable from bin folder of current project
 #+begin_src emacs-lisp :tangle /home/arthur/.config/doom/config.el
 (defun cpp-project-exe-run ()
@@ -872,6 +924,146 @@ I set comment-line to 'SPC TAB TAB' which is a rather comfortable keybinding for
                   (file-name-directory (buffer-file-name)))))
 (map! :leader
       :desc "Execute from ./bin/*" "c ." #'(lambda () (interactive) (cpp-project-exe-run)))
+#+end_src
+** debug c++
+in =init.el= in :tools add (debugger +lsp)
+or just debugger withou +lsp
+#+begin_src emacs-lisp :tangle /home/arthur/.config/doom/config.el
+;; (use-package dap-mode
+;;   ;; Uncomment the config below if you want all UI panes to be hidden by default!
+;;   ;; :custom
+;;   ;; (lsp-enable-dap-auto-configure nil)
+;;   ;; :config
+;;   ;; (dap-ui-mode 1)
+
+;;   :config
+;;   ;; Set up Node debugging
+;;   (require 'dap-node)
+;;   (dap-node-setup) ;; Automatically installs Node debug adapter if needed
+
+;;   ;; Bind `C-c l d` to `dap-hydra` for easy access
+;;   (general-define-key
+;;     :keymaps 'lsp-mode-map
+;;     :prefix lsp-keymap-prefix
+;;     "d" '(dap-hydra t :wk "debugger")))
+;; (setq dap-auto-configure-mode t)
+;; (requires 'dap-cpptools)
+
+;; (use-package dap-mode
+;;   (dap-register-debug-template
+;;     "Debug C++"
+;;     (list :type "cppdbg"
+;;           :cwd "${workspaceFolder}"
+;;           :args "-q"
+;;           :request "launch"
+;;           :program nil
+;;           :stopAtEntry t
+;;           :name "Debug C++")))
+#+end_src
+** python lsp-pyright
+first add +pyright to python row in init.el
+#+begin_src emacs-lisp :tangle /home/arthur/.config/doom/config.el
+(use-package lsp-pyright
+  :ensure t
+  :hook (python-mode . (lambda ()
+                          (require 'lsp-pyright)
+                          (lsp))))
+;; (use-package lsp-pyright
+;;   :hook (python-mode . (lambda () (require 'lsp-pyright)))
+;;   :init (when (executable-find "python3")
+;;           ;; (setq lsp-pyright-python-executable-cmd "/opt/anaconda/bin/python")))
+;;           (setq lsp-pyright-python-executable-cmd "/home/arthur/.local/bin/poetry -C /home/arthur/....../emacs-env/ run python")))
+#+end_src
+** use poetry
+#+begin_src emacs-lisp :tangle /home/arthur/.config/doom/config.el
+(use-package poetry
+ :ensure t)
+(map! :leader
+      :desc "Run poetry for python" "o ." #'(lambda () (interactive) (poetry)))
+#+end_src
+** run python pudb debugger in poetry env
+running in alacritty new window asynchronously
+kbd: =SPC c p=
+#+begin_src emacs-lisp :tangle /home/arthur/.config/doom/config.el
+;;(setq emacs-env-dir "/home/analyst/Code/Python/OtherTools/emacs-env/")
+;;(string-replace emacs-env-dir "" (file-name-directory buffer-file-name))
+(defun pydebug ()
+    (interactive)
+    (start-process "my-process" "pudb-debugger" "/usr/bin/alacritty" (concat "--working-directory=" (file-name-directory buffer-file-name)) "-e" "poetry" "run" "pudb" (file-name-nondirectory buffer-file-name))
+)
+
+(defun pylaunch ()
+    (interactive)
+    (start-process "my-process" "poetry-python" "/usr/bin/alacritty" (concat "--working-directory=" (file-name-directory buffer-file-name)) "--hold" "-e" "poetry" "run" "python" (file-name-nondirectory buffer-file-name))
+)
+
+(map! :leader
+      :desc "Run in terminal" "c p" #'(lambda () (interactive) (pylaunch)))
+(map! :leader
+      :desc "Debug with pudb" "c P" #'(lambda () (interactive) (pydebug)))
+#+end_src
+
+** tramp register lsp-mode
+#+begin_src emacs-lisp :tangle /home/arthur/.config/doom/config.el
+(after! tramp
+  (when (require 'lsp-mode nil t)
+    ;; (require 'lsp-pyright)
+
+    (setq lsp-enable-snippet nil
+          lsp-log-io nil
+          ;; To bypass the "lsp--document-highlight fails if
+          ;; textDocument/documentHighlight is not supported" error
+          lsp-enable-symbol-highlighting nil)
+
+    (lsp-register-client
+     (make-lsp-client
+      :new-connection (lsp-tramp-connection "pylsp")
+      :major-modes '(python-mode)
+      :remote? t
+      :server-id 'pyls-remote))))
+#+end_src
+** ruff python linter with flymake (ARCHIVE)
+before - ~straight-use-package~ then ~flymake-ruff~
+#+begin_src emacs-lisp
+(use-package flymake-ruff
+  :ensure t
+  :hook (python-mode . flymake-ruff-load))
+(setq python-flymake-command '("ruff" "--quiet" "--stdin-filename=stdin" "-")
+#+end_src
+** ruff python linter with flycheck
+#+begin_src emacs-lisp :tangle /home/arthur/.config/doom/config.el
+(require 'flycheck)
+(setq flycheck-python-ruff-executable "/usr/bin/ruff")
+(flycheck-define-checker python-ruff
+  "A Python syntax and style checker using the ruff utility.
+To override the path to the ruff executable, set
+`flycheck-python-ruff-executable'.
+See URL `http://pypi.python.org/pypi/ruff'."
+  :command ("ruff"
+            "--format=text"
+            (eval (when buffer-file-name
+                    (concat "--stdin-filename=" buffer-file-name)))
+            "-")
+  :standard-input t
+  :error-filter (lambda (errors)
+                  (let ((errors (flycheck-sanitize-errors errors)))
+                    (seq-map #'flycheck-flake8-fix-error-level errors)))
+  :error-patterns
+  ((warning line-start
+            (file-name) ":" line ":" (optional column ":") " "
+            (id (one-or-more (any alpha)) (one-or-more digit)) " "
+            (message (one-or-more not-newline))
+            line-end))
+  :modes python-mode)
+
+;; Use something adapted to your config to add `python-ruff' to `flycheck-checkers'
+;; This is an MVP example:
+(setq python-mode-hook
+      (list (defun my-python-hook ()
+              (unless (bound-and-true-p org-src-mode)
+                (when (buffer-file-name)
+                  (setq-local flycheck-checkers '(python-ruff))
+                  (flycheck-mode))))))
 #+end_src
 * MODELINE
 The modeline is the bottom status bar that appears in Emacs windows.  For more information on what is available to configure in the Doom modeline, check out:
@@ -1043,32 +1235,32 @@ We need ox-man for "Org eXporting" to manpage format and ox-gemini for exporting
 #+end_src
 ** Org-jupyter
 #+BEGIN_SRC emacs-lisp :tangle /home/arthur/.config/doom/config.el
-(use-package jupyter)
-;;  :straight t)
+;; (use-package jupyter)
+;; ;;  :straight t)
 
-(org-babel-do-load-languages
- 'org-babel-load-languages
- '((emacs-lisp . t) ;; Other languages
-   (shell . t)
-   ;; Python & Jupyter
-   (python . t)
-   (jupyter . t)))
+;; (org-babel-do-load-languages
+;;  'org-babel-load-languages
+;;  '((emacs-lisp . t) ;; Other languages
+;;    (shell . t)
+;;    ;; Python & Jupyter
+;;    (python . t)
+;;    (jupyter . t)))
 
-;;(require 'conda)
-(use-package conda
-;;  :straight t
-  :config
-  (setq conda-anaconda-home (expand-file-name "~/anaconda3/"))
-  (setq conda-env-home-directory (expand-file-name "~/anaconda3/"))
-  (setq conda-env-subdirectory "envs"))
+;; ;;(require 'conda)
+;; (use-package conda
+;; ;;  :straight t
+;;   :config
+;;   (setq conda-anaconda-home (expand-file-name "~/anaconda3/"))
+;;   (setq conda-env-home-directory (expand-file-name "~/anaconda3/"))
+;;   (setq conda-env-subdirectory "envs"))
 
-(unless (getenv "CONDA_DEFAULT_ENV")
-  (conda-env-activate "base"))
+;; (unless (getenv "CONDA_DEFAULT_ENV")
+;;   (conda-env-activate "base"))
 
-(defun my/jupyter-refresh-kernelspecs ()
-  "Refresh Jupyter kernelspecs"
-  (interactive)
-  (jupyter-available-kernelspecs t))
+;; (defun my/jupyter-refresh-kernelspecs ()
+;;   "Refresh Jupyter kernelspecs"
+;;   (interactive)
+;;   (jupyter-available-kernelspecs t))
 #+END_SRC
 * PASSWORD STORE
 Uses the standard Unix password store "pass".
@@ -1108,12 +1300,16 @@ Rainbox mode displays the actual color for any hex value color.  It's such a nic
   (lambda () (rainbow-mode 1)))
 (global-rainbow-mode 1 )
 #+end_src
-
-* REGISTERS
+* RELATIVE NUMBERS
+#+begin_src emacs-lisp :tangle /home/arthur/.config/doom/config.el
+(setq display-line-numbers 'relative)
+#+end_src
+* REGISTERS and RECENTF
 Emacs registers are compartments where you can save text, rectangles and positions for later use. Once you save text or a rectangle in a register, you can copy it into the buffer once or many times; once you save a position in a register, you can jump back to that position once or many times.  The default GNU Emacs keybindings for these commands (with the exception of counsel-register) involves 'C-x r' followed by one or more other keys.  I wanted to make this a little more user friendly, and since I am using Doom Emacs, I choose to replace the 'C-x r' part of the key chords with 'SPC r'.
 
 | COMMAND                          | DESCRIPTION                      | KEYBINDING |
 |----------------------------------+----------------------------------+------------|
+| recentf                          | /Open recent files/              | SPC r .    |
 | copy-to-register                 | /Copy to register/                 | SPC r c    |
 | frameset-to-register             | /Frameset to register/             | SPC r f    |
 | insert-register                  | /Insert contents of register/      | SPC r i    |
@@ -1129,6 +1325,7 @@ Emacs registers are compartments where you can save text, rectangles and positio
 #+BEGIN_SRC emacs-lisp :tangle /home/arthur/.config/doom/config.el
 (map! :leader
       (:prefix ("r" . "registers")
+       :desc "Open recent files" "." #'recentf-open
        :desc "Copy to register" "c" #'copy-to-register
        :desc "Frameset to register" "f" #'frameset-to-register
        :desc "Insert contents of register" "i" #'insert-register
@@ -1141,7 +1338,31 @@ Emacs registers are compartments where you can save text, rectangles and positio
        :desc "Increment register" "+" #'increment-register
        :desc "Point to register" "SPC" #'point-to-register))
 #+END_SRC
-
+* SPELL CHECK
+** spell-fu (better)
+#+begin_src emacs-lisp :tangle /home/arthur/.config/doom/config.el
+(add-hook 'spell-fu-mode-hook
+  (lambda ()
+    (spell-fu-dictionary-add (spell-fu-get-ispell-dictionary "en"))
+    (spell-fu-dictionary-add (spell-fu-get-ispell-dictionary "ru"))
+    (spell-fu-dictionary-add
+      (spell-fu-get-personal-dictionary "en-personal" "/home/arthur/.aspell.en.pws"))
+    (spell-fu-dictionary-add
+      (spell-fu-get-personal-dictionary "ru-personal" "/home/arthur/.aspell.ru.pws"))))
+#+end_src
+** flyspell-mode (deprecated)
+#+begin_src
+(global-set-key
+ [f5]
+ (lambda ()
+   (interactive)
+   (ispell-change-dictionary "russian")))
+(global-set-key
+ [f4]
+ (lambda ()
+   (interactive)
+   (ispell-change-dictionary "english")))
+#+end_src
 * SHELLS
 Settings for the various shells and terminal emulators within Emacs.
 + 'shell-file-name' -- sets the shell to be used in M-x shell, M-x term, M-x ansi-term and M-x vterm.
@@ -1177,6 +1398,10 @@ I set splits to default to opening on the right using 'prefer-horizontal-split'.
       :desc "Clone indirect buffer other window" "b c" #'clone-indirect-buffer-other-window)
 #+END_SRC
 
+* TRANSPERANCY
+#+BEGIN_SRC emacs-lisp :tangle /home/arthur/.config/doom/config.el
+(add-to-list 'default-frame-alist '(alpha-background . 90))
+#+END_SRC
 * WINNER MODE
 Winner mode has been included with GNU Emacs since version 20.  This is a global minor mode and, when activated, it allows you to “undo” (and “redo”) changes in the window configuration with the key commands 'SCP w <left>' and 'SPC w <right>'.
 
@@ -1208,4 +1433,8 @@ Emacs provides a 'zap-to-char' command that kills from the current point to a ch
 (map! :leader
       :desc "Zap to char" "z" #'zap-to-char
       :desc "Zap up to char" "Z" #'zap-up-to-char)
+#+END_SRC
+* LAST
+#+BEGIN_SRC emacs-lisp :tangle /home/arthur/.config/doom/config.el
+(dashboard-open)
 #+END_SRC
