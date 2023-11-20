@@ -215,7 +215,7 @@ Select only =ONE= of the following four ways to set the wallpaper.
     -- spawnOnce "xargs xwallpaper --stretch < ~/.cache/wall"
     -- spawnOnce "~/.fehbg &"  -- set last saved feh wallpaper
     spawnOnce "feh --randomize --bg-fill /usr/share/backgrounds/dtos-backgrounds/*"  -- feh set random wallpaper
-    spawnOnce "setxkbmap -layout us,ru -option grp:win_space_toggle"  -- keyboard_layout_switcher analog
+    spawnOnce "setxkbmap -layout us,ru -option grp:alt_space_toggle"  -- keyboard_layout_switcher analog
     spawnOnce "kbdd"  -- kbd layout for each app
     -- spawnOnce "nitrogen --restore &"   -- if you prefer nitrogen to feh
     setWMName "LG3D" -- for java compitability
