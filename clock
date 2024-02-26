@@ -1,0 +1,2 @@
+#! /bin/bash
+echo -e $(date +"%d-%b-%y(%a) %H:%M"| sed 's/  / /g')

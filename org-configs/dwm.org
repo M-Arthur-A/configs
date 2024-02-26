@@ -1,0 +1,483 @@
+#+title: Dwm
+#+STARTUP: overvie
+
+* about DWM
+#+CAPTION: dmenu-distrotube
+#+ATTR_HTML: :alt dmenu-distrotube :title dmenu-distrotube :align left
+*from DTOS-DWM*
+https://gitlab.com/dtos/etc/dtos-dwm
+https://gitlab.com/dtos/etc/dtos-dwmblocks
+
+Dwm is an extremely fast, small, and dynamic window manager for X. Dwm is created by the good folks at [[https://suckless.org][suckless.org]].  This is my personal build of dwm.  I used a number of patches in this build to make dwm more "sensible" rather than "suckless."
+
+settings in ~/etc/dtos/.config/dwm/config.def.h~
+** patches
++ alpha (for transparency)
++ attachaside (new clients appear in the stack rather than as the master)
++ cyclelayouts (cycles through the available layouts)
++ gridmode (adding a grid layout)
++ restartsig (allows dwm to be restarted with a keybinding)
++ rotatestack (moves a window through the stack, in either direction)
++ statuspadding (horizontal and vertical padding in the status bar are now configurable options)
++ uselessgap (adding gaps when more than one window)
++ systray https://dwm.suckless.org/patches/systray/
++ scratchpad https://dwm.suckless.org/patches/scratchpad/
++ fullscreen https://dwm.suckless.org/patches/fullscreen/
++ actural fullscreen https://dwm.suckless.org/patches/actualfullscreen/
+  actual fullscr also patch *dwm.1*!!!
+# + barpadding https://dwm.suckless.org/patches/barpadding/
+
+*** PATCH
+enable systray
+#+begin_src sh :dir /sudo::
+cd /etc/dtos/.config/dwm && sudo wget https://raw.githubusercontent.com/bakkeby/patches/master/dwm/dwm-alpha-systray-6.3.diff
+sudo patch --merge -i /etc/dtos/.config/dwm/dwm-systray-6.3.diff
+#+end_src
+
+enable scratchpad
+#+begin_src sh :dir /sudo::
+cd /etc/dtos/.config/dwm && sudo wget https://dwm.suckless.org/patches/scratchpad/dwm-scratchpad-20221102-ba56fe9.diff
+sudo patch --merge -i /etc/dtos/.config/dwm/dwm-scratchpad-20221102-ba56fe9.diff
+#+end_src
+
+enable fullscreen mode
+#+begin_src sh :dir /sudo::
+cd /etc/dtos/.config/dwm && sudo wget https://dwm.suckless.org/patches/fullscreen/dwm-fullscreen-6.2.diff
+sudo patch --merge -i /etc/dtos/.config/dwm/dwm-fullscreen-6.2.diff
+#+end_src
+
+enable actual fullscreen mode for gaming
+#+begin_src sh :dir /sudo::
+cd /etc/dtos/.config/dwm && sudo wget https://dwm.suckless.org/patches/actualfullscreen/dwm-actualfullscreen-20211013-cb3f58a.diff
+sudo patch --merge -i /etc/dtos/.config/dwm/dwm-actualfullscreen-20211013-cb3f58a.diff
+#+end_src
+
+# enable bar margins
+# #+begin_src sh :dir /sudo::
+# cd /etc/dtos/.config/dwm && sudo wget https://dwm.suckless.org/patches/barpadding/dwm-barpadding-6.2.diff
+# sudo patch --merge -i /etc/dtos/.config/dwm/dwm-barpadding-6.2.diff
+# #+end_src
+
+
+alternative way to patch
+#+begin_src sh
+sudo git apply --reject --whitespace=fix /etc/dtos/.config/dwm/dwm-systray-6.3.diff
+sudo patch -p1 < /etc/dtos/.config/dwm/dwm-systray-6.3.diff
+sudo patch -p1 -i /etc/dtos/.config/dwm/dwm-systray-6.3.diff
+#+end_src
+
+**** error solving
+applied https://github.com/bakkeby/patches/blob/master/dwm/dwm-alpha-systray-6.3.diff
+
+
+#+begin_src bash
+dwm: fatal error: request code=70, error code=8
+X Error of failed request:  BadMatch (invalid parameter attributes)
+  Major opcode of failed request:  70 (X_PolyFillRectangle)
+  Serial number of failed request:  88
+  Current serial number in output stream:  89
+#+end_src
+
+https://bbs.archlinux.org/viewtopic.php?id=244894
+I found the function that was causing the breakage and commented it out (=see line 2343=). Now the systray seems to work, although it's not transparent yet. I don't know what the function did and how it worked without the alpha patch tho...
+
+tried to change to original (undo alpha patch):
+#+begin_src
+	XSetWindowAttributes wa = {
+		.override_redirect = True,
++		.background_pixmap = ParentRelative,
+		/*
+-		.background_pixel = 0,
+-		.border_pixel = 0,
+-		.colormap = cmap,
+		*/
+		.event_mask = ButtonPressMask|ExposureMask
+	};
+...
++				CopyFromParent, DefaultVisual(dpy, screen),
++				CWOverrideRedirect|CWBackPixmap|CWEventMask, &wa);
+-		                          InputOutput, visual,
+-		                          CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWColormap|CWEventMask, &wa);
+#+end_src
+
+#+begin_src c
+//was
+		m->barwin = XCreateWindow(dpy, root, m->wx, m->by, m->ww, bh, 0, DefaultDepth(dpy, screen),
+				CopyFromParent, DefaultVisual(dpy, screen),
+				CWOverrideRedirect|CWBackPixmap|CWEventMask, &wa);
+//alpha
+		m->barwin = XCreateWindow(dpy, root, m->wx, m->by, m->ww, bh, 0, depth,
+		                          InputOutput, visual,
+		                          CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWColormap|CWEventMask, &wa);
+//systray
+		m->barwin = XCreateWindow(dpy, root, m->wx, m->by, w,     bh, 0, DefaultDepth(dpy, screen),
+				CopyFromParent, DefaultVisual(dpy, screen),
+				CWOverrideRedirect|CWBackPixmap|CWEventMask, &wa);
+#+end_src
+and remove opacity to bar
+** The dependencies for dwm-distrotube include:
++ libxft
++ ttf-hack
++ ttf-joypixels
++ st
++ dmenu
++ tabbe
+
+Also, you will need to add the following from the AUR:
++ nerd-fonts-complete (optional)
++ https://aur.archlinux.org/packages/libxft-bgra/ (needed for colored fonts and emojis)
+
+Also, if you are building this on an Ubuntu-based system, you need to install libx11-dev and xorg-dev.
+
+** Configuring dwm-distrotube
+
+If you installed dwm-distrotube with pacman, then the source code can be found in /etc/dtos/.config/dwm.  If you downloaded the source and built dwm-distrotube yourself, then the source is in the directory that you downloaded.  The configuration of dwm-distrotube is done by editing the config.def.h and (re)compiling the source code.
+
+=sudo make install=
+
+** Installing dwm-distrotube on Arch Linux
+All you need to do is download the PKGBUILD from this repository.  Then run the following command:
+
+=makepkg -cf=
+
+This will create a file that ends in .pkg.tar.zst (for example, dwm-distrotube-git-6.2-1-x86_64.pkg.tar.zst).  Then run:
+
+=sudo pacman -U *.pkg.tar.zst=
+
+Alternatively, you could also install dwm-distrotube from my own personal [[https://gitlab.com/dwt1/dtos][dtos repository]].  To do so, add the following to the end of /etc/pacman.conf :
+
+#+begin_example
+[dtos-core-repo]
+SigLevel = Optional DatabaseOptional
+Server = https://gitlab.com/dwt1/$repo/-/raw/main/$arch
+#+end_example
+
+Then, sync the repositories and update your system with:
+=sudo pacman -Syyu=
+
+And, then:
+=sudo pacman -S dwm-distrotube=
+
+=NOTE:= Installing dwm-distrotube conflicts with the standard dwm package.  If you already have dwm installed, you will be asked if you want to remove dwm and install dwm-distrotube instead.
+
+** Running dwm
+If you do not use a login manager (such as lightdm) then you can add the following line to your .xinitrc to start dwm using startx:
+
+=exec dwm=
+
+If you use a login manager (like lightdm), make sure that you have a file called dwm.desktop in your /usr/share/xsessions/ directory.  It should look something like this:
+
+#+begin_example
+[Desktop Entry]
+Encoding=UTF-8
+Name=Dwm
+Comment=Dynamic window manager
+Exec=dwm
+Icon=dwm
+Type=XSession
+#+end_example
+* appearance
+#+begin_src c :tangle "/sudo::/etc/dtos/.config/dwm/config.def.h"
+/* appearance */
+static const unsigned int borderpx  = 2;        /* border pixel of windows */
+static const unsigned int gappx     = 6;        /* gaps between windows */
+static const unsigned int snap      = 32;       /* snap pixel */
+/* static const int vertpad            = 5;        /\* vertical padding of bar *\/ */
+/* static const int sidepad            = 5;        /\* horizontal padding of bar *\/ */
+
+// systray start
+static const unsigned int systraypinning = 0;   /* 0: sloppy systray follows selected monitor, >0: pin systray to monitor X */
+static const unsigned int systrayonleft = 0;    /* 0: systray in the right corner, >0: systray on left of status text */
+static const unsigned int systrayspacing = 2;   /* systray spacing */
+static const int systraypinningfailfirst = 1;   /* 1: if pinning fails, display systray on the first monitor, False: display systray on the last monitor*/
+static const int showsystray        = 1;        /* 0 means no systray */
+// systray end
+
+static const int showbar            = 1;        /* 0 means no bar */
+static const int topbar             = 1;        /* 0 means bottom bar */
+static const int horizpadbar        = 6;        /* horizontal padding for statusbar */
+static const int vertpadbar         = 7;        /* vertical padding for statusbar */
+/* Default font will be Ubuntu if installed (ttf-ubuntu).
+ ,* Otherwise, your default font will be Hack (ttf-hack)
+ ,* JoyPixels (ttf-joypixels) is a dependency for colored fonts and emojis.
+ ,*/
+static const char *fonts[]     = {"Ubuntu:weight=bold:size=9:antialias=true:hinting=true",
+                                  "Hack:size=9:antialias=true:autohint=true",
+                                  "JoyPixels:size=11:antialias=true:autohint=true"
+						     	};
+static const char col_1[]  = "#282a36"; /* background color of bar */
+static const char col_2[]  = "#44475a"; /* border color unfocused windows */
+static const char col_3[]  = "#d7d7d7";
+static const char col_4[]  = "#6272a4"; /* border color focused tags */
+static const char col_5[]  = "#ff79c6"; /* border color focused windows */
+/* bar opacity
+ ,* 0xff is no transparency.
+ ,* 0xee adds wee bit of transparency.
+ ,* 0xdd adds adds a bit more transparency.
+ ,* Play with the value to get desired transparency.
+ ,*/
+static const unsigned int baralpha    = 0xdd;
+static const unsigned int borderalpha = OPAQUE;
+static const char *colors[][3]        = {
+	/*               fg     bg     border   */
+	[SchemeNorm] = { col_3, col_1, col_2 },
+	[SchemeSel]  = { col_3, col_4, col_5 },
+};
+static const unsigned int alphas[][3] = {
+	/*               fg      bg        border     */
+	[SchemeNorm] = { OPAQUE, baralpha, borderalpha },
+	[SchemeSel]  = { OPAQUE, baralpha, borderalpha },
+};
+
+#+end_src
+* status bar (DWMblocks)
+To use my dwmblocks, you also need to download the scripts found [here](https://gitlab.com/dwt1/dotfiles/-/tree/master/.local/bin).
+#+begin_src c :tangle "/sudo::/etc/dtos/.config/dwmblocks/blocks.def.h"
+//Modify this file to change what commands output to your statusbar, and recompile using the make command.
+static const Block blocks[] = {
+	/*Icon*/ /*Command*/	 	                            /*Update Interval*/	/*Update Signal*/
+/*  {" 🐧 ", "/etc/dtos/.config/dwmblocks/scripts/kernel",	  360,		          2},
+
+	{" 💻 ", "/etc/dtos/.config/dwmblocks/scripts/memory",	  6,		          1},
+
+	{" 🔊 ", "/etc/dtos/.config/dwmblocks/scripts/volume",    0,		          10},
+*/
+	{" 🕑 ", "/home/arthur/Applications/clock",	  60,	              0},
+
+};
+
+//sets delimeter between status commands. NULL character ('\0') means no delimeter.
+static char delim = ' | ';
+#+end_src
+* tagging
+#+begin_src c :tangle "/sudo::/etc/dtos/.config/dwm/config.def.h"
+/* tagging */
+/* static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" }; */
+/* static const char *tags[] = { "", "", "", "", "", "", "", "", "" }; */
+static const char *tags[] = { "main", "doc", "www", "dev", "mes", "sys", "add1", "add2", "add2" };
+
+static const Rule rules[] = {
+	/* xprop(1):
+	 ,*	WM_CLASS(STRING) = instance, class
+	 ,*	WM_NAME(STRING) = title
+	 ,*/
+	/* class      instance    title       tags mask     isfloating   monitor */
+	{ "Gimp",     NULL,       NULL,       0,            1,           -1 },
+	{ "Firefox",  NULL,       NULL,       1 << 8,       0,           -1 },
+};
+
+#+end_src
+* layouts
+#+begin_src c :tangle "/sudo::/etc/dtos/.config/dwm/config.def.h"
+/* layout(s) */
+static const float mfact        = 0.55; /* factor of master area size [0.05..0.95] */
+static const int nmaster        = 1;    /* number of clients in master area */
+static const int resizehints    = 0;    /* 1 means respect size hints in tiled resizals */
+static const int lockfullscreen = 1;    /* 1 will force focus on the fullscreen window */
+
+#include "grid.c"
+static const Layout layouts[] = {
+	/* symbol     arrange function */
+	{ "[]=",      tile },    /* first entry is default */
+	{ "><>",      NULL },    /* no layout function means floating behavior */
+	{ "[M]",      monocle },
+	{ "HHH",      grid },
+  { NULL,       NULL },
+};
+
+#+end_src
+* keybindings
+The MODKEY is set to the Super key
+#+begin_src c :tangle "/sudo::/etc/dtos/.config/dwm/config.def.h"
+/* key definitions */
+#define MODKEY Mod4Mask
+
+#define TAGKEYS(KEY,TAG)												\
+	{1, {{MODKEY, KEY}},								view,           {.ui = 1 << TAG} },	\
+	{1, {{MODKEY|ControlMask, KEY}},					toggleview,     {.ui = 1 << TAG} }, \
+	{1, {{MODKEY|ShiftMask, KEY}},						tag,            {.ui = 1 << TAG} }, \
+	{1, {{MODKEY|ControlMask|ShiftMask, KEY}},			toggletag,      {.ui = 1 << TAG} },
+
+/* helper for spawning shell commands in the pre dwm-5.0 fashion */
+#define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
+
+/* commands */
+static char dmenumon[2]          = "0"; /* component of dmenucmd, manipulated in spawn() */
+/* static const char *dmenucmd[]    = { "dmenu_run -fn 'Noto Sans:bold:pixelsize=24' -i -p \'Run: \'", NULL }; */
+static const char scratchpadname[] = "scratchpad";
+static const char *dmenucmd[]    = { "rofi", "-show", "run", NULL };
+static const char *termcmd[]     = { "alacritty", NULL };
+static const char *tabtermcmd[]  = { "tabbed", "-r", "2", "st", "-w", "''", NULL };
+static const char *scratchpadcmd[] = {"alacritty", "-t", scratchpadname, "-o", "window.dimensions.columns=150", "-o", "window.dimensions.lines=38", NULL };
+
+static Keychord keychords[] = {
+	/*    Keys                           function        argument */
+	{1, {{MODKEY, XK_space}},			 spawn,          {.v = dmenucmd } },
+	{1, {{MODKEY, XK_Return}},			 spawn,          {.v = termcmd } },
+	{1, {{MODKEY, XK_q}},				 killclient,     {0} },
+  {1, {{MODKEY|ControlMask, XK_w}},    togglescratch,  {.v = scratchpadcmd } },
+	/* {1, {{Mod1Mask, XK_Return}},         spawn,          {.v = tabtermcmd } }, */
+
+  /* Chords */
+	{2, {{MODKEY, XK_e}, {0, XK_e}},     spawn,         SHCMD("emacsclient -c -a 'emacs' --eval '(dashboard-open)'") },
+	{2, {{MODKEY, XK_e}, {0, XK_d}},     spawn,         SHCMD("emacsclient -c -a 'emacs' --eval '(dired nil)'") },
+	{2, {{MODKEY, XK_e}, {0, XK_c}},     spawn,         SHCMD("emacsclient -c -a 'emacs' /home/arthur/CONFIG.org") },
+	{2, {{MODKEY, XK_e}, {0, XK_n}},     spawn,         SHCMD("emacsclient -c -a 'emacs' /home/arthur/Project/Notes/roam/20220507152159-notes.org") },
+	{2, {{MODKEY, XK_a}, {0, XK_a}},     spawn,         SHCMD("pamac-manager") },
+	{2, {{MODKEY, XK_a}, {0, XK_s}},     spawn,         SHCMD("manjaro-settings-manager") },
+	{2, {{MODKEY, XK_a}, {0, XK_c}},     spawn,         SHCMD("qalculate-gtk") },
+	{2, {{MODKEY, XK_a}, {0, XK_g}},     spawn,         SHCMD("/home/arthur/Applications/rofi-gaming.sh") },
+
+  /* Web browsers */
+  {1, {{MODKEY, XK_b}},                spawn,         SHCMD("firefox") },
+	{1, {{Mod1Mask, XK_e}},              spawn,         SHCMD("dolphin") },
+
+
+	{1, {{MODKEY|ShiftMask, XK_b}},	  togglebar,      {0} },
+	{1, {{MODKEY, XK_j}},				  focusstack,     {.i = +1 } },
+	{1, {{MODKEY, XK_k}},				  focusstack,     {.i = -1 } },
+	{1, {{MODKEY|ShiftMask, XK_j}},	  rotatestack,    {.i = +1 } },
+	{1, {{MODKEY|ShiftMask, XK_k}},	  rotatestack,    {.i = -1 } },
+	{1, {{MODKEY, XK_u}},				  incnmaster,     {.i = +1 } },
+	{1, {{MODKEY, XK_i}},				  incnmaster,     {.i = -1 } },
+	{1, {{MODKEY, XK_h}},				  setmfact,       {.f = -0.05} },
+	{1, {{MODKEY, XK_l}},				  setmfact,       {.f = +0.05} },
+	{1, {{MODKEY, XK_o}},				  zoom,           {0} },
+	{1, {{MODKEY, XK_Tab}},			  view,           {0} },
+
+    /* Layout manipulation */
+	/* {1, {{MODKEY, XK_Tab}},			  cyclelayout,    {.i = -1 } }, */
+	/* {1, {{MODKEY|ShiftMask, XK_Tab}},	  cyclelayout,    {.i = +1 } }, */
+	{1, {{MODKEY, XK_t}},				  setlayout,      {.v = &layouts[0]} },
+	{1, {{MODKEY, XK_f}},				  setlayout,      {.v = &layouts[1]} },
+	{1, {{MODKEY, XK_m}},				  setlayout,      {.v = &layouts[2]} },
+	{1, {{MODKEY, XK_g}},				  setlayout,      {.v = &layouts[3]} },
+  {1, {{MODKEY|ShiftMask, XK_m}},	  togglefullscr,  {0} },
+	/* {1, {{MODKEY, XK_space}},			  setlayout,      {0} }, */
+
+	{1, {{MODKEY|ShiftMask, XK_space}},   togglefloating, {0} },
+	{1, {{MODKEY, XK_0}},				  view,           {.ui = ~0 } },
+	{1, {{MODKEY|ShiftMask, XK_0}},	  tag,            {.ui = ~0 } },
+
+    /* Switching between monitors */
+	{1, {{MODKEY, XK_comma}},			  focusmon,       {.i = -1 } },
+	{1, {{MODKEY, XK_period}},			  focusmon,       {.i = +1 } },
+	{1, {{MODKEY|ShiftMask, XK_comma}},   tagmon,         {.i = -1 } },
+	{1, {{MODKEY|ShiftMask, XK_period}},  tagmon,         {.i = +1 } },
+
+	TAGKEYS(                        XK_1,                      0)
+	TAGKEYS(                        XK_2,                      1)
+	TAGKEYS(                        XK_3,                      2)
+	TAGKEYS(                        XK_4,                      3)
+	TAGKEYS(                        XK_5,                      4)
+	TAGKEYS(                        XK_6,                      5)
+	TAGKEYS(                        XK_7,                      6)
+	TAGKEYS(                        XK_8,                      7)
+	TAGKEYS(                        XK_9,                      8)
+ // numpad
+  TAGKEYS(                        XK_KP_End,                    0)
+	TAGKEYS(                        XK_KP_Down,                   1)
+	TAGKEYS(                        XK_KP_Page_Down,              2)
+	TAGKEYS(                        XK_KP_Left,                   3)
+	TAGKEYS(                        XK_KP_Begin,                  4)
+	TAGKEYS(                        XK_KP_Right,                  5)
+	TAGKEYS(                        XK_KP_Home,                   6)
+	TAGKEYS(                        XK_KP_Up,                     7)
+	TAGKEYS(                        XK_KP_Page_Up,                8)
+
+    /* Restart or quit dwm */
+	{1, {{MODKEY|ShiftMask, XK_r}},		  quit,           {1} },
+	{1, {{MODKEY|ShiftMask, XK_q}},		  quit,           {0} },
+};
+
+/* button definitions */
+/* click can be ClkTagBar, ClkLtSymbol, ClkStatusText, ClkWinTitle, ClkClientWin, or ClkRootWin */
+static Button buttons[] = {
+	/* click                event mask      button          function        argument */
+	{ ClkLtSymbol,          0,              Button1,        setlayout,      {0} },
+	{ ClkLtSymbol,          0,              Button3,        setlayout,      {.v = &layouts[2]} },
+	{ ClkWinTitle,          0,              Button2,        zoom,           {0} },
+	{ ClkStatusText,        0,              Button2,        spawn,          {.v = termcmd } },
+	{ ClkClientWin,         MODKEY,         Button1,        movemouse,      {0} },
+	{ ClkClientWin,         MODKEY,         Button2,        togglefloating, {0} },
+	{ ClkClientWin,         MODKEY,         Button3,        resizemouse,    {0} },
+	{ ClkTagBar,            0,              Button1,        view,           {0} },
+	{ ClkTagBar,            0,              Button3,        toggleview,     {0} },
+	{ ClkTagBar,            MODKEY,         Button1,        tag,            {0} },
+	{ ClkTagBar,            MODKEY,         Button3,        toggletag,      {0} },
+};
+#+end_src
+* scripts
+** autostart script
+all main things in Applications/autostart.sh used by SSDM (.xsession)
+#+BEGIN_SRC bash :tangle /home/arthur/.dwm/autostart.sh
+#! /bin/bash
+lxsession &
+# xrandr --output HDMI-0 --off --output HDMI-1 --off --output HDMI-2 --off --output DP-0 --mode 2560x1080 --pos 2560x44 --rotate normal --output DP-1 --off --output DP-2 --off --output DP-3 --off --output DP-4 --primary --mode 2560x1440 --pos 0x0 --rotate normal --output DP-5 --off &
+dwmblocks &
+# picom --xrender-sync-fence &
+# nm-applet &
+# volumeicon &
+# ~/Applications/Kensington_Expert_Setup.sh &
+# numlockx &
+# klipper &
+# xsetroot -cursor_name left_ptr &
+# systemctl --user start syncthing.service &
+# /usr/bin/emacs --daemon &
+# export QT_QPA_PLATFORMTHEME=\"qt5ct\" &
+# feh --randomize --bg-fill /usr/share/backgrounds/dtos-backgrounds/* &
+# setxkbmap -layout us,ru -option grp:alt_space_toggle &
+# kbdd &
+# xdotool mousemove 1280 720 &
+#+end_src
+** clock
+#+begin_src bash :tangle /home/arthur/Applications/clock
+#! /bin/bash
+echo -e $(date +"%d-%b-%y(%a) %H:%M"| sed 's/  / /g')
+#+end_src
+
+#+begin_src bash
+chmod +x /home/arthur/Applications/clock
+#+end_src
+
+* TEST
+testing WM (from another stable WM)
+#+begin_src bash
+Xephyr -br -ac -noreset -screen 800x600 :1 &
+export DISPLAY=:1
+dwm &
+#+end_src
+* DEPLOY
+** DWMBLOCKS
+#+begin_src sh :dir /sudo::
+cd /etc/dtos/.config/dwmblocks/ && sudo rm -rf blocks.h ; sudo make clean install && sudo cp dwmblocks /usr/bin
+#+end_src
+** DWM
+#+begin_src sh :dir /sudo:: :results output
+chmod +x /home/arthur/.dwm/autostart.sh
+chmod +x /home/arthur/Applications/autostart.sh
+cd /etc/dtos/.config/dwm/ && sudo rm -rf config.h ; sudo make clean install && sudo cp dwm /usr/bin
+#+end_src
+
+#+RESULTS:
+#+begin_example
+rm -f dwm drw.o dwm.o util.o dwm-6.3.tar.gz
+dwm build options:
+CFLAGS   = -std=c99 -pedantic -Wall -Wno-deprecated-declarations -Os -I/usr/X11R6/include -I/usr/include/freetype2 -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_POSIX_C_SOURCE=200809L -DVERSION="6.3" -DXINERAMA
+LDFLAGS  = -L/usr/X11R6/lib -lX11 -lXinerama -lfontconfig -lXft -lXrender
+CC       = cc
+cp config.def.h config.h
+cc -c -std=c99 -pedantic -Wall -Wno-deprecated-declarations -Os -I/usr/X11R6/include -I/usr/include/freetype2 -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_POSIX_C_SOURCE=200809L -DVERSION=\"6.3\" -DXINERAMA drw.c
+cc -c -std=c99 -pedantic -Wall -Wno-deprecated-declarations -Os -I/usr/X11R6/include -I/usr/include/freetype2 -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_POSIX_C_SOURCE=200809L -DVERSION=\"6.3\" -DXINERAMA dwm.c
+cc -c -std=c99 -pedantic -Wall -Wno-deprecated-declarations -Os -I/usr/X11R6/include -I/usr/include/freetype2 -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_POSIX_C_SOURCE=200809L -DVERSION=\"6.3\" -DXINERAMA util.c
+cc -o dwm drw.o dwm.o util.o -L/usr/X11R6/lib -lX11 -lXinerama -lfontconfig -lXft -lXrender
+mkdir -p /usr/local/bin
+cp -f dwm /usr/local/bin
+chmod 755 /usr/local/bin/dwm
+mkdir -p /usr/local/share/man/man1
+sed "s/VERSION/6.3/g" < dwm.1 > /usr/local/share/man/man1/dwm.1
+chmod 644 /usr/local/share/man/man1/dwm.1
+mkdir -p /usr/local/share/xsession
+cp -f dwm.desktop /usr/local/share/xsession
+chmod 644 /usr/local/share/xsession/dwm.desktop
+#+end_example

@@ -2,8 +2,6 @@
 #+STARTUP: overview
 
 [[../CONFIG.org][BACK]]
-* Table of Contents :toc:
-- [[#power-management][Power management]]
 
 * Power management
 https://wiki.archlinux.org/title/Power_management_(%D0%A0%D1%83%D1%81%D1%81%D0%BA%D0%B8%D0%B9)/Suspend_and_hibernate_(%D0%A0%D1%83%D1%81%D1%81%D0%BA%D0%B8%D0%B9)
@@ -15,3 +13,67 @@ AllowSuspend=yes
 AllowSuspendThenHibernate=yes
 HibernateDelaySec=10min
 #+END_SRC
+* Autostart (after boot - before login)
+https://www.baeldung.com/linux/run-script-on-startup
+** .xsession (SSDM way)
+~/.xsession
+#+begin_src bash
+#!/bin/bash
+/home/arthur/Applications/autostart.sh  &
+#+end_src
+*** autostart script
+vim /home/arthur/Applications/autostart.sh
+#+begin_src bash :tangle /home/arthur/Applications/autostart.sh
+#! /bin/bash
+export DISPLAY=:0
+export QT_QPA_PLATFORMTHEME=\"qt5ct\"
+
+setxkbmap -layout us,ru -option grp:alt_space_toggle &
+numlockx &
+klipper &
+kbdd &
+/usr/bin/emacs --daemon &
+/home/arthur/Applications/Kensington_Expert_Setup.sh &
+xrandr --output HDMI-0 --off --output HDMI-1 --off --output HDMI-2 --off --output DP-0 --mode 2560x1080 --pos 2560x44 --rotate normal --output DP-1 --off --output DP-2 --off --output DP-3 --off --output DP-4 --primary --mode 2560x1440 --pos 0x0 --rotate normal --output DP-5 --off &
+nm-applet &
+volumeicon &
+#xsetroot -cursor_name left_ptr &
+feh --randomize --bg-fill /usr/share/backgrounds/dtos-backgrounds/* &
+systemctl --user start syncthing.service &
+picom --xrender-sync-fence &
+xdotool mousemove 1280 720 &
+#+end_src
+** systemd (doesnt work with Xorg)
+sudo vim /etc/systemd/system/user_autostart.service
+#+begin_src /etc/systemd/system/user_autostart.service
+[Unit]
+Description=Autostart user scripts.
+
+[Service]
+Type=simple
+ExecStart=/bin/bash /home/arthur/Applications/autostart.sh
+
+[Install]
+WantedBy=multi-user.target
+#+end_src
+
+exec:
+#+begin_src bash
+sudo chmod 644 /etc/systemd/system/user_autostart.service
+systemctl enable user_autostart.service
+#+end_src
+** xinitrc (doesnt work working)
+./.xinitrc
+#+begin_src bash
+# picom --xrender-sync-fence
+# nm-applet
+# volumeicon
+# xsetroot -cursor_name left_ptr
+xrandr --output HDMI-0 --off --output HDMI-1 --off --output HDMI-2 --off --output DP-0 --primary --mode 2560x1440 --pos 0x0 --rotate normal --output DP-1 --off --output DP-2 --off --output DP-3 --off --output DP-4 --mode 2560x1080 --pos 2560x180 --rotate normal --output DP-5 --off
+~/Applications/Kensington_Expert_Setup.sh &
+numlockx &
+klipper &
+systemctl --user start syncthing.service
+/usr/bin/emacs --daemon
+export QT_QPA_PLATFORMTHEME=\"qt5ct\"
+#+end_src

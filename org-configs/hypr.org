@@ -1,0 +1,220 @@
+#+title: Hypr
+#+STARTUP: overview
+
+
+https://github.com/hyprwm/Hypr/wiki/Configuring-Hypr
+* compile
+#+begin_src bash
+cd /home/arthur/ && cd Applications/Hypr/ && make clear && make release && chmod +x build/Hypr
+sudo cp /home/arthur/Applications/Hypr/build/Hypr /usr/bin
+#+end_src
+* settings
+#+BEGIN_SRC toml :tangle /home/arthur/.config/hypr/hypr.conf
+gaps_in=3
+border_size=2
+gaps_out=20
+rounding=1
+max_fps=60 # max fps for updates of config & animations
+focus_when_hover=1 # 0 - do not switch the focus when hover (only for tiling)
+main_mod=SUPER # For moving, resizing
+intelligent_transients=1 # keeps transients always on top.
+no_unmap_saving=1 # disables saving unmapped windows (seems to break sometimes)
+# scratchpad_mon=0 # self-explanatory
+#+end_src
+* autostart
+exec      - executes a command every time the WM is reloaded. (on start and on config change)
+exec-once - executes a command ONLY on WM startup.
+#+BEGIN_SRC toml :tangle /home/arthur/.config/hypr/hypr.conf
+# exec-once=/home/me/MyEpicShellScript # will exec the script only when the WM launches
+# exec=/home/me/MyEpicShellScript # will exec the script every time the config is reloaded
+
+# exec-once=xrandr --output HDMI-0 --off --output HDMI-1 --off --output HDMI-2 --off --output DP-0 --primary --mode 2560x1440 --pos 0x0 --rotate normal --output DP-1 --off --output DP-2 --off --output DP-3 --off --output DP-4 --mode 2560x1080 --pos 2560x180 --rotate normal --output DP-5 --off
+# exec-once=picom # --xrender-sync-fence
+# exec-once=nm-applet
+# exec-once=volumeicon
+# exec-once=~/Applications/Kensington_Expert_Setup.sh
+# exec-once=numlockx &
+# exec-once=klipper &
+# exec-once=xsetroot -cursor_name left_ptr
+# exec-once=systemctl --user start syncthing.service
+# exec-once=/usr/bin/emacs --daemon # emacs daemon for the emacsclien
+# exec-once=export QT_QPA_PLATFORMTHEME=\"qt5ct\"
+# exec-once=feh --randomize --bg-fill /usr/share/backgrounds/dtos-backgrounds/*
+# exec-once=setxkbmap -layout us,ru -option grp:alt_space_toggle
+# exec-once=kbdd
+# exec-once=xdotool mousemove 1280 720
+#+end_src
+* layout
+#+BEGIN_SRC toml :tangle /home/arthur/.config/hypr/hypr.conf
+layout=1 # 0 - dwindle (default), 1 - master
+layout {
+    no_gaps_when_only=0 # disables gaps and borders when only window on screen
+}
+#+end_src
+* bar
+modul's format:
+module=ALIGN,ICON,COLORTEXT,COLORBG,REFRESHMS,CONTENT
+#+BEGIN_SRC toml :tangle /home/arthur/.config/hypr/hypr.conf
+Bar {
+    height=20
+    monitor=1
+    enabled=1
+    mod_pad_in=12
+    no_tray_saving=1 # using this doesnt save the tray between reloads but fixes an issue with the bar disappearing.
+
+    font.main=Noto Sans
+    font.secondary=Noto Sans
+
+    col.bg=0xff111111
+    col.high=0xffff3333
+
+    module=left,X,0xff8000ff,0xffffffff,1,workspaces
+    module=pad,left,10
+    module=left,,0xff7000dd,0xff7000dd,1,tray
+    module=right,X,0xffffffff,0xff00ff33,1000,$date +%a,\ %b\ %Y\ \ %I:%M\ %p$
+}
+#+end_src
+* colors
+dracula theme
+https://github.com/dracula/hyprland/blob/main/hyprland.conf
+#+BEGIN_SRC toml :tangle /home/arthur/.config/hypr/hypr.conf
+col.active_border=0x77ff3333
+col.inactive_border=0x77222222
+# col.active_border=rgb(44475a) rgb(bd93f9) 90deg
+# col.inactive_border=rgba(44475aaa)
+# col.nogroup_border=rgba(282a36dd)
+# col.nogroup_border_active=rgb(bd93f9) rgb(44475a) 90deg
+# decoration {
+#     col.shadow = rgba(1E202966)
+#     # suggested shadow setting
+#     #drop_shadow = yes
+#     #shadow_range = 60
+#     #shadow_offset = 1 2
+#     #shadow_render_power = 3
+#     #shadow_scale = 0.97
+# }
+
+# group {
+#     groupbar {
+#         col.active = rgb(bd93f9) rgb(44475a) 90deg
+#         col.inactive = rgba(282a36dd)
+#     }
+# }
+#+end_src
+* animations
+#+BEGIN_SRC toml :tangle /home/arthur/.config/hypr/hypr.conf
+Animations {
+    enabled=1 # For windows
+    window_resize_speed=10 # This is for windows resizing
+    workspaces=1 # For workspace animations (fixed, enabling by default)
+    speed=10 # This is for workspaces
+    cheap=1 # highly recommended
+    borders=0
+}
+#+end_src
+* window rules
+format:
+windowrule=RULE,TEST
+
+rules:
+tiling - set window to tiling
+floating - set window to floating
+monitor <int> - set launch monitor id
+size <int> <int> - set launch size (for floating only)
+move <int> <int> - set launch coord (for floating only, on the launch monitor)
+pseudo - automatically toggle pseudo on launch
+fullscreen - toggle fullscreen on launch
+workspace <int> - default workspace for window
+#+BEGIN_SRC toml :tangle /home/arthur/.config/hypr/hypr.conf
+windowrule=float,class:krunner
+windowrule=float,role:pop-up
+windowrule=float,role:task_dialog
+windowrule=monitor 1,class:krunner
+windowrule=size 500 50,class:krunner
+windowrule=move 700 500,class:krunner
+#+end_src
+* keybindings
+format:
+bind=MOD,KEY,DISPATCHER,COMMAND -- The KEY is the XOrg key name. Check them with the xmodmap -pk command or xev -event keyboard.
+
+dispatcher list:
+exec - executes a shell command - COMMAND: command to execute
+killactive - kills the focused window - No params
+fullscreen - fullscreens the focused window - No params
+movewindow - moves the focused window - COMMAND: l/r/u/d (left/right/up/down)
+movefocus - moves the focus to the window neighboring - COMMAND: l/r/u/d (left/right/up/down)
+movetoworkspace - moves the focused window to a workspace - COMMAND: number (workspace ID) or just scratchpad for scratchpad
+movetoworkspace - moves the focused window to next/last workspace - COMMAND: +/- (move to workspace with ID+1/ID-1)
+workspace - switches your view to a workspace - COMMAND: number (workspace ID)
+togglefloating - toggles the focused window's floating state - No params
+splitratio - adjust the split ratio - COMMAND: +/-/float (if +/- is used, split ratio will be changed by +0.05/-0.05)
+pseudo - toggles the pseudotile status of the current window - No params
+scratchpad - toggle the scratchpad - no params
+nextworkspace - go to the next workspace - no params
+lastworkspace - go to the last workspace - no params
+pin - toggle the pinned state of a floating window
+#+BEGIN_SRC toml :tangle /home/arthur/.config/hypr/hypr.conf
+bind=SUPER,R,exec,dmenu_run
+bind=SUPER,RETURN,exec,alacritty
+bind=SUPER,B,exec,firefox
+
+bind=SUPER,Q,killactive,
+
+bind=SUPER,LEFT,movewindow,l
+bind=SUPER,RIGHT,movewindow,r
+bind=SUPER,UP,movewindow,u
+bind=SUPER,DOWN,movewindow,d
+
+bind=SUPER,LEFT,movefocus,l
+bind=SUPER,RIGHT,movefocus,r
+bind=SUPER,UP,movefocus,u
+bind=SUPER,DOWN,movefocus,d
+
+bind=SUPER,F,fullscreen,
+
+bind=SUPER,1,workspace,1
+# bind=SUPER,KP1,workspace,1
+bind=SUPER,2,workspace,2
+# bind=SUPER,KP2,workspace,2
+# bind=SUPER,3,workspace,3
+# bind=SUPER,KP3,workspace,3
+# bind=SUPER,4,workspace,4
+# bind=SUPER,KP4,workspace,4
+# bind=SUPER,5,workspace,5
+# bind=SUPER,KP5,workspace,5
+# bind=SUPER,6,workspace,6
+# bind=SUPER,KP6,workspace,6
+# bind=SUPER,7,workspace,7
+# bind=SUPER,KP7,workspace,7
+# bind=SUPER,8,workspace,8
+# bind=SUPER,KP8,workspace,8
+# bind=SUPER,9,workspace,9
+# bind=SUPER,KP9,workspace,9
+
+bind=SUPERSHIFT,1,movetoworkspace,1
+# bind=SUPERSHIFT,KP1,movetoworkspace,1
+bind=SUPERSHIFT,2,movetoworkspace,2
+# bind=SUPERSHIFT,KP2,movetoworkspace,2
+# bind=SUPERSHIFT,3,movetoworkspace,3
+# bind=SUPERSHIFT,KP3,movetoworkspace,3
+# bind=SUPERSHIFT,4,movetoworkspace,4
+# bind=SUPERSHIFT,KP4,movetoworkspace,4
+# bind=SUPERSHIFT,5,movetoworkspace,5
+# bind=SUPERSHIFT,KP5,movetoworkspace,5
+# bind=SUPERSHIFT,6,movetoworkspace,6
+# bind=SUPERSHIFT,KP6,movetoworkspace,6
+# bind=SUPERSHIFT,7,movetoworkspace,7
+# bind=SUPERSHIFT,KP7,movetoworkspace,7
+# bind=SUPERSHIFT,8,movetoworkspace,8
+# bind=SUPERSHIFT,KP8,movetoworkspace,8
+# bind=SUPERSHIFT,9,movetoworkspace,9
+# bind=SUPERSHIFT,KP9,movetoworkspace,9
+
+bind=SUPERSHIFT,S,movetoworkspace,scratchpad
+bind=SUPER,S,scratchpad,
+
+bind=SUPER,F,togglefloating,
+
+bind=SUPER,L,splitratio,+
+bind=SUPER,H,splitratio,-
+#+end_src

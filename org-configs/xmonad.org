@@ -2,19 +2,6 @@
 #+STARTUP: overview
 
 [[../CONFIG.org][BACK]]
-* Table of Contents :toc:
-- [[#about-this-config][About This Config]]
-- [[#imports][Imports]]
-- [[#variables][Variables]]
-- [[#autostart-the-startup-hook][Autostart (The Startup Hook)]]
-- [[#gridselect][Gridselect]]
-- [[#scratchpads][Scratchpads]]
-- [[#layouts][Layouts]]
-- [[#workspaces][Workspaces]]
-- [[#managehook][Managehook]]
-- [[#keybindings][Keybindings]]
-- [[#main][Main]]
-
 * About This Config
 #+CAPTION: XMonad Scrot
 #+ATTR_HTML: :alt XMonad Scrot :title XMonad Scrot :align left
@@ -190,15 +177,15 @@ myStartupHook = do
     spawnOnce "lxsession"
     -- setting displays
     spawnOnce "xrandr --output HDMI-0 --off --output HDMI-1 --off --output HDMI-2 --off --output DP-0 --primary --mode 2560x1440 --pos 0x0 --rotate normal --output DP-1 --off --output DP-2 --off --output DP-3 --off --output DP-4 --mode 2560x1080 --pos 2560x180 --rotate normal --output DP-5 --off"
-    spawnOnce "picom --xrender-sync-fence"
-    spawnOnce "nm-applet"
-    spawnOnce "volumeicon"
-    spawnOnce "~/Applications/Kensington_Expert_Setup.sh"
-    spawnOnce "numlockx &"
-    spawnOnce "klipper &"
+    -- spawnOnce "picom --xrender-sync-fence"
+    -- spawnOnce "nm-applet"
+    -- spawnOnce "volumeicon"
+    -- spawnOnce "~/Applications/Kensington_Expert_Setup.sh"
+    -- spawnOnce "numlockx &"
+    -- spawnOnce "klipper &"
     spawnOnce "xsetroot -cursor_name left_ptr"
-    spawnOnce "systemctl --user start syncthing.service"
-    spawnOnce "/usr/bin/emacs --daemon" -- emacs daemon for the emacsclient
+    -- spawnOnce "systemctl --user start syncthing.service"
+    -- spawnOnce "/usr/bin/emacs --daemon" -- emacs daemon for the emacsclient
     spawnOnce "export QT_QPA_PLATFORMTHEME=\"qt5ct\"" -- emacs daemon for the emacsclient
     -- spawnOn "2:code" "emacs" -- spawn app in specific workspace
 #+END_SRC
@@ -440,7 +427,7 @@ myWorkspaces = [" main ", " doc ", " www ", " dev ", " mes ", " util ", " add1 "
 myWorkspaceIndices = M.fromList $ zipWith (,) myWorkspaces [1..] -- (,) == \x y -> (x,
 myWorkspacesNums = ["1","2","3","4","5","6","7","8","9"]
 
-clickable ws = "<action=xdotool key alt+"++show i++">"++ws++"</action>"
+clickable ws = "<action=xdotool key super+"++show i++">"++ws++"</action>"
     where i = fromJust $ M.lookup ws myWorkspaceIndices
 
 #+END_SRC
@@ -560,10 +547,10 @@ I am using the Xmonad.Util.EZConfig module which allows keybindings to be writte
 myKeys :: [(String, X ())]
 myKeys =
     -- KB_GROUP Xmonad
-        [ ("M4-C-r", spawn "xmonad --recompile")       -- Recompiles xmonad
-        , ("M4-S-r", spawn "xmonad --restart")         -- Restarts xmonad
-        , ("M4-S-l", io exitSuccess)                   -- Quits xmonad
-        , ("M4-l", spawn "slock")                      -- Lock screen
+        [ ("M-C-r", spawn "xmonad --recompile")       -- Recompiles xmonad
+        , ("M-S-r", spawn "xmonad --restart")         -- Restarts xmonad
+        , ("M-S-l", io exitSuccess)                   -- Quits xmonad
+        , ("M-M1-l", spawn "slock")                      -- Lock screen
         -- , ("M4-<Space>", spawn "/home/arthur/Applications/keyboard_layout_switcher.sh") -- Switch layout ru/en
 
     -- KB_GROUP default alt+TAB functionality
@@ -571,7 +558,7 @@ myKeys =
         -- , ("M-<Tab>", spawn "rofi -show window -line-padding 4 -lines 6 -padding 50 -hide-scrollbar -show-icons -drun-icon-theme 'Arc-X-D' -font 'Droid Sans Regular 10'") -- get list of all open windows
 
     -- KB_GROUP Layouts
-        , ("M4-<Tab>", sendMessage NextLayout)                                  -- Switch to next layout
+        , ("M-<Tab>", sendMessage NextLayout)                                  -- Switch to next layout
         , ("M-S-m", sendMessage (MT.Toggle NBFULL) >> sendMessage ToggleStruts) -- Toggles noborder/full
 
     -- KB_GROUP Increase/decrease windows in the master pane or the stack

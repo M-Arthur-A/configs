@@ -5,6 +5,13 @@
 #+filetags: :hub:
 #+STARTUP: overview
 
+* [[./org-configs/dwm.org][DWM]]
+C window manager
+https://gitlab.com/dtos/etc/dtos-dwm
+* [[./org-configs/awesome.org][AWESOME]]
+* [[./org-configs/hypr.org][HYPR]]
+C++ window manager
+https://github.com/hyprwm/Hypr
 * [[./org-configs/xmonad.org][XMONAD]]
 Its a high customizable window-manager
 * [[./org-configs/xmobar.org][XMOBAR]]
@@ -19,7 +26,7 @@ Its a command line shell
 Its an high customizable environment
 * [[./org-configs/picom.org][PICOM]]
 Its a window compositor (round corners, vert sync, animations etc)
-* [[./org-configs/powermanagement.org][POWERMANAGEMENT]]
+* [[./org-configs/powermanagement.org][AUTOSTART&POWERMANAGEMENT]]
 * [[id:a90f6df3-f514-463a-8ecd-6f716c1ccf63][GAMEMODE]]
 * MOUSE
 https://github.com/libratbag/piper
