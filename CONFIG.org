@@ -5,19 +5,18 @@
 #+filetags: :hub:
 #+STARTUP: overview
 
-* [[./org-configs/bspwm.org][BSPWM]]
+* WMs
+** [[./org-configs/bspwm.org][BSPWM]]
 C tiling window manager
-* [[./org-configs/dwm.org][DWM]]
+** [[./org-configs/dwm.org][DWM]]
 C window manager
 https://gitlab.com/dtos/etc/dtos-dwm
-* [[./org-configs/awesome.org][AWESOME]]
-* [[./org-configs/hypr.org][HYPR]]
+** [[./org-configs/xmonad.org][XMONAD]]
+Its a high customizable window-manager
+** [[./org-configs/awesome.org][AWESOME]]
+** [[./org-configs/hypr.org][HYPR]]
 C++ window manager
 https://github.com/hyprwm/Hypr
-* [[./org-configs/xmonad.org][XMONAD]]
-Its a high customizable window-manager
-* [[./org-configs/xmobar.org][XMOBAR]]
-Its a top system bar used by XMONAD
 * [[./org-configs/conky.org][CONKY]]
 Its a keybinds helper for XMONAD
 * [[./org-configs/alacritty.org][ALACRITTY]]

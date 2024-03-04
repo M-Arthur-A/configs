@@ -19,6 +19,8 @@ Keep in mind, that my configs are purposely bloated with examples of what you ca
 
 NOTE: You will also need DT's xmobar config, which is located here: https://gitlab.com/dwt1/dotfiles/-/tree/master/.config/xmobar
 
+* [[./xmobar.org][XMOBAR]]
+Its a top system bar used by XMONAD
 * Imports
 These are Haskell modules that we must import so that we can use their functions later in the config.
 
