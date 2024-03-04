@@ -1,5 +1,5 @@
 #+title: Dwm
-#+STARTUP: overvie
+#+STARTUP: overview
 
 * about DWM
 #+CAPTION: dmenu-distrotube
@@ -242,6 +242,7 @@ static const Block blocks[] = {
 
 	{" 🔊 ", "/etc/dtos/.config/dwmblocks/scripts/volume",    0,		          10},
 */
+	/* {" ", "/home/arthur/Applications/kbdlayout",	  60,	              0}, */
 	{" 🕑 ", "/home/arthur/Applications/clock",	  60,	              0},
 
 };
@@ -249,6 +250,56 @@ static const Block blocks[] = {
 //sets delimeter between status commands. NULL character ('\0') means no delimeter.
 static char delim = ' | ';
 #+end_src
+* scripts
+** autostart script
+all main things in Applications/autostart.sh used by SSDM (.xsession)
+#+BEGIN_SRC bash :tangle /home/arthur/.dwm/autostart.sh
+#! /bin/bash
+lxsession &
+# xrandr --output HDMI-0 --off --output HDMI-1 --off --output HDMI-2 --off --output DP-0 --mode 2560x1080 --pos 2560x44 --rotate normal --output DP-1 --off --output DP-2 --off --output DP-3 --off --output DP-4 --primary --mode 2560x1440 --pos 0x0 --rotate normal --output DP-5 --off &
+dwmblocks &
+# picom --xrender-sync-fence &
+# nm-applet &
+# volumeicon &
+# ~/Applications/Kensington_Expert_Setup.sh &
+# numlockx &
+# klipper &
+# xsetroot -cursor_name left_ptr &
+# systemctl --user start syncthing.service &
+# /usr/bin/emacs --daemon &
+# export QT_QPA_PLATFORMTHEME=\"qt5ct\" &
+# feh --randomize --bg-fill /usr/share/backgrounds/dtos-backgrounds/* &
+# setxkbmap -layout us,ru -option grp:alt_space_toggle &
+# kbdd &
+# xdotool mousemove 1280 720 &
+#+end_src
+** clock
+#+begin_src bash :tangle /home/arthur/Applications/clock
+#! /bin/bash
+echo -e $(date +"%d-%b-%y(%a) %H:%M"| sed 's/  / /g')
+#+end_src
+
+#+begin_src bash
+chmod +x /home/arthur/Applications/clock
+#+end_src
+
+** keyboard layout
+#+begin_src bash :tangle /home/arthur/Applications/kbdlayout
+#! /bin/bash
+case "$(xset -q|grep LED| awk '{ print $10 }')" in
+  "00000002") KBD="EN" ;;
+  "00001002") KBD="RU" ;;
+  ,*) KBD="??" ;;
+esac
+echo "$KBD"
+#+end_src
+
+#+begin_src bash
+chmod +x /home/arthur/Applications/kbdlayout
+#+end_src
+
+#+RESULTS:
+
 * tagging
 #+begin_src c :tangle "/sudo::/etc/dtos/.config/dwm/config.def.h"
 /* tagging */
@@ -407,39 +458,6 @@ static Button buttons[] = {
 	{ ClkTagBar,            MODKEY,         Button3,        toggletag,      {0} },
 };
 #+end_src
-* scripts
-** autostart script
-all main things in Applications/autostart.sh used by SSDM (.xsession)
-#+BEGIN_SRC bash :tangle /home/arthur/.dwm/autostart.sh
-#! /bin/bash
-lxsession &
-# xrandr --output HDMI-0 --off --output HDMI-1 --off --output HDMI-2 --off --output DP-0 --mode 2560x1080 --pos 2560x44 --rotate normal --output DP-1 --off --output DP-2 --off --output DP-3 --off --output DP-4 --primary --mode 2560x1440 --pos 0x0 --rotate normal --output DP-5 --off &
-dwmblocks &
-# picom --xrender-sync-fence &
-# nm-applet &
-# volumeicon &
-# ~/Applications/Kensington_Expert_Setup.sh &
-# numlockx &
-# klipper &
-# xsetroot -cursor_name left_ptr &
-# systemctl --user start syncthing.service &
-# /usr/bin/emacs --daemon &
-# export QT_QPA_PLATFORMTHEME=\"qt5ct\" &
-# feh --randomize --bg-fill /usr/share/backgrounds/dtos-backgrounds/* &
-# setxkbmap -layout us,ru -option grp:alt_space_toggle &
-# kbdd &
-# xdotool mousemove 1280 720 &
-#+end_src
-** clock
-#+begin_src bash :tangle /home/arthur/Applications/clock
-#! /bin/bash
-echo -e $(date +"%d-%b-%y(%a) %H:%M"| sed 's/  / /g')
-#+end_src
-
-#+begin_src bash
-chmod +x /home/arthur/Applications/clock
-#+end_src
-
 * TEST
 testing WM (from another stable WM)
 #+begin_src bash
@@ -452,6 +470,7 @@ dwm &
 #+begin_src sh :dir /sudo::
 cd /etc/dtos/.config/dwmblocks/ && sudo rm -rf blocks.h ; sudo make clean install && sudo cp dwmblocks /usr/bin
 #+end_src
+
 ** DWM
 #+begin_src sh :dir /sudo:: :results output
 chmod +x /home/arthur/.dwm/autostart.sh

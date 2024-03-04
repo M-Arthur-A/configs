@@ -5,6 +5,8 @@
 #+filetags: :hub:
 #+STARTUP: overview
 
+* [[./org-configs/bspwm.org][BSPWM]]
+C tiling window manager
 * [[./org-configs/dwm.org][DWM]]
 C window manager
 https://gitlab.com/dtos/etc/dtos-dwm

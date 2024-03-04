@@ -1,0 +1,626 @@
+#+title: Bspwm
+#+STARTUP: overview
+
+* WM
+** VARS
+#+begin_src bash :tangle "/home/arthur/.config/bspwm/bspwmrc"
+#!/usr/bin/env bash
+#### VARIABLES ####
+
+
+#+end_src
+** AUTOSTART
+#+begin_src bash :tangle "/home/arthur/.config/bspwm/bspwmrc"
+#### AUTOSTART ####
+killall -s SIGTERM Kglobalaccel5 ;
+killall sxhkd ; sxhkd &
+pgrep -x picom > /dev/null || picom --xrender-sync-fence &
+pgrep -x nm-applet > /dev/null || nm-applet &
+pgrep -x numlockx > /dev/null || numlockx &
+pgrep -x klipper > /dev/null || klipper &
+pgrep -x kbdd > /dev/null || kbdd &
+pgrep -x emacs > /dev/null || /usr/bin/emacs --daemon &
+/home/arthur/Applications/Kensington_Expert_Setup.sh &
+systemctl --user start syncthing.service &
+
+feh --randomize --bg-fill /usr/share/backgrounds/dtos-backgrounds/* &
+
+### POLYBARS ###
+killall polybar
+if type "xrandr"; then
+  for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
+    MONITOR=$m polybar --reload top -q &
+  done
+else
+  polybar --reload top -q &
+fi
+
+#+end_src
+** COMMON
+#+begin_src bash :tangle "/home/arthur/.config/bspwm/bspwmrc"
+#### MONITORS ####
+for monitor in $(bspc query -M)
+  do
+    # set the workspaces on each monitor to 1-9
+    bspc monitor $monitor -d 1 2 3 4 5 6 7 8 9
+    #polybar hidden when fullscreen for vlc, youtube, mpv ...
+    # xdo below -t $(xdo id -n root) $(xdo id -a polybar-main_$monitor)
+  done
+
+#### BSPWM configuration ####
+#bspc config border_radius                8
+bspc config border_width                  3
+bspc config window_gap                    10
+bspc config top_padding                   10
+bspc config bottom_padding                0
+bspc config left_padding                  0
+bspc config right_padding                 0
+bspc config single_monocle                false
+bspc config click_to_focus                true
+bspc config split_ratio                   0.50
+bspc config borderless_monocle            true
+bspc config gapless_monocle               true
+bspc config focus_by_distance             true
+bspc config focus_follows_pointer         true
+bspc config history_aware_focus           true
+bspc config remove_disabled_monitors      true
+bspc config merge_overlapping_monitors    true
+bspc config pointer_modifier              mod4
+bspc config pointer_action1               move
+bspc config pointer_action2               resize_side
+bspc config pointer_action3               resize_corner
+
+#+end_src
+** COLORS
+#+begin_src bash :tangle "/home/arthur/.config/bspwm/bspwmrc"
+#### BSPWM coloring ####
+bspc config normal_border_color	 "#1f222b"
+bspc config active_border_color	 "#bd93f9"
+bspc config focused_border_color	 "#7899FA"
+bspc config presel_feedback_color	 "#6272a4"
+bspc config urgent_border_color	 "#dd2727"
+
+#+end_src
+** RULES
+#+begin_src bash :tangle "/home/arthur/.config/bspwm/bspwmrc"
+#### Rules ####+
+### Scrathpad ###
+bspc rule -a scratchpad sticky=off state=floating rectangle=2000x900+250+250
+
+#+end_src
+* BAR
+POLYBARs
+** config
+#+begin_src bash :tangle /home/arthur/.config/polybar/config.ini
+[global/wm]
+include-file = $HOME/.config/polybar/colors.ini
+include-file = $HOME/.config/polybar/modules.ini
+
+[bar/top]
+monitor=${env:MONITOR}
+width = 99%
+height = 26
+padding-left = 1
+padding-right = 0
+background = ${colors.background}
+foreground = ${colors.foreground}
+bottom = false
+border-top-size = 7
+border-bottom-size = 7
+border-top-color = ${colors.background}
+border-bottom-color = ${colors.background}
+offset-x = 0.5%
+offset-y = 0.5%
+fixed-center = true
+line-size = 3
+wm-restack = bspwm
+
+modules-left = filesystem round-left bspwm round-right
+modules-center = round-left title round-right
+modules-right = round-left xkeyboard alsa time round-right tray
+# modules-center = temperature space space memory space space cpu
+# modules-right = battery xbacklight alsa xkeyboard round-left time round-right space wlan powermenu
+
+font-0 = JetBrainsMono Nerd Font:style=Bold:pixelsize=13;3
+font-1 = JetBrainsMono Nerd Font:size=18;5
+font-2 = Material Design Icons:style=Bold:size=13;3
+font-3 = unifont:fontformat=truetype:size=13:antialias=true;
+#+end_src
+** colors
+#+begin_src bash :tangle /home/arthur/.config/polybar/colors.ini
+[colors]
+# background = ${xrdb:background}
+# for transparency add aa after #
+background = #aa2e2e2e
+background-alt = #47546e
+foreground = #adb1b9
+
+color0 = ${xrdb:color0}
+color1 = ${xrdb:color1}
+color2 = ${xrdb:color2}
+color3 = ${xrdb:color3}
+color4 = ${xrdb:color4}
+color5 = ${xrdb:color5}
+color6 = ${xrdb:color6}
+color7 = ${xrdb:color7}
+color8 = ${xrdb:color8}
+color9 = ${xrdb:color9}
+color10 = ${xrdb:color10}
+color11 = ${xrdb:color11}
+color12 = ${xrdb:color12}
+color13 = ${xrdb:color13}
+color14 = ${xrdb:color14}
+color15 = ${xrdb:color15}
+dark-light = #272A2B
+active-light = #313435
+#+end_src
+** modules
+#+begin_src bash :tangle /home/arthur/.config/polybar/modules.ini
+[module/round-left]
+type = custom/text
+content = %{T3} %{T-}
+# content-foreground = #2b2f37
+content-foreground = ${colors.background-alt}
+
+[module/round-right]
+type = custom/text
+content = %{T3}%{T-}
+content-foreground = ${colors.background-alt}
+
+[module/temperature]
+type = internal/temperature
+thermal-zone = 0
+warn-temperature = 70
+
+format = <ramp> <label>
+format-warn = <ramp> <label-warn>
+format-padding = 0
+label = %temperature%
+label-warn = %temperature%
+ramp-0 = ""
+ramp-foreground = #a4ebf3
+
+[module/bspwm]
+type = internal/bspwm
+
+pin-workspaces = true
+inline-mode = true
+enable-click = true
+enable-scroll = true
+reverse-scroll = false
+
+format = <label-state>
+# format-background = ${colors.background-alt}
+
+ws-icon-0 = 1;%{F#F9DE8F}gen
+ws-icon-1 = 2;%{F#ff9b93}doc
+ws-icon-2 = 3;%{F#95e1d3}www
+ws-icon-3 = 4;%{F#81A1C1}dev
+ws-icon-4 = 5;%{F#A3BE8C}mes
+ws-icon-5 = 6;%{F#F9DE8F}sys
+ws-icon-6 = 7;%{F#ff9b93}7
+ws-icon-7 = 8;%{F#ff9b93}8
+ws-icon-8 = 9;%{F#ff9b93}9
+
+label-separator = ""
+label-separator-background = #2b2f37
+
+label-focused =  %icon%
+label-focused-foreground = ${colors.foreground}
+label-focused-underline =  #7899fa
+label-focused-padding = 1
+label-focused-background = ${colors.background-alt}
+
+label-occupied = %icon%
+label-occupied-foreground = #646870
+label-occupied-background = #343d4f
+label-occupied-padding = 1
+
+label-empty = %icon%
+label-empty-foreground = ${colors.foreground}
+label-empty-padding = 1
+label-empty-background = ${colors.background-alt}
+
+label-urgent = %icon%
+label-urgent-foreground = #88C0D0
+label-urgent-background = #2b2f37
+label-urgent-padding = 1
+
+[module/alsa]
+type = internal/alsa
+format-volume = <ramp-volume> <label-volume>
+format-volume-padding = 1
+format-muted = 󰖁
+format-muted-padding = 1
+label-volume = %percentage%%
+ramp-volume-0 = %{F#d35f5e}󰖀 %{F-}
+ramp-volume-1 = %{F#d35f5e}󰖀 %{F-}
+ramp-volume-2 = %{F#d35f5e}󰖀 %{F-}
+ramp-volume-3 = %{F#f7a6a6}󰖀 %{F-}
+ramp-volume-4 = %{F#f7a6a6}󰖀 %{F-}
+ramp-volume-5 = %{F#f7a6a6}󰕾 %{F-}
+ramp-volume-6 = %{F#fff}󰕾 %{F-}
+ramp-volume-7 = %{F#fff}󰕾 %{F-}
+ramp-volume-8 = %{F#fff}󰕾 %{F-}
+ramp-volume-9 = %{F#fff}󰕾 %{F-}
+ramp-headphones-0 = 
+ramp-headphones-1 = 
+label-volume-foreground = #fff
+format-volume-foreground = ${colors.foreground}
+format-volume-background = ${colors.background-alt}
+format-muted-foreground = #d35f5e
+format-muted-background = ${colors.background-alt}
+
+[module/time]
+type = internal/date
+interval = 60
+format = <label>
+format-background = ${colors.background-alt}
+date = %{F#fff}  %H:%M %{F-}
+time-alt = %{F#fff}  %a, %d %b %Y%{F-}
+label = %date%%time%
+
+[module/memory]
+type = internal/memory
+interval = 2
+format = <label>
+format-prefix = " "
+format-padding = 1
+format-foreground = #d19a66
+label = %gb_used%
+
+[module/filesystem]
+type = custom/text
+content =" "
+content-padding =1
+click-left = rofi -show drun
+content-foreground =  #61afef
+
+[module/wlan]
+type = internal/network
+interface = wlp4so
+interval = 3.0
+format-connected =  <label-connected>
+label-connected = "%{A1:$HOME/bin/wifimenu:} %{A}"
+label-connected-foreground = #A3BE8C
+format-disconnected = <label-disconnected>
+label-disconnected = "%{A1:$HOME/bin/wifimenu:}󰖪 %{A}"
+label-disconnected-foreground = #D35F5E
+
+[module/ethernet]
+type = internal/network
+interface = ${system.network_interface_wired}
+format-connected = <label-connected>
+format-connected-prefix = "󰈁 "
+format-connected-padding = 1
+format-disconnected = <label-disconnected>
+format-disconnected-prefix = "󰈂 "
+format-disconnected-padding = 1
+label-connected = "%{A1:networkmanager_dmenu &:}%downspeed%|%upspeed%%{A}"
+label-disconnected = "%{A1:networkmanager_dmenu &:}Offline%{A}"
+
+[module/battery]
+type = internal/battery
+full-at = 98
+low-at = 10
+
+battery = BAT1
+adapter = ACAD
+poll-interval = 5
+
+time-format = %H:%M
+format-charging = <animation-charging> <label-charging>
+format-discharging = <ramp-capacity> <label-discharging>
+format-full = <ramp-capacity> <label-full>
+format-low = <label-low> <animation-low>
+
+label-charging = "%percentage%% "
+label-discharging = "%percentage%% "
+label-full = " 100% "
+label-low = "%percentage% "
+
+ramp-capacity-0 = " "
+ramp-capacity-1 = " "
+ramp-capacity-2 = " "
+ramp-capacity-3 = " "
+ramp-capacity-4 = " "
+bar-capacity-width = 10
+
+animation-charging-0 = " "
+animation-charging-1 = " "
+animation-charging-2 = " "
+animation-charging-3 = " "
+animation-charging-4 = " "
+animation-charging-framerate = 910
+
+animation-discharging-0 = " "
+animation-discharging-1 = " "
+animation-discharging-2 = " "
+animation-discharging-3 = " "
+animation-discharging-4 = " "
+animation-discharging-framerate = 500
+
+animation-low-0 = "  "
+animation-low-1 = "  "
+animation-low-framerate = 1500
+
+animation-low-foreground = #D35F5D
+format-charging-foreground = ${colors.color4}
+label-charging-foreground = ${colors.foreground}
+format-discharging-foreground = ${colors.foreground}
+label-discharging-foreground = ${colors.foreground}
+format-full-prefix-foreground = #A0E8A2
+format-foreground = ${colors.color4}
+format-background = ${colors.background-alt}
+ramp-capacity-foreground =  #A0E8A2
+animation-charging-foreground = #DF8890
+
+[module/xbacklight]
+type = internal/xbacklight
+format = <label>%
+format-prefix = "  "
+label = %percentage%
+format-prefix-foreground = #61afef
+label-foreground = #D8DEE9
+format-padding = 1
+
+[module/powermenu]
+type = custom/text
+content =" "
+content-padding = 1
+click-left = $HOME/bin/powermenu &
+content-foreground = #d35f5e
+
+[module/cpu]
+type = internal/cpu
+interval = 2
+format-prefix = " "
+format = <label>
+label = %percentage%%
+format-foreground = #989cff
+
+[module/xwindow]
+type = internal/xwindow
+label = %title:0:30:...
+
+[module/space]
+type = custom/text
+content = " "
+
+[module/xkeyboard]
+type = internal/xkeyboard
+blacklist-0 = num lock
+blacklist-1 = scroll lock
+format = <label-layout> <label-indicator>
+label-layout-padding = 1
+label-layout-foreground = #fff
+label-indicator-on = %name%
+layout-icon-default = some-icon
+layout-icon-0 = ru
+layout-icon-1 = us
+label-indicator-on-capslock = !
+label-indicator-off-capslock =
+format-background = ${colors.background-alt}
+
+[module/title]
+type = internal/xwindow
+format = <label>
+format-background = ${colors.background-alt}
+format-foreground = #fff
+; Available tokens:
+;   %title%
+;   %instance% (first part of the WM_CLASS atom, new in version 3.7.0)
+;   %class%    (second part of the WM_CLASS atom, new in version 3.7.0)
+; Default: %title%
+# label = %class%
+label = %title%
+
+[module/tray]
+type = internal/tray
+format-margin = 8px
+tray-spacing = 8px
+#+end_src
+* HOTKEYS
+** WM
+#+begin_src bash :tangle "/home/arthur/.config/sxhkd/sxhkdrc"
+### BSPWM HOTKEYS ###
+# quit/restart bspwm
+super + shift + q
+	bspc quit
+
+# quit/restart bspwm
+super + shift + r
+	bspc wm -r
+
+# close and kill
+super + q
+	bspc node -c
+
+# alternate between the tiled and monocle layout
+super + m
+	bspc desktop -l next
+
+# send the newest marked node to the newest preselected node
+super + y
+	bspc node newest.marked.local -n newest.!automatic.local
+
+# swap the current node and the biggest node
+super + m
+	bspc node -s biggest
+
+#+end_src
+** STATE/FLAGS
+#+begin_src bash :tangle "/home/arthur/.config/sxhkd/sxhkdrc"
+# STATE/FLAGS
+
+# set the window state
+super + {t,shift + t,f,shift + m}
+	bspc node -t {tiled,pseudo_tiled,floating,fullscreen}
+
+# set the node flags
+super + ctrl + {m,x,y,z}
+	bspc node -g {marked,locked,sticky,private}
+
+#+end_src
+** FOCUS/SWAP
+#+begin_src bash :tangle "/home/arthur/.config/sxhkd/sxhkdrc"
+# FOCUS/SWAP
+
+# focus the node in the given direction
+super + {_,shift + }{h,j,k,l}
+	bspc node -{f,s} {west,south,north,east}
+
+# focus the node for the given path jump
+super + {shift + p, shift + b, ctrl + f, ctrl + s}
+	bspc node -f @{parent,brother,first,second}
+
+# focus the next/previous node in the current desktop
+super + {_,shift + }n
+	bspc node -f {next,prev}.local
+
+# focus the next/previous desktop in the current monitor
+super + {Left, Right}
+ 	bspc desktop -f {prev,next}.local
+
+# focus the next/previous monitor
+super + {comma, period}
+    bspc monitor -f {prev,next}
+
+# swap with the nodes from next/previos desktop
+super + {shift + comma, shift + period}
+    bspc node -s {prev,next}
+
+# testing moving to other display
+super + shift + {Right,Left}
+    DIR={next.local,prev.local}; \
+    bspc node -d "$DIR" --follow
+
+# focus the last node/desktop
+super + {shift + Tab,Tab}
+    bspc {node,desktop} -f last
+
+# focus the older or newer node in the focus history
+super + {u,i}
+    bspc wm -h off; \
+    bspc node {older,newer} -f; \
+    bspc wm -h on
+
+# focus or send to the given desktop
+super + {_,shift + }{1-9,0}
+    bspc {desktop -f,node -d} focused:'^{1-9,10}'
+
+#+end_src
+** PRESELECT
+#+begin_src bash :tangle "/home/arthur/.config/sxhkd/sxhkdrc"
+# PRESELECT
+
+# preselect the direction
+super + ctrl + {h,j,k,l}
+	bspc node -p {west,south,north,east}
+
+# preselect the ratio
+super + ctrl + {1-9}
+	bspc node -o 0.{1-9}
+
+# cancel the preselection for the focused node
+super + ctrl + space
+	bspc node -p cancel
+
+# cancel the preselection for the focused desktop
+super + ctrl + shift + space
+	bspc query -N -d | xargs -I id -n 1 bspc node id -p cancel
+
+#+end_src
+** MOVE/RESIZE
+#+begin_src bash :tangle "/home/arthur/.config/sxhkd/sxhkdrc"
+# MOVE/RESIZE
+# shrink/expand
+super + alt + h
+	bspc node -z {left -20 0} || bspc node -z {right -20 0}
+super + alt + j
+	bspc node -z {bottom 0 20} || bspc node -z {top 0 20}
+super + alt + k
+	bspc node -z {bottom 0 -20} || bspc node -z {top 0 -20}
+super + alt + l
+	bspc node -z {left 20 0} || bspc node -z {right 20 0}
+
+# move a floating window
+super + {Left,Down,Up,Right}
+	bspc node -v {-20 0,0 20,0 -20,20 0}
+
+#+end_src
+** APPS
+#+begin_src bash :tangle "/home/arthur/.config/sxhkd/sxhkdrc"
+# launch quick apps
+
+# terminal emulator
+super + Return
+	alacritty
+
+# run program launcher
+super + space
+	rofi -show run
+
+# run browser
+super + b
+    firefox
+
+# clipboard manager
+super + v
+    klipper
+
+# emacs (SUPER + e followed by another key)
+super + e; e
+    emacsclient -c -a 'emacs'
+super + e; d
+    emacsclient -c -a 'emacs' --eval '(dired nil)'
+super + e; c
+    emacsclient -c -a 'emacs' /home/arthur/CONFIG.org
+super + e; n
+    emacsclient -c -a 'emacs' /home/arthur/Project/Notes/roam/20220507152159-notes.org
+
+# apps (SUPER + a followed by another key)
+super + a; a
+    pamac-manager
+super + a; s
+    flameshot gui
+super + a; d
+    manjaro-settings-manager
+super + a; c
+    qalculate-gtk
+super + a; g
+    /home/arthur/Applications/rofi-gaming.sh
+super + a; e
+    dolphin
+
+# scratchpad
+super + ctrl + w
+    /home/arthur/Applications/bspwm_scratch.sh
+
+#+end_src
+* SCRATHCPAD
+#+begin_src sh :tangle "/home/arthur/Applications/bspwm_scratch.sh"
+#!/usr/bin/sh
+
+winid="$(xdotool search --class scratchpad)";
+if [ -z "$winid" ]; then # True if the string is null (an empty string)
+	echo "starting alacritty"
+    alacritty --class scratchpad
+else
+    if [ ! -f /tmp/scratchpad ]; then
+		echo "there is no scratchpad - hiding"
+        touch /tmp/scratchpad && xdotool windowunmap "$winid"
+    elif [ -f /tmp/scratchpad ]; then
+		echo "there is scratchpad - unhiding"
+        rm /tmp/scratchpad && xdotool windowmap "$winid"
+    fi
+fi
+#+end_src
+* DEPLOY
+#+begin_src bash
+chmod +x /home/arthur/.config/sxhkd/sxhkdrc
+chmod +x /home/arthur/.config/bspwm/bspwmrc
+chmod +x /home/arthur/Applications/bspwm_scratch.sh
+#+end_src
+
+#+RESULTS:
