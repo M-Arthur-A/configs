@@ -457,9 +457,13 @@ super + m
 super + {t,shift + t,f,shift + m}
 	bspc node -t {tiled,pseudo_tiled,floating,fullscreen}
 
+# make node available in all desktops
+super + ctrl + y
+	bspc node -g sticky
+
 # set the node flags
-super + ctrl + {m,x,y,z}
-	bspc node -g {marked,locked,sticky,private}
+super + ctrl + {m,x,z}
+	bspc node -g {marked,locked,private}
 
 #+end_src
 ** FOCUS/SWAP
@@ -486,14 +490,13 @@ super + {Left, Right}
 super + {comma, period}
     bspc monitor -f {prev,next}
 
-# swap with the nodes from next/previos desktop
+# move node to another monitor
 super + {shift + comma, shift + period}
-    bspc node -s {prev,next}
+    bspc node -m {prev,next}
 
-# testing moving to other display
-super + shift + {Right,Left}
-    DIR={next.local,prev.local}; \
-    bspc node -d "$DIR" --follow
+# swap with the nodes from next/previos desktop
+super + {ctrl + comma, ctrl + period}
+    bspc node -s {prev,next}
 
 # focus the last node/desktop
 super + {shift + Tab,Tab}
@@ -508,6 +511,10 @@ super + {u,i}
 # focus or send to the given desktop
 super + {_,shift + }{1-9,0}
     bspc {desktop -f,node -d} focused:'^{1-9,10}'
+
+# numpad switching and sending to the given desktop
+super + {_,shift + }{KP_End,KP_Down,KP_Next,KP_Left,KP_Begin,KP_Right,KP_Home,KP_Up,KP_Prior,KP_Insert}
+    bspc {desktop -f,node -d} '^{1-9,10}'
 
 #+end_src
 ** PRESELECT
