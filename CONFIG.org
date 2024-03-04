@@ -28,6 +28,6 @@ Its an high customizable environment
 * [[./org-configs/picom.org][PICOM]]
 Its a window compositor (round corners, vert sync, animations etc)
 * [[./org-configs/powermanagement.org][AUTOSTART&POWERMANAGEMENT]]
-* [[id:a90f6df3-f514-463a-8ecd-6f716c1ccf63][GAMEMODE]]
+* [[./org-configs/gamemode.org][GAMEMODE]]
 * MOUSE
 https://github.com/libratbag/piper

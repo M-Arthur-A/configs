@@ -1,0 +1,223 @@
+:PROPERTIES:
+:ID:       a90f6df3-f514-463a-8ecd-6f716c1ccf63
+:END:
+#+title: gamemode
+
+* scripts for killing WM with compositor
+** gamemodeStart.sh
+#+BEGIN_SRC bash :tangle "/home/arthur/Applications/gamemodeStart.sh"
+#!/bin/bash
+balooctl suspend;
+killall -s SIGKILL picom ;
+conky -d -t '$time' -m 1 -a middle_middle -f 'Hack:size=72' -c '/home/arthur/Applications/conky.conf';
+killall -s SIGKILL xmobar ;
+killall -s SIGKILL polybar;
+if [[ $(pgrep -x "dwm") -gt 1 ]]
+then
+    xdotool keydown super keydown shift key b keyup super keyup shift ;
+fi
+#+end_src
+** gamemodeFinish.sh
+#+BEGIN_SRC bash :tangle "/home/arthur/Applications/gamemodeFinish.sh"
+#!/bin/bash
+balooctl resume ;
+picom -b --xrender-sync-fence &
+killall -s SIGKILL conky ;
+xmonad --restart ;
+bspc wm -r ;
+if [[ $(pgrep -x "dwm") -gt 1 ]]
+then
+    xdotool keydown super keydown shift key b keyup super keyup shift ;
+fi
+#+end_src
+** enable
+#+begin_src bash
+chmod +x /home/arthur/Applications/gamemodeStart.sh ;
+chmod +x /home/arthur/Applications/gamemodeFinish.sh ;
+#+end_src
+
+#+RESULTS:
+** conky for gaming
+#+BEGIN_SRC conf :tangle "/home/arthur/Applications/conky.conf"
+conky.config = {
+    alignment = 'center',
+    background = true,
+    border_width = 1,
+    cpu_avg_samples = 2,
+    default_color = 'white',
+    default_outline_color = 'yellow',
+    default_shade_color = 'white',
+    draw_borders = false,
+    draw_graph_borders = true,
+    draw_outline = false,
+    draw_shades = false,
+    use_xft = true,
+    font = 'profont:size=10',
+    gap_x = 1,
+    gap_y = 20,
+    minimum_height = 5,
+    minimum_width = 5,
+    net_avg_samples = 2,
+    no_buffers = true,
+    out_to_console = false,
+    out_to_stderr = false,
+    extra_newline = false,
+    own_window = true,
+    own_window_class = 'Conky',
+    own_window_type = 'override',
+    own_window_argb_visual = true,
+    own_window_argb_value = 0,
+    stippled_borders = 0,
+    update_interval = 10.0,
+    uppercase = false,
+    use_spacer = 'none',
+    show_graph_scale = false,
+    show_graph_range = false
+}
+
+conky.text = [[
+${color grey}Info:$color ${scroll 32 Conky $conky_version - $sysname $nodename $kernel $machine}
+$hr
+${color grey}Uptime:$color $uptime
+${color grey}Frequency (in MHz):$color $freq
+${color grey}Frequency (in GHz):$color $freq_g
+${color grey}RAM Usage:$color $mem/$memmax - $memperc% ${membar 4}
+${color grey}Swap Usage:$color $swap/$swapmax - $swapperc% ${swapbar 4}
+${color grey}CPU Usage:$color $cpu% ${cpubar 4}
+${color grey}Processes:$color $processes  ${color grey}Running:$color $running_processes
+$hr
+${color grey}File systems:
+ / $color${fs_used /}/${fs_size /} ${fs_bar 6 /}
+${color grey}Networking:
+Up:$color ${upspeed} ${color grey} - Down:$color ${downspeed}
+$hr
+${color grey}Name              PID     CPU%   MEM%
+${color lightgrey} ${top name 1} ${top pid 1} ${top cpu 1} ${top mem 1}
+${color lightgrey} ${top name 2} ${top pid 2} ${top cpu 2} ${top mem 2}
+${color lightgrey} ${top name 3} ${top pid 3} ${top cpu 3} ${top mem 3}
+${color lightgrey} ${top name 4} ${top pid 4} ${top cpu 4} ${top mem 4}
+]]
+#+end_src
+* rofi game launching
+-    \0 indicates end of entry.
+-    \x1f is the field separator before path to icon
+-    \n is the entry separator.
+#+BEGIN_SRC conf :tangle "/home/arthur/Applications/rofi-gaming.sh"
+#!/bin/bash
+selected=$(echo -e "steam\0icon\x1f/home/arthur/.local/share/lutris/runtime/icons/hicolor/64x64/apps/steam.png
+lutris\0icon\x1f/home/arthur/.local/share/lutris/runtime/icons/hicolor/scalable/apps/lutris.svg
+bottles\0icon\x1f/usr/share/icons/hicolor/scalable/apps/com.usebottles.bottles.svg" | rofi -dmenu -p "🎮")
+exec gamemoderun $selected
+#+end_src
+
+enabling
+#+begin_src bash
+chmod +x /home/arthur/Applications/rofi-gaming.sh
+#+end_src
+
+#+RESULTS:
+
+* gamemode.ini
+located in /etc/gamemode.ini
+#+BEGIN_SRC TOML :tangle "/sudo::/etc/gamemode.ini"
+[general]
+; The reaper thread will check every 5 seconds for exited clients, for config file changes, and for the CPU/iGPU power balance
+reaper_freq=5
+
+; The desired governor is used when entering GameMode instead of "performance"
+desiredgov=performance
+; The default governor is used when leaving GameMode instead of restoring the original value
+;defaultgov=powersave
+
+; The iGPU desired governor is used when the integrated GPU is under heavy load
+igpu_desiredgov=powersave
+; Threshold to use to decide when the integrated GPU is under heavy load.
+; This is a ratio of iGPU Watts / CPU Watts which is used to determine when the
+; integraged GPU is under heavy enough load to justify switching to
+; igpu_desiredgov.  Set this to -1 to disable all iGPU checking and always
+; use desiredgov for games.
+igpu_power_threshold=0.3
+
+; GameMode can change the scheduler policy to SCHED_ISO on kernels which support it (currently
+; not supported by upstream kernels). Can be set to "auto", "on" or "off". "auto" will enable
+; with 4 or more CPU cores. "on" will always enable. Defaults to "off".
+softrealtime=off
+
+; GameMode can renice game processes. You can put any value between 0 and 20 here, the value
+; will be negated and applied as a nice value (0 means no change). Defaults to 0.
+renice=0
+
+; By default, GameMode adjusts the iopriority of clients to BE/0, you can put any value
+; between 0 and 7 here (with 0 being highest priority), or one of the special values
+; "off" (to disable) or "reset" (to restore Linux default behavior based on CPU priority),
+; currently, only the best-effort class is supported thus you cannot set it here
+ioprio=0
+
+; Sets whether gamemode will inhibit the screensaver when active
+; Defaults to 1
+inhibit_screensaver=1
+
+[filter]
+; If "whitelist" entry has a value(s)
+; gamemode will reject anything not in the whitelist
+;whitelist=RiseOfTheTombRaider
+
+; Gamemode will always reject anything in the blacklist
+;blacklist=HalfLife3
+;    glxgears
+
+[gpu]
+; Here Be Dragons!
+; Warning: Use these settings at your own risk
+; Any damage to hardware incurred due to this feature is your responsibility and yours alone
+; It is also highly recommended you try these settings out first manually to find the sweet spots
+
+; Setting this to the keyphrase "accept-responsibility" will allow gamemode to apply GPU optimisations such as overclocks
+;apply_gpu_optimisations=0
+
+; The DRM device number on the system (usually 0), ie. the number in /sys/class/drm/card0/
+;gpu_device=0
+
+; Nvidia specific settings
+; Requires the coolbits extension activated in nvidia-xconfig
+; This corresponds to the desired GPUPowerMizerMode
+; "Adaptive"=0 "Prefer Maximum Performance"=1 and "Auto"=2
+; See NV_CTRL_GPU_POWER_MIZER_MODE and friends in https://github.com/NVIDIA/nvidia-settings/blob/master/src/libXNVCtrl/NVCtrl.h
+;nv_powermizer_mode=1
+
+; These will modify the core and mem clocks of the highest perf state in the Nvidia PowerMizer
+; They are measured as Mhz offsets from the baseline, 0 will reset values to default, -1 or unset will not modify values
+;nv_core_clock_mhz_offset=0
+;nv_mem_clock_mhz_offset=0
+
+; AMD specific settings
+; Requires a relatively up to date AMDGPU kernel module
+; See: https://dri.freedesktop.org/docs/drm/gpu/amdgpu.html#gpu-power-thermal-controls-and-monitoring
+; It is also highly recommended you use lm-sensors (or other available tools) to verify card temperatures
+; This corresponds to power_dpm_force_performance_level, "manual" is not supported for now
+;amd_performance_level=high
+
+[supervisor]
+; This section controls the new gamemode functions gamemode_request_start_for and gamemode_request_end_for
+; The whilelist and blacklist control which supervisor programs are allowed to make the above requests
+;supervisor_whitelist=
+;supervisor_blacklist=
+
+; In case you want to allow a supervisor to take full control of gamemode, this option can be set
+; This will only allow gamemode clients to be registered by using the above functions by a supervisor client
+;require_supervisor=0
+
+[custom]
+; Custom scripts (executed using the shell) when gamemode starts and ends
+;start=notify-send "GameMode started"
+;    /home/me/bin/stop_ethmining.sh
+
+;end=notify-send "GameMode ended"
+;    /home/me/bin/start_ethmining.sh
+
+; Timeout for scripts (seconds). Scripts will be killed if they do not complete within this time.
+;script_timeout=10
+
+start=/home/arthur/Applications/gamemodeStart.sh
+end=/home/arthur/Applications/gamemodeFinish.sh
+#+end_src
