@@ -360,4 +360,8 @@ alias rr='curl -s -L https://raw.githubusercontent.com/keroserene/rickrollrc/mas
 
 # Unlock LBRY tips
 alias tips="lbrynet txo spend --type=support --is_not_my_input --blocking"
+
+# games
+alias dota="steam steam://rungameid/570"
+alias lastepoch="steam steam://rungameid/899770"
 #+end_SRC

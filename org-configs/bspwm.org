@@ -17,7 +17,8 @@ killall sxhkd ; sxhkd &
 pgrep -x picom > /dev/null || picom --xrender-sync-fence &
 pgrep -x nm-applet > /dev/null || nm-applet &
 pgrep -x numlockx > /dev/null || numlockx &
-pgrep -x klipper > /dev/null || klipper &
+# pgrep -x klipper > /dev/null || klipper &
+pgrep -x greenclip > /dev/null || greenclip daemon &
 pgrep -x kbdd > /dev/null || kbdd &
 pgrep -x emacs > /dev/null || /usr/bin/emacs --daemon &
 /home/arthur/Applications/Kensington_Expert_Setup.sh &
@@ -490,10 +491,6 @@ super + {Left, Right}
 super + {comma, period}
     bspc monitor -f {prev,next}
 
-# move node to another monitor
-super + {shift + comma, shift + period}
-    bspc node -m {prev,next}
-
 # swap with the nodes from next/previos desktop
 super + {ctrl + comma, ctrl + period}
     bspc node -s {prev,next}
@@ -541,6 +538,11 @@ super + ctrl + shift + space
 ** MOVE/RESIZE
 #+begin_src bash :tangle "/home/arthur/.config/sxhkd/sxhkdrc"
 # MOVE/RESIZE
+
+# move node to another monitor
+super + {shift + comma, shift + period}
+    bspc node -m {prev,next} --follow
+
 # shrink/expand
 super + alt + h
 	bspc node -z {left -20 0} || bspc node -z {right -20 0}
@@ -574,7 +576,8 @@ super + b
 
 # clipboard manager
 super + v
-    klipper
+    rofi -modi "clipboard:greenclip print" -show clipboard -run-command '{cmd}'
+    # klipper
 
 # emacs (SUPER + e followed by another key)
 super + e; e
@@ -595,10 +598,12 @@ super + a; d
     manjaro-settings-manager
 super + a; c
     qalculate-gtk
-super + a; g
+super + a; z
     /home/arthur/Applications/rofi-gaming.sh
 super + a; e
     dolphin
+super + a; g
+    rofi -show window
 
 # scratchpad
 super + ctrl + w
@@ -622,6 +627,22 @@ else
         rm /tmp/scratchpad && xdotool windowmap "$winid"
     fi
 fi
+#+end_src
+* CLIPBOARD
+https://github.com/erebe/greenclip
+#+begin_src toml :tangle "/home/arthur/.config/greenclip.toml"
+[greenclip]
+  history_file = "/home/arthur/.cache/greenclip.history"
+  max_history_length = 10000
+  max_selection_size_bytes = 0
+  trim_space_from_selection = true
+  use_primary_selection_as_input = false
+  blacklisted_applications = []
+  enable_image_support = true
+  image_cache_directory = "/tmp/greenclip"
+  static_history = [
+ '''¯\_(ツ)_/¯''',
+]
 #+end_src
 * DEPLOY
 #+begin_src bash
