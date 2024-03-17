@@ -9,7 +9,7 @@
 #!/bin/bash
 balooctl suspend;
 killall -s SIGKILL picom ;
-conky -d -t '$time' -m 1 -a middle_middle -f 'Hack:size=72' -c '/home/arthur/Applications/conky.conf';
+conky -d -t '$time' -m 0 -a middle_middle -f 'Hack:size=72' -c '/home/arthur/Applications/conky.conf';
 killall -s SIGKILL xmobar ;
 killall -s SIGKILL polybar;
 if [[ $(pgrep -x "dwm") -gt 1 ]]
@@ -35,8 +35,6 @@ fi
 chmod +x /home/arthur/Applications/gamemodeStart.sh ;
 chmod +x /home/arthur/Applications/gamemodeFinish.sh ;
 #+end_src
-
-#+RESULTS:
 ** conky for gaming
 #+BEGIN_SRC conf :tangle "/home/arthur/Applications/conky.conf"
 conky.config = {
@@ -220,4 +218,10 @@ inhibit_screensaver=1
 
 start=/home/arthur/Applications/gamemodeStart.sh
 end=/home/arthur/Applications/gamemodeFinish.sh
+#+end_src
+* enable all
+#+begin_src bash
+chmod +x /home/arthur/Applications/rofi-gaming.sh
+chmod +x /home/arthur/Applications/gamemodeStart.sh ;
+chmod +x /home/arthur/Applications/gamemodeFinish.sh ;
 #+end_src
