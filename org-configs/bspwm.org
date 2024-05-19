@@ -12,6 +12,7 @@
 ** AUTOSTART
 #+begin_src bash :tangle "/home/arthur/.config/bspwm/bspwmrc"
 #### AUTOSTART ####
+xrandr --output DP-4 --primary ;
 killall -s SIGTERM Kglobalaccel5 ;
 killall sxhkd ; sxhkd &
 pgrep -x lxpolkit > /dev/null || lxpolkit &
@@ -19,13 +20,14 @@ pgrep -x picom > /dev/null || picom --xrender-sync-fence &
 pgrep -x dunst > /dev/null || dunst &
 pgrep -x nm-applet > /dev/null || nm-applet &
 pgrep -x numlockx > /dev/null || numlockx &
-# pgrep -x klipper > /dev/null || klipper &
 pgrep -x greenclip > /dev/null || greenclip daemon &
 pgrep -x kbdd > /dev/null || kbdd &
+pgrep -x kdeconnectd > /dev/null || kdeconnect-cli &
 pgrep -x emacs > /dev/null || /usr/bin/emacs --daemon &
 /home/arthur/Applications/Kensington_Expert_Setup.sh &
 systemctl --user start syncthing.service &
 
+setxkbmap -layout us,ru -option grp:alt_space_toggle &
 feh --randomize --bg-fill /usr/share/backgrounds/dtos-backgrounds/* &
 
 ### POLYBARS ###
@@ -120,7 +122,7 @@ wm-restack = bspwm
 
 modules-left = filesystem round-left bspwm round-right
 modules-center = round-left title round-right
-modules-right = round-left xkeyboard alsa time round-right tray
+modules-right = round-left xkeyboard bluetooth alsa time round-right tray
 # modules-center = temperature space space memory space space cpu
 # modules-right = battery xbacklight alsa xkeyboard round-left time round-right space wlan powermenu
 
@@ -422,6 +424,41 @@ label = %title%
 type = internal/tray
 format-margin = 8px
 tray-spacing = 8px
+
+[module/bluetooth]
+type = custom/script
+exec = /home/arthur/Applications/bluetooth.sh
+interval = 2
+click-left = exec blueberry
+click-right = exec /home/arthur/Applications/toggle_bluetooth.sh
+format-padding = 1
+format-background = ${colors.background-alt}
+format-foreground = #ffffff
+# format-foreground = #989cff
+#+end_src
+** scripts
+#+begin_src toml :tangle "/home/arthur/Applications/toggle_bluetooth.sh"
+#!/bin/sh
+if [ $(bluetoothctl show | grep "Powered: yes" | wc -c) -eq 0 ]
+then
+  bluetoothctl power on
+else
+  bluetoothctl power off
+fi
+#+end_src
+
+#+begin_src toml :tangle "/home/arthur/Applications/bluetooth.sh"
+#!/bin/sh
+if [ $(bluetoothctl show | grep "Powered: yes" | wc -c) -eq 0 ]
+then
+  echo "%{F#66ffffff}"
+else
+  if [ $(echo info | bluetoothctl | grep 'Device' | wc -c) -eq 0 ]
+  then
+    echo ""
+  fi
+  echo "%{F#2193ff}"
+fi
 #+end_src
 * HOTKEYS
 ** WM
@@ -617,7 +654,7 @@ super + a; g
 
 # scratchpad
 super + ctrl + w
-    /home/arthur/Applications/bspwm_scratch.sh
+    bspwm-scratchpad
 
 #+end_src
 * SCRATHCPAD
@@ -727,6 +764,8 @@ foreground = "#c0caf5"
 chmod +x /home/arthur/.config/sxhkd/sxhkdrc
 chmod +x /home/arthur/.config/bspwm/bspwmrc
 chmod +x /home/arthur/Applications/bspwm_scratch.sh
+chmod +x /home/arthur/Applications/toggle_bluetooth.sh
+chmod +x /home/arthur/Applications/bluetooth.sh
 #+end_src
 
 #+RESULTS:
