@@ -255,6 +255,7 @@ format-volume-foreground = ${colors.foreground}
 format-volume-background = ${colors.background-alt}
 format-muted-foreground = #d35f5e
 format-muted-background = ${colors.background-alt}
+click-right = alacritty -e alsamixer
 
 [module/time]
 type = internal/date
@@ -648,9 +649,11 @@ super + a; c
 super + a; z
     /home/arthur/Applications/rofi-gaming.sh
 super + a; e
-    dolphin
+    thunar
 super + a; g
-    rofi -show window
+    rofi -show window -window-command "bspc node {window} -d focused"
+super + a; m
+    MellowPlayer
 
 # scratchpad
 super + ctrl + w
