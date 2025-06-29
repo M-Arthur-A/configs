@@ -1,0 +1,1077 @@
+#+title: hyprland
+#+STARTUP: overview
+
+
+https://wiki.hypr.land/Configuring/
+* TODO
+** TODO WAYBAR indicates which workspace has apps (active)
+* INIT
+** VARS
+https://wiki.hypr.land/Configuring/Keywords/
+https://wiki.hypr.land/Configuring/Environment-variables/
+#+begin_src bash :tangle "/home/arthur/.config/hypr/hyprland.conf"
+###################
+### MY PROGRAMS ###
+###################
+
+# Set programs that you use
+$terminal = alacritty
+$browser = firefox
+$fileManager = dolphin
+$menu = wofi --show drun
+
+#############################
+### ENVIRONMENT VARIABLES ###
+#############################
+
+env = XCURSOR_SIZE,24
+env = HYPRCURSOR_SIZE,24
+env = xx_color_management_v4,true
+
+#export XDG_MENU_PREFIX=plasma-applications.menu
+
+#+end_src
+** MONITORS
+https://wiki.hypr.land/Configuring/Monitors/
+
+exec-once=wlr-randr --output DP-2 --off && sleep 3 && wlr-randr --output DP-2 --on --pos 2560x360
+#+begin_src bash :tangle "/home/arthur/.config/hypr/hyprland.conf"
+################
+### MONITORS ###
+################
+
+# monitor=,preferred,auto,auto
+# monitor = DP-2, 2560x1440@165, 0x0, 1
+# monitor = DP-0, 2560x1080, 2560x360, 1
+monitor = DP-3, 2560x1440@165, 0x0, 1
+monitor = DP-2, 2560x1080@75, 2560x360, 1
+#+end_src
+** AUTOSTART
+#+begin_src bash :tangle "/home/arthur/.config/hypr/hyprland.conf"
+#################
+### AUTOSTART ###
+#################
+
+exec-once = hyprpm reload -n
+exec-once = waybar
+exec-once = hyprpaper
+exec-once = xrandr --output DP-3 --primary
+exec-once = /home/arthur/Applications/hyprpaper.sh &
+exec-once = killall -s SIGTERM Kglobalaccel5
+#exec-once = pgrep -x lxpolkit > /dev/null || lxpolkit &
+exec-once = pgrep -x dunst > /dev/null || dunst &
+exec-once = pgrep -x nm-applet > /dev/null || nm-applet &
+#exec-once = pgrep -x numlockx > /dev/null || numlockx &
+# exec-once = pgrep -x greenclip > /dev/null || greenclip daemon &
+exec-once = pgrep -x kbdd > /dev/null || kbdd &
+exec-once = pgrep -x kdeconnectd > /dev/null || kdeconnect-cli &
+exec-once = pgrep -x emacs > /dev/null || /usr/bin/emacs --daemon &
+exec-once = /home/arthur/Applications/Kensington_Expert_Setup.sh &
+exec-once = /usr/bin/syncthing serve --no-browser --logflags=0 &
+exec-once= wl-paste --type text --watch cliphist store &  #Stores only text data
+exec-once= wl-paste --type image --watch cliphist store & #Stores only image data
+
+#+end_src
+** PERMISSIONS
+https://wiki.hypr.land/Configuring/Permissions/
+Please note permission changes here require a Hyprland restart and are not applied on-the-fly for security reasons
+
+#+begin_src bash :tangle "/home/arthur/.config/hypr/hyprland.conf"
+###################
+### PERMISSIONS ###
+###################
+
+# ecosystem {
+#   enforce_permissions = 1
+# }
+
+# permission = /usr/(bin|local/bin)/grim, screencopy, allow
+# permission = /usr/(lib|libexec|lib64)/xdg-desktop-portal-hyprland, screencopy, allow
+# permission = /usr/(bin|local/bin)/hyprpm, plugin, allow
+
+#+end_src
+** WORKSPACES AND RULES
+https://wiki.hypr.land/Configuring/Window-Rules/
+for workspace rules https://wiki.hypr.land/Configuring/Workspace-Rules/
+
+Example windowrule
+   =windowrule = float,class:^(kitty)$,title:^(kitty)$=
+
+- WORKSPACES BEHAVIOR
+make multiple monitors to have each own workspaces
+https://github.com/Duckonaut/split-monitor-workspaces
+#+begin_src bash
+hyprpm update
+hyprpm add https://github.com/Duckonaut/split-monitor-workspaces
+hyprpm enable split-monitor-workspaces
+#+end_src
+
+#+begin_src bash :tangle "/home/arthur/.config/hypr/hyprland.conf"
+##############################
+### WINDOWS AND WORKSPACES ###
+##############################
+
+workspace = special:scratchpadterminal, on-created-empty:[float; size 2000 900] alacritty, persistent:false
+windowrule = float,class:^(io.github.Qalculate.qalculate-qt)$,title:^(Qalculate!)$
+
+# Ignore maximize requests from apps. You'll probably like this.
+windowrule = suppressevent maximize, class:.*
+
+# Fix some dragging issues with XWayland
+windowrule = nofocus,class:^$,title:^$,xwayland:1,floating:1,fullscreen:0,pinned:0
+
+# scratchpads
+windowrule = float,class:^(scratchpad)$,title:^(alacritty)$
+
+plugin {
+    split-monitor-workspaces {
+        count = 9
+        keep_focused = 0
+        enable_notifications = 0
+        enable_persistent_workspaces = 1
+    }
+}
+#+end_src
+** INPUT
+https://wiki.hypr.land/Configuring/Variables/#input
+#+begin_src bash :tangle "/home/arthur/.config/hypr/hyprland.conf"
+#############
+### INPUT ###
+#############
+
+input {
+    kb_layout = us,ru
+    kb_variant =
+    kb_model =
+    kb_options = grp:alt_space_toggle
+    kb_rules =
+
+    follow_mouse = 1
+
+    sensitivity = 0 # -1.0 - 1.0, 0 means no modification.
+
+    touchpad {
+        natural_scroll = false
+    }
+}
+
+# https://wiki.hypr.land/Configuring/Variables/#gestures
+gestures {
+    workspace_swipe = false
+}
+
+# Example per-device config
+# See https://wiki.hypr.land/Configuring/Keywords/#per-device-input-configs for more
+# device {
+    # name = epic-mouse-v1
+    # sensitivity = -0.5
+# }
+
+#+end_src
+* STYLE
+** HYPRLAND COMMON
+#+begin_src bash :tangle "/home/arthur/.config/hypr/hyprland.conf"
+#####################
+### LOOK AND FEEL ###
+#####################
+
+# Refer to https://wiki.hypr.land/Configuring/Variables/
+
+# https://wiki.hypr.land/Configuring/Variables/#general
+general {
+    gaps_in = 5
+    gaps_out = 10
+
+    border_size = 2
+
+    # https://wiki.hypr.land/Configuring/Variables/#variable-types for info about colors
+    col.active_border = rgba(33ccffee) rgba(00ff99ee) 45deg
+    col.inactive_border = rgba(595959aa)
+
+    # Set to true enable resizing windows by clicking and dragging on borders and gaps
+    resize_on_border = false
+
+    # Please see https://wiki.hypr.land/Configuring/Tearing/ before you turn this on
+    allow_tearing = true
+
+    layout = dwindle # bspwm-like binary-tree
+}
+
+# https://wiki.hypr.land/Configuring/Variables/#decoration
+decoration {
+    rounding = 10
+    rounding_power = 2
+
+    # Change transparency of focused and unfocused windows
+    active_opacity = 1.0
+    inactive_opacity = 1.0
+
+    shadow {
+        enabled = true
+        range = 4
+        render_power = 3
+        color = rgba(1a1a1aee)
+    }
+
+    # https://wiki.hypr.land/Configuring/Variables/#blur
+    blur {
+        enabled = true
+        size = 3
+        passes = 1
+
+        vibrancy = 0.1696
+    }
+}
+
+# https://wiki.hypr.land/Configuring/Variables/#animations
+animations {
+    enabled = yes, please :)
+
+    # Default animations, see https://wiki.hypr.land/Configuring/Animations/ for more
+
+    bezier = easeOutQuint,0.23,1,0.32,1
+    bezier = easeInOutCubic,0.65,0.05,0.36,1
+    bezier = linear,0,0,1,1
+    bezier = almostLinear,0.5,0.5,0.75,1.0
+    bezier = quick,0.15,0,0.1,1
+
+    animation = global, 1, 10, default
+    animation = border, 1, 5.39, easeOutQuint
+    animation = windows, 1, 4.79, easeOutQuint
+    animation = windowsIn, 1, 4.1, easeOutQuint, popin 87%
+    animation = windowsOut, 1, 1.49, linear, popin 87%
+    animation = fadeIn, 1, 1.73, almostLinear
+    animation = fadeOut, 1, 1.46, almostLinear
+    animation = fade, 1, 3.03, quick
+    animation = layers, 1, 3.81, easeOutQuint
+    animation = layersIn, 1, 4, easeOutQuint, fade
+    animation = layersOut, 1, 1.5, linear, fade
+    animation = fadeLayersIn, 1, 1.79, almostLinear
+    animation = fadeLayersOut, 1, 1.39, almostLinear
+    animation = workspaces, 1, 1.94, almostLinear, fade
+    animation = workspacesIn, 1, 1.21, almostLinear, fade
+    animation = workspacesOut, 1, 1.94, almostLinear, fade
+}
+
+# Ref https://wiki.hypr.land/Configuring/Workspace-Rules/
+# "Smart gaps" / "No gaps when only"
+# uncomment all if you wish to use that.
+# workspace = w[tv1], gapsout:0, gapsin:0
+# workspace = f[1], gapsout:0, gapsin:0
+# windowrule = bordersize 0, floating:0, onworkspace:w[tv1]
+# windowrule = rounding 0, floating:0, onworkspace:w[tv1]
+# windowrule = bordersize 0, floating:0, onworkspace:f[1]
+# windowrule = rounding 0, floating:0, onworkspace:f[1]
+
+# See https://wiki.hypr.land/Configuring/Dwindle-Layout/ for more
+dwindle {
+    pseudotile = true # Master switch for pseudotiling. Enabling is bound to mainMod + P in the keybinds section below
+    preserve_split = true # You probably want this
+}
+
+# See https://wiki.hypr.land/Configuring/Master-Layout/ for more
+master {
+    new_status = master
+}
+
+# https://wiki.hypr.land/Configuring/Variables/#misc
+misc {
+    force_default_wallpaper = -1 # Set to 0 or 1 to disable the anime mascot wallpapers
+    disable_hyprland_logo = false # If true disables the random hyprland logo / anime girl background. :(
+}
+
+#+end_src
+** WOFI DMENU
+*** CONFIG
+#+begin_src json :tangle "/home/arthur/.config/wofi/config" :mkdirp yes
+width=800
+height=800
+location=center
+show=drun
+prompt=Search...
+filter_rate=100
+allow_markup=true
+no_actions=true
+halign=fill
+orientation=vertical
+content_halign=fill
+insensitive=true
+allow_images=true
+image_size=40
+gtk_dark=true
+#+end_src
+*** MENU
+#+begin_src json :tangle "/home/arthur/.config/wofi/menu" :mkdirp yes
+# Config for wofi-wifi-menu
+
+# position values:
+# 1 2 3
+# 8 0 4
+# 7 6 5
+POSITION=3
+
+#y-offset
+YOFF=15
+
+#x-offset
+XOFF=-30
+
+#fields to be displayed
+FIELDS=SSID,IN-USE,BARS,SECURITY
+#+end_src
+
+#+begin_src json :tangle "/home/arthur/.config/wofi/menu.css" :mkdirp yes
+@import ".config/wofi/style.css";
+window {
+	font-family: "FiraCode Nerd Font Mono";
+	font-size: 13px;
+}
+#+end_src
+*** STYLE
+#+begin_src css :tangle "/home/arthur/.config/wofi/style.css" :mkdirp yes
+window {
+    margin: 0px;
+    background-color: rgba(30,30,46,0.6);
+    border-radius: 15px;
+}
+
+#input {
+    padding: 4px;
+    margin: 4px;
+    padding-left: 20px;
+    border: none;
+    color: #fff;
+    font-weight: bold;
+    background-color: #fff;
+    background: linear-gradient(90deg, rgba(203,166,247,1) 0%, rgba(245,194,231,1) 100%);
+   	outline: none;
+    border-radius: 15px;
+    margin: 10px;
+    margin-bottom: 2px;
+}
+#input:focus {
+    border: 0px solid #fff;
+    margin-bottom: 0px;
+}
+
+#inner-box {
+    margin: 4px;
+    color: #fff;
+    background-color: transparent;
+    font-weight: bold;
+    border-radius: 15px;
+}
+
+#outer-box {
+    margin: 0px;
+    border: none;
+    border-radius: 15px;
+    background-color: transparent;
+}
+
+#scroll {
+    margin-top: 5px;
+    border: none;
+    border-radius: 15px;
+    margin-bottom: 5px;
+}
+
+#text:selected {
+    color: #fff;
+    margin: 0px 0px;
+    border: none;
+    border-radius: 15px;
+}
+
+#entry {
+    margin: 0px 0px;
+    border: none;
+    border-radius: 15px;
+    background-color: transparent;
+}
+
+#entry:selected {
+    margin: 0px 0px;
+    border: none;
+    border-radius: 15px;
+    background: linear-gradient(45deg, rgba(203,166,247,1) 30%, rgba(245,194,231,1) 100%);
+}
+#+end_src
+** HYPRPAPER BACKGROUNDS
+#+begin_src bash :tangle "/home/arthur/Applications/hyprpaper.sh" :mkdirp yes
+#!/usr/bin/env bash
+
+WALLPAPER_DIR="/usr/share/backgrounds/dtos-backgrounds/"
+CURRENT_WALL=$(hyprctl hyprpaper listloaded)
+
+# Get the name of the focused monitor with hyprctl
+#FOCUSED_MONITOR=$(hyprctl monitors -j | jq -r '.[] | select(.focused) | .name')
+# Get a random wallpaper that is not the current one
+#WALLPAPER=$(find "$WALLPAPER_DIR" -type f ! -name "$(basename "$CURRENT_WALL")" | shuf -n 1)
+# Apply the selected wallpaper
+#hyprctl hyprpaper reload "$FOCUSED_MONITOR","$WALLPAPER"
+
+for MONITOR in $(hyprctl monitors -j | jq -r '.[] | select(.name) | .name')
+do
+    WALLPAPER=$(find "$WALLPAPER_DIR" -type f ! -name "$(basename "$CURRENT_WALL")" | shuf -n 1)
+    hyprctl hyprpaper reload "$MONITOR","$WALLPAPER"
+done
+#+end_src
+
+#+begin_src bash
+chmod +x /home/arthur/Applications/hyprpaper.sh
+#+end_src
+
+#+RESULTS:
+
+* BAR
+WAYBAR
+https://github.com/flickowoa/dotfiles/tree/aurora
+** config
+#+begin_src json :tangle "/home/arthur/.config/waybar/config.jsonc" :mkdirp yes
+{
+    "layer": "top",
+    "position": "top",
+    "mod": "dock",
+    "exclusive": true,
+    "passthrough": false,
+    "gtk-layer-shell": true,
+    "height": 50,
+    "modules-left": [
+        "hyprland/workspaces"
+    ],
+    "modules-center": [
+        "hyprland/window"
+    ],
+    "modules-right": [
+        // "network",
+        "hyprland/language",
+        "bluetooth",
+        "pulseaudio",
+        "pulseaudio#microphone",
+        "clock",
+        "tray"
+    ],
+    "hyprland/workspaces": {
+        "format": "{icon}",
+        "on-scroll-up": "hyprctl dispatch workspace e+1",
+        "on-scroll-down": "hyprctl dispatch workspace e-1",
+        "format-icons": {
+            // ❶ ❷ ❸ ❹ ❺ ❻ ❼ ❽ ❾
+            "1": "❶",
+            "2": "❷",
+            "3": "❸",
+            "4": "❹",
+            "5": "❺",
+            "6": "❻",
+            "7": "❼",
+            "8": "❽",
+            "9": "❾",
+            "10": "❶",
+            "11": "❷",
+            "12": "❸",
+            "13": "❹",
+            "14": "❺",
+            "15": "❻",
+            "16": "❼",
+            "17": "❽",
+            "18": "❾",
+            "urgent": "",
+            // "active": "", // focused workspace on current monitor
+            "visible": "", // focused workspace on other monitors
+            "default": "",
+            "empty": "" // persistent (created by this plugin)
+        },
+        "persistent_workspaces": {
+            "*": 1
+        }
+    },
+    "hyprland/window": {
+        "format": "{}"
+    },
+
+     "hyprland/language": {
+         "format": "{}",
+         "format-en": "🇺🇸",
+         "format-ru": "🇷🇺",
+     },
+
+    "custom/temperature": {
+        "tooltip": true,
+        "format": " {}",
+        "interval": 30,
+        "exec": "cpu"
+    },
+    "custom/memory": {
+        "tooltip": true,
+        "format": "🧠 {}",
+        "interval": 30,
+        "exec": "memory"
+    },
+    "tray": {
+        "icon-size": 18,
+        "spacing": 10
+    },
+    "clock": {
+        "format": "{:%H:%M  %a, %b %e}",
+        "tooltip-format": "<big>{:%Y %B}</big>\n<tt>{calendar}</tt>",
+        "on-click": "gnome-calendar"
+    },
+    "backlight": {
+        "device": "intel_backlight",
+        "format": "{icon} {percent}%",
+        "format-icons": [
+            "󰃞",
+            "󰃟",
+            "󰃠"
+        ],
+        "on-scroll-up": "brightnessctl -q set 1%+",
+        "on-scroll-down": "brightnessctl -q set 1%-"
+    },
+    "battery": {
+        "states": {
+            "good": 95,
+            "warning": 40,
+            "critical": 30
+        },
+        "format": "{icon} {capacity}%",
+        "format-charging": " {capacity}%",
+        "format-plugged": " {capacity}%",
+        "format-alt": "{time} {icon}",
+        "format-icons": [
+            "󰂎",
+            "󰁺",
+            "󰁻",
+            "󰁼",
+            "󰁽",
+            "󰁾",
+            "󰁿",
+            "󰂀",
+            "󰂁",
+            "󰂂",
+            "󰁹"
+        ]
+    },
+    "pulseaudio": {
+        "format": "{icon} {volume}%",
+        "tooltip": false,
+        "format-muted": " Muted",
+        "on-click": "pavucontrol",
+        "on-scroll-up": "pamixer -i 5",
+        "on-scroll-down": "pamixer -d 5",
+        "scroll-step": 100,
+        "format-icons": {
+            "headphone": "",
+            "hands-free": "",
+            "headset": "",
+            "phone": "",
+            "portable": "",
+            "car": "",
+            "default": [
+                "",
+                "",
+                ""
+            ]
+        }
+    },
+    "pulseaudio#microphone": {
+        "format": "{format_source}",
+        "format-source": " {volume}%",
+        "format-source-muted": " Muted",
+        "on-click": "pamixer --default-source -t",
+        "on-scroll-up": "pamixer --default-source -i 5",
+        "on-scroll-down": "pamixer --default-source -d 5",
+        "scroll-step": 5
+    },
+    "network": {
+        "format-wifi": "  {signalStrength}%",
+        "format-ethernet": "{ipaddr}/{cidr}",
+        "tooltip-format": "{essid} - {ifname} via {gwaddr}",
+        "format-linked": "{ifname} (No IP)",
+        "format-disconnected": "Disconnected ⚠",
+        "format-alt": "{ifname}:{essid} {ipaddr}/{cidr}"
+    },
+    "bluetooth": {
+        "format": " {status}",
+        "format-disabled": " off",
+        "format-connected": " {num_connections}",
+        "tooltip-format": "{device_alias}",
+        "tooltip-format-connected": " {device_enumerate}",
+        "tooltip-format-enumerate-connected": "{device_alias}",
+        "on-click": "blueberry"
+    }
+}
+#+end_src
+** style
+#+begin_src css :tangle "/home/arthur/.config/waybar/style.css" :mkdirp yes
+\* {
+    font-family: FiraCode , Noto Sans,FontAwesome, Roboto, Helvetica, Arial, sans-serif;
+    font-size: 13px;
+}
+
+#clock,
+#battery,
+#bluetooth,
+#cpu,
+#memory,
+#disk,
+#language,
+#temperature,
+#backlight,
+#network,
+#pulseaudio,
+#custom-media,
+#tray,
+#mode,
+#idle_inhibitor,
+#custom-expand,
+#custom-cycle_wall,
+#custom-ss,
+#window,
+#mpd {
+    padding: 0 10px;
+    border-radius: 15px;
+    background: #11111b;
+    color: #b4befe;
+    box-shadow: rgba(0, 0, 0, 0.116) 2 2 5 2px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-right: 10px;
+}
+
+window#waybar {
+    background-color: transparent;
+}
+
+#window label {
+    color: #11111b;
+    font-weight: bold;
+}
+
+#window.paused label {
+    color: #89b4fa ;
+    font-weight: bolder;
+}
+
+#workspaces button label{
+    color: #89b4fa ;
+    font-weight: bolder;
+}
+
+#workspaces button.active label{
+    color: #11111b;
+    font-weight: bolder;
+}
+
+#workspaces{
+    border-radius: 30px;
+    background-color: rgba(30,30,46,0.6);
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-right: 10px;
+    margin-left: 10px;
+}
+
+#workspaces button{
+    font-size: 24px;
+    background-color: transparent;
+    border-radius: 30px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 8px;
+    padding-right: 8px;
+    font-weight: bolder;
+    color: #89b4fa ;
+    transition: all 0.5s cubic-bezier(.55,-0.68,.48,1.68);
+}
+
+#workspaces button.active{
+    padding-right: 20px;
+    box-shadow: rgba(0, 0, 0, 0.288) 2 2 5 2px;
+    padding-left: 20px;
+    padding-bottom: 3px;
+    background: rgb(203,166,247);
+    background: radial-gradient(circle, rgba(203,166,247,1) 0%, rgba(193,168,247,1) 12%, rgba(249,226,175,1) 19%, rgba(189,169,247,1) 20%, rgba(182,171,247,1) 24%, rgba(198,255,194,1) 36%, rgba(177,172,247,1) 37%, rgba(170,173,248,1) 48%, rgba(255,255,255,1) 52%, rgba(166,174,248,1) 52%, rgba(160,175,248,1) 59%, rgba(148,226,213,1) 66%, rgba(155,176,248,1) 67%, rgba(152,177,248,1) 68%, rgba(205,214,244,1) 77%, rgba(148,178,249,1) 78%, rgba(144,179,250,1) 82%, rgba(180,190,254,1) 83%, rgba(141,179,250,1) 90%, rgba(137,180,250,1) 100%);
+    background-size: 400% 400%;
+    animation: gradient_f 20s ease-in-out infinite;
+    transition: all 0.3s cubic-bezier(.55,-0.68,.48,1.682);
+}
+
+@keyframes gradient {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 30%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+}
+
+@keyframes gradient_f {
+	0% {
+		background-position: 0% 200%;
+	}
+    50% {
+        background-position: 200% 0%;
+    }
+	100% {
+		background-position: 400% 200%;
+	}
+}
+
+@keyframes gradient_f_nh {
+	0% {
+		background-position: 0% 200%;
+	}
+	100% {
+		background-position: 200% 200%;
+	}
+}
+
+
+
+#clock{
+    background: rgb(148,226,213);
+    background: radial-gradient(circle, rgba(148,226,213,1) 0%, rgba(156,227,191,1) 21%, rgba(249,226,175,1) 34%, rgba(158,227,186,1) 35%, rgba(163,227,169,1) 59%, rgba(148,226,213,1) 74%, rgba(164,227,167,1) 74%, rgba(166,227,161,1) 100%);
+    background-size: 400% 400%;
+    animation: gradient_f 4s ease infinite;
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.377);
+    font-weight: bolder;
+    color: #fff;
+}
+
+#window{
+    background: rgb(137,180,250);
+    background: radial-gradient(circle, rgba(137,180,250,120) 0%, rgba(142,179,250,120) 6%, rgba(148,226,213,1) 14%, rgba(147,178,250,1) 14%, rgba(155,176,249,1) 18%, rgba(245,194,231,1) 28%, rgba(158,175,249,1) 28%, rgba(181,170,248,1) 58%, rgba(205,214,244,1) 69%, rgba(186,169,248,1) 69%, rgba(195,167,247,1) 72%, rgba(137,220,235,1) 73%, rgba(198,167,247,1) 78%, rgba(203,166,247,1) 100%);
+    background-size: 400% 400%;
+    animation: gradient_f 9s cubic-bezier(.72,.39,.21,1) infinite;
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.377);
+    font-weight: bold;
+    color: #fff ;
+}
+
+#window.paused{
+    background: #11111b ;
+    font-weight: bolder;
+    color: #b4befe;
+}
+
+#custom-ss{
+    background: #11111b;
+    color: #89b4fa;
+    font-weight:  bolder;
+    padding: 5px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border-radius: 15px;
+}
+
+
+#custom-cycle_wall{
+    background: rgb(245,194,231);
+    background: linear-gradient(45deg, rgba(245,194,231,1) 0%, rgba(203,166,247,1) 0%, rgba(243,139,168,1) 13%, rgba(235,160,172,1) 26%, rgba(250,179,135,1) 34%, rgba(249,226,175,1) 49%, rgba(166,227,161,1) 65%, rgba(148,226,213,1) 77%, rgba(137,220,235,1) 82%, rgba(116,199,236,1) 88%, rgba(137,180,250,1) 95%);
+    color: #fff;
+    background-size: 500% 500%;
+    animation: gradient 7s linear infinite;
+    font-weight:  bolder;
+    border-radius: 15px;
+}
+
+#clock label{
+    color: #11111b;
+    font-weight:  bolder;
+}
+
+#clock.sec {
+    background: rgb(205,214,244);
+    background: linear-gradient(118deg, rgba(205,214,244,1) 5%, rgba(243,139,168,1) 5%, rgba(243,139,168,1) 20%, rgba(205,214,244,1) 20%, rgba(205,214,244,1) 40%, rgba(243,139,168,1) 40%, rgba(243,139,168,1) 60%, rgba(205,214,244,1) 60%, rgba(205,214,244,1) 80%, rgba(243,139,168,1) 80%, rgba(243,139,168,1) 95%, rgba(205,214,244,1) 95%);
+
+    background-size: 200% 300%;
+
+    animation: gradient_f_nh 4s linear infinite;
+    margin-right: 25px;
+    color: #fff ;
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.377);
+
+    font-size: 15px;
+    padding-top: 5px;
+    padding-right: 21px;
+    font-weight: bolder;
+    padding-left: 20px;
+}
+
+#battery.charging, #battery.plugged {
+    background-color: #94e2d5 ;
+}
+
+#battery {
+    background-color: #11111b;
+    color:#a6e3a1;
+    font-weight: bolder;
+    font-size: 20px;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+@keyframes blink {
+    to {
+        background-color: #f9e2af;
+        color:#96804e;
+    }
+}
+
+
+
+#battery.critical:not(.charging) {
+    background-color:  #f38ba8;
+    color:#bf5673;
+    animation-name: blink;
+    animation-duration: 0.5s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+}
+
+#cpu label{
+    color:#89dceb;
+}
+
+#cpu {
+    background: rgb(30,30,46);
+    background: radial-gradient(circle, rgba(30,30,46,1) 30%, rgba(17,17,27,1) 100%);
+    color: 	#89b4fa;
+}
+
+#memory {
+    background-color: #cba6f7;
+    color: 	#9a75c7;
+    font-weight: bolder;
+}
+
+#disk {
+    color: #964B00;
+}
+
+#backlight {
+    color: #90b1b1;
+}
+
+#network{
+    color:#000;
+}
+
+#network.disabled{
+    background-color: #45475a;
+}
+
+#network.disconnected{
+    background: rgb(243,139,168);
+    background: linear-gradient(45deg, rgba(243,139,168,1) 0%, rgba(250,179,135,1) 100%);
+    color: #fff;
+    font-weight: bolder;
+    padding-top: 3px;
+    padding-right: 11px;
+}
+
+#network.linked, #network.wifi{
+    background-color: #a6e3a1 ;
+}
+
+#network.ethernet{
+    background-color:#f9e2af ;
+}
+
+#pulseaudio {
+    background-color:  	#fab387;
+    color: #fff;
+    font-weight: bolder;
+}
+
+#pulseaudio.muted {
+    background-color: #90b1b1;
+}
+
+#bluetooth {
+    background-color:  	#fab387;
+    color: #bf7d54;
+    font-weight: bolder;
+}
+
+#language {
+    /* background-color: #282a36; */
+    background-color: #2980b9;
+}
+
+#custom-media {
+    color: #66cc99;
+}
+
+#custom-media.custom-spotify {
+    background-color: #66cc99;
+}
+
+#custom-media.custom-vlc {
+    background-color: #ffa000;
+}
+
+#temperature {
+    background-color: #f9e2af;
+    color:#96804e;
+}
+
+#temperature.critical {
+    background-color: #f38ba8 ;
+    color:#bf5673;
+}
+
+#tray {
+    background-color: #2980b9;
+}
+
+#tray > .passive {
+    -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+    -gtk-icon-effect: highlight;
+    background-color: #eb4d4b;
+}
+
+#+end_src
+** scripts
+*** xclip
+#+begin_src json :tangle "/home/arthur/.config/waybar/scripts/xclip" :mkdirp yes
+waybar-wttr.py sel -c
+#+end_src
+* HOTKEYS
+https://wiki.hypr.land/Configuring/Binds/
+bind = MODS, key, dispatcher, params
+** COMMON
+#+begin_src bash :tangle "/home/arthur/.config/hypr/hyprland.conf"
+###################
+### KEYBINDINGS ###
+###################
+
+# See https://wiki.hypr.land/Configuring/Keywords/
+$mainMod = SUPER # Sets "Windows" key as main modifier
+
+bind = $mainMod, Q, killactive,
+bind = $mainMod SHIFT, Q, exit,
+bind = $mainMod SHIFT, R, exec, hyprctl reload
+bind = $mainMod, F, togglefloating,
+bind = $mainMod, T, togglesplit, # dwindle
+bind = $mainMod, P, pseudo, # dwindle
+bind = $mainMod SHIFT, M, fullscreen
+
+# Move focus with mainMod + arrow keys
+bind = $mainMod, L, movefocus, l
+bind = $mainMod, R, movefocus, r
+bind = $mainMod, K, movefocus, u
+bind = $mainMod, J, movefocus, d
+
+# Switch workspaces with mainMod + [0-9]
+# bind = $mainMod, 1, workspace, 1
+bind = $mainMod, 1, split-workspace, 1
+bind = $mainMod, 2, split-workspace, 2
+bind = $mainMod, 3, split-workspace, 3
+bind = $mainMod, 4, split-workspace, 4
+bind = $mainMod, 5, split-workspace, 5
+bind = $mainMod, 6, split-workspace, 6
+bind = $mainMod, 7, split-workspace, 7
+bind = $mainMod, 8, split-workspace, 8
+bind = $mainMod, 9, split-workspace, 9
+bind = $mainMod, 0, split-workspace, 10
+
+# Move active window to a workspace with mainMod + SHIFT + [0-9]
+# bind = $mainMod SHIFT, 1, movetoworkspace, 1
+# bind = $mainMod SHIFT, 1, split-movetoworkspacesilent, 1
+# bind = $mainMod SHIFT, 1, split-movetoworkspace, 1
+bind = $mainMod SHIFT, 1, split-movetoworkspacesilent, 1
+bind = $mainMod SHIFT, 2, split-movetoworkspacesilent, 2
+bind = $mainMod SHIFT, 3, split-movetoworkspacesilent, 3
+bind = $mainMod SHIFT, 4, split-movetoworkspacesilent, 4
+bind = $mainMod SHIFT, 5, split-movetoworkspacesilent, 5
+bind = $mainMod SHIFT, 6, split-movetoworkspacesilent, 6
+bind = $mainMod SHIFT, 7, split-movetoworkspacesilent, 7
+bind = $mainMod SHIFT, 8, split-movetoworkspacesilent, 8
+bind = $mainMod SHIFT, 9, split-movetoworkspacesilent, 9
+bind = $mainMod SHIFT, 0, split-movetoworkspacesilent, 10
+
+bind = $mainMod SHIFT, period, split-changemonitorsilent, +1
+bind = $mainMod SHIFT, comma, split-changemonitorsilent, -1
+
+bind = $mainMod, period, focusmonitor, +1
+bind = $mainMod, comma, focusmonitor, -1
+
+# Example special workspace (scratchpad)
+bind = $mainMod, S, togglespecialworkspace, magic
+bind = $mainMod SHIFT, S, movetoworkspace, special:magic
+
+# Scroll through existing workspaces with mainMod + scroll
+bind = $mainMod, mouse_down, workspace, e+1
+bind = $mainMod, mouse_up, workspace, e-1
+
+# Move/resize windows with mainMod + LMB/RMB and dragging
+bindm = $mainMod, mouse:272, movewindow
+bindm = $mainMod, mouse:273, resizewindow
+
+# Laptop multimedia keys for volume and LCD brightness
+bindel = ,XF86AudioRaiseVolume, exec, wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+
+bindel = ,XF86AudioLowerVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-
+bindel = ,XF86AudioMute, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+bindel = ,XF86AudioMicMute, exec, wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
+bindel = ,XF86MonBrightnessUp, exec, brightnessctl -e4 -n2 set 5%+
+bindel = ,XF86MonBrightnessDown, exec, brightnessctl -e4 -n2 set 5%-
+
+# Requires playerctl
+bindl = , XF86AudioNext, exec, playerctl next
+bindl = , XF86AudioPause, exec, playerctl play-pause
+bindl = , XF86AudioPlay, exec, playerctl play-pause
+bindl = , XF86AudioPrev, exec, playerctl previous
+
+#+end_src
+** APPS
+#+begin_src bash :tangle "/home/arthur/.config/hypr/hyprland.conf"
+# bind = $mainMod, E, exec, $fileManager
+bind = $mainMod, return, exec, $terminal
+bind = $mainMod, B, exec, $browser
+bind = $mainMod, space, exec, $menu
+bind = $mainMod, D, exec, dunstctl close-all
+# bind = $mainMod, V, exec, rofi -modi "clipboard:greenclip print" -show clipboard -run-command '{cmd}'
+bind = $mainMod, V, exec, cliphist list | wofi -dmenu | cliphist decode | wl-copy && wtype -M ctrl -P v -m ctrl
+bind = $mainMod CTRL, W, togglespecialworkspace, scratchpadterminal
+
+# bind = $mainMod, S, togglespecialworkspace, magic
+# bind = $mainMod SHIFT, S, movetoworkspace, special:magic
+
+
+bind = $mainMod, A, submap, apps
+submap = apps
+binde = , a, exec, pamac-manager
+binde = , a, submap, reset
+binde = , s, exec, flameshot gui
+binde = , s, submap, reset
+binde = , d, exec, manjaro-settings-manager
+binde = , d, submap, reset
+binde = , c, exec, qalculate-qt
+binde = , c, submap, reset
+binde = , e, exec, $fileManager
+binde = , e, submap, reset
+binde = , m, exec, yandex-music
+binde = , m, submap, reset
+bind = , escape, submap, reset
+submap = reset
+
+bind = $mainMod, E, submap, emacs
+submap = emacs
+binde = , e, exec, emacsclient -c -a 'emacs'
+binde = , e, submap, reset
+binde = , c, exec, emacsclient -c -a 'emacs' /home/arthur/Project/mySoft/GitSettings/CONFIG.org
+binde = , c, submap, reset
+binde = , n, exec, emacsclient -c -a 'emacs' /home/arthur/Project/Notes/roam/20220507152159-notes.org
+binde = , n, submap, reset
+submap = reset
+
+#+end_src

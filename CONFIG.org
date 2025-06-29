@@ -6,15 +6,15 @@
 #+STARTUP: overview
 
 * WMs
-** [[./org-configs/bspwm.org][BSPWM]]
+** [[./org-configs/hyprland.org][HYPRLAND]] (Wayland)
+** [[./org-configs/bspwm.org][BSPWM]] (X)
 C tiling window manager
-** [[./org-configs/dwm.org][DWM]]
+** [[./org-configs/dwm.org][DWM]] (X)
 C window manager
 https://gitlab.com/dtos/etc/dtos-dwm
-** [[./org-configs/xmonad.org][XMONAD]]
-Its a high customizable window-manager
-** [[./org-configs/awesome.org][AWESOME]]
-** [[./org-configs/hypr.org][HYPR]]
+** [[./org-configs/xmonad.org][XMONAD]] (X)
+** [[./org-configs/awesome.org][AWESOME]] (X)
+** [[./org-configs/hypr.org][HYPR]] (X)
 C++ window manager
 https://github.com/hyprwm/Hypr
 * [[./org-configs/conky.org][CONKY]]

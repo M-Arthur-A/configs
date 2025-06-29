@@ -1,7 +1,7 @@
 #+title: Bspwm
 #+STARTUP: overview
 
-* WM
+* COMMON
 ** VARS
 #+begin_src bash :tangle "/home/arthur/.config/bspwm/bspwmrc"
 #!/usr/bin/env bash
@@ -12,10 +12,13 @@
 ** AUTOSTART
 #+begin_src bash :tangle "/home/arthur/.config/bspwm/bspwmrc"
 #### AUTOSTART ####
-xrandr --output DP-4 --primary ;
+# xrandr --output DP-2 --primary ;
+xrandr --output HDMI-0 --off --output DP-0 --mode 2560x1080 --pos 2560x360 --rotate normal --output DP-1 --off --output DP-2 --primary --mode 2560x1440 --pos 0x0 --rotate normal --output DP-3 --off --output DP-4 --off --output DP-5 --off --output HDMI-A-1-0 --off --output DisplayPort-1-0 --off ;
+
 killall -s SIGTERM Kglobalaccel5 ;
 killall sxhkd ; sxhkd &
 pgrep -x lxpolkit > /dev/null || lxpolkit &
+pgrep -x killall picom &
 pgrep -x picom > /dev/null || picom --xrender-sync-fence &
 pgrep -x dunst > /dev/null || dunst &
 pgrep -x nm-applet > /dev/null || nm-applet &
@@ -25,21 +28,30 @@ pgrep -x kbdd > /dev/null || kbdd &
 pgrep -x kdeconnectd > /dev/null || kdeconnect-cli &
 pgrep -x emacs > /dev/null || /usr/bin/emacs --daemon &
 /home/arthur/Applications/Kensington_Expert_Setup.sh &
-systemctl --user start syncthing.service &
+# systemctl --user start syncthing.service &
+# /usr/bin/syncthing serve --no-browser --no-restart --logflags=0 &
+/usr/bin/syncthing serve --no-browser --logflags=0 &
 
 setxkbmap -layout us,ru -option grp:alt_space_toggle &
 feh --randomize --bg-fill /usr/share/backgrounds/dtos-backgrounds/* &
 
-### POLYBARS ###
-killall polybar
-if type "xrandr"; then
-  for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
-    MONITOR=$m polybar --reload top -q &
-  done
-else
-  polybar --reload top -q &
-fi
+export XDG_MENU_PREFIX=plasma-applications.menu
 
+# turn screensaver off
+xset s noblank
+xset -dpms
+xset s off
+
+### POLYBARS ###
+killall -qw polybar ; sleep 0,5 ; polybar main ; sleep 0,5 ; polybar secondary &
+# killall polybar
+# if type "xrandr"; then
+#   for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
+#     MONITOR=$m polybar --reload top -q &
+#   done
+# else
+#   polybar --reload top -q &
+# fi
 #+end_src
 ** COMMON
 #+begin_src bash :tangle "/home/arthur/.config/bspwm/bspwmrc"
@@ -74,6 +86,7 @@ bspc config pointer_modifier              mod4
 bspc config pointer_action1               move
 bspc config pointer_action2               resize_side
 bspc config pointer_action3               resize_corner
+bspc config focus_follows_pointer         true
 
 #+end_src
 ** COLORS
@@ -91,7 +104,6 @@ bspc config urgent_border_color	 "#dd2727"
 #### Rules ####+
 ### Scrathpad ###
 bspc rule -a scratchpad sticky=off state=floating rectangle=2000x900+250+250
-
 #+end_src
 * BAR
 POLYBARs
@@ -101,8 +113,70 @@ POLYBARs
 include-file = $HOME/.config/polybar/colors.ini
 include-file = $HOME/.config/polybar/modules.ini
 
-[bar/top]
-monitor=${env:MONITOR}
+# [bar/top]
+# monitor=${env:MONITOR}
+# width = 99%
+# height = 26
+# padding-left = 1
+# padding-right = 0
+# background = ${colors.background}
+# foreground = ${colors.foreground}
+# bottom = false
+# border-top-size = 7
+# border-bottom-size = 7
+# border-top-color = ${colors.background}
+# border-bottom-color = ${colors.background}
+# offset-x = 0.5%
+# offset-y = 0.5%
+# fixed-center = true
+# line-size = 3
+# wm-restack = bspwm
+
+# modules-left = filesystem round-left bspwm round-right
+# modules-center = round-left title round-right
+# modules-right = round-left xkeyboard bluetooth pulseaudio time round-right tray
+# # modules-center = temperature space space memory space space cpu
+# # modules-right = battery xbacklight alsa xkeyboard round-left time round-right space wlan powermenu
+
+# font-0 = JetBrainsMono Nerd Font:style=Bold:pixelsize=13;3
+# font-1 = JetBrainsMono Nerd Font:size=18;5
+# font-2 = Material Design Icons:style=Bold:size=13;3
+# font-3 = unifont:fontformat=truetype:size=13:antialias=true;
+
+[bar/main]
+monitor=DP-2
+width = 99%
+height = 26
+padding-left = 1
+padding-right = 0
+tray-transparent = true
+background = ${colors.background}
+foreground = ${colors.foreground}
+bottom = false
+border-top-size = 7
+border-bottom-size = 7
+border-top-color = ${colors.background}
+border-bottom-color = ${colors.background}
+offset-x = 0.5%
+offset-y = 0.5%
+fixed-center = true
+line-size = 3
+wm-restack = bspwm
+
+modules-left = filesystem round-left bspwm round-right
+modules-center = round-left title round-right
+modules-right = round-left xkeyboard bluetooth pulseaudio time round-right tray
+# modules-center = temperature space space memory space space cpu
+# modules-right = battery xbacklight alsa xkeyboard round-left time round-right space wlan powermenu
+
+font-0 = JetBrainsMono Nerd Font:style=Bold:pixelsize=13;3
+font-1 = JetBrainsMono Nerd Font:size=18;5
+font-2 = Material Design Icons:style=Bold:size=13;3
+font-3 = unifont:fontformat=truetype:size=13:antialias=true;
+
+
+[bar/secondary]
+monitor=DP-0
 width = 99%
 height = 26
 padding-left = 1
@@ -122,7 +196,7 @@ wm-restack = bspwm
 
 modules-left = filesystem round-left bspwm round-right
 modules-center = round-left title round-right
-modules-right = round-left xkeyboard bluetooth alsa time round-right tray
+modules-right = round-left xkeyboard bluetooth pulseaudio time round-right
 # modules-center = temperature space space memory space space cpu
 # modules-right = battery xbacklight alsa xkeyboard round-left time round-right space wlan powermenu
 
@@ -255,7 +329,36 @@ format-volume-foreground = ${colors.foreground}
 format-volume-background = ${colors.background-alt}
 format-muted-foreground = #d35f5e
 format-muted-background = ${colors.background-alt}
-click-right = alacritty -e alsamixer
+click-right = alacritty -e pavucontrol
+
+[module/pulseaudio]
+type = internal/pulseaudio
+use-ui-max = true
+interval = 5
+reverse-scroll = false
+format-volume = <ramp-volume> <label-volume>
+format-volume-padding = 1
+format-muted = 󰖁
+format-muted-padding = 1
+label-volume = %percentage%%
+ramp-volume-0 = %{F#d35f5e}󰖀 %{F-}
+ramp-volume-1 = %{F#d35f5e}󰖀 %{F-}
+ramp-volume-2 = %{F#d35f5e}󰖀 %{F-}
+ramp-volume-3 = %{F#f7a6a6}󰖀 %{F-}
+ramp-volume-4 = %{F#f7a6a6}󰖀 %{F-}
+ramp-volume-5 = %{F#f7a6a6}󰕾 %{F-}
+ramp-volume-6 = %{F#fff}󰕾 %{F-}
+ramp-volume-7 = %{F#fff}󰕾 %{F-}
+ramp-volume-8 = %{F#fff}󰕾 %{F-}
+ramp-volume-9 = %{F#fff}󰕾 %{F-}
+ramp-headphones-0 = 
+ramp-headphones-1 = 
+label-volume-foreground = #fff
+format-volume-foreground = ${colors.foreground}
+format-volume-background = ${colors.background-alt}
+format-muted-foreground = #d35f5e
+format-muted-background = ${colors.background-alt}
+click-right = alacritty -e pavucontrol
 
 [module/time]
 type = internal/date
@@ -618,6 +721,9 @@ super + Return
 super + space
 	rofi -show run
 
+super + shift + space
+	rofi -show drun
+
 # run browser
 super + b
     firefox
@@ -645,11 +751,11 @@ super + a; s
 super + a; d
     manjaro-settings-manager
 super + a; c
-    qalculate-gtk
+    qalculate-qt
 super + a; z
     /home/arthur/Applications/rofi-gaming.sh
 super + a; e
-    thunar
+    dolphin
 super + a; g
     rofi -show window -window-command "bspc node {window} -d focused"
 super + a; m
