@@ -4,6 +4,33 @@
 
 https://wiki.hypr.land/Configuring/
 * INIT
+** DEPS
+- WORKSPACES BEHAVIOR
+  make multiple monitors to have each own workspaces
+  https://github.com/Duckonaut/split-monitor-workspaces
+#+begin_src bash
+hyprpm update
+hyprpm add https://github.com/Duckonaut/split-monitor-workspaces
+hyprpm enable split-monitor-workspaces
+#+end_src
+- BACKGROUNDS
+  hyprpaper
+- SCREENSHOT
+  hyprshot
+- LOCK-SESSION
+  hyprlock
+- GTK-THEMING
+  nwg-look
+- BAR
+  waybar
+- NOTIFICATIONS
+  dunst
+- CLIPBOARD
+  cliphist
+- DMENU
+  wofi
+- FONTS
+  FiraCode
 ** VARS
 https://wiki.hypr.land/Configuring/Keywords/
 https://wiki.hypr.land/Configuring/Environment-variables/
@@ -104,15 +131,6 @@ for workspace rules https://wiki.hypr.land/Configuring/Workspace-Rules/
 
 Example windowrule
    =windowrule = float,class:^(kitty)$,title:^(kitty)$=
-
-- WORKSPACES BEHAVIOR
-make multiple monitors to have each own workspaces
-https://github.com/Duckonaut/split-monitor-workspaces
-#+begin_src bash
-hyprpm update
-hyprpm add https://github.com/Duckonaut/split-monitor-workspaces
-hyprpm enable split-monitor-workspaces
-#+end_src
 
 #+begin_src bash :tangle "/home/arthur/.config/hypr/hyprland.conf"
 ##############################
