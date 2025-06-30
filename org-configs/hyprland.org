@@ -3,8 +3,6 @@
 
 
 https://wiki.hypr.land/Configuring/
-* TODO
-** TODO WAYBAR indicates which workspace has apps (active)
 * INIT
 ** VARS
 https://wiki.hypr.land/Configuring/Keywords/
@@ -27,8 +25,18 @@ $menu = wofi --show drun
 env = XCURSOR_SIZE,24
 env = HYPRCURSOR_SIZE,24
 env = xx_color_management_v4,true
+env = QT_QPA_PLATFORM,wayland;xcb
+env = QT_QPA_PLATFORMTHEME,qt5ct
 
-#export XDG_MENU_PREFIX=plasma-applications.menu
+########################
+### NVIDIA VARIABLES ###
+########################
+
+env = SDL_VIDEODRIVER,wayland
+env = GBM_BACKEND,nvidia-drm
+env = __GLX_VENDOR_LIBRARY_NAME,nvidia
+env = LIBVA_DRIVER_NAME,nvidia
+env = __GL_GSYNC_ALLOWED,1
 
 #+end_src
 ** MONITORS
@@ -197,6 +205,7 @@ general {
     layout = dwindle # bspwm-like binary-tree
 }
 
+
 # https://wiki.hypr.land/Configuring/Variables/#decoration
 decoration {
     rounding = 10
@@ -280,6 +289,9 @@ misc {
     disable_hyprland_logo = false # If true disables the random hyprland logo / anime girl background. :(
 }
 
+xwayland {
+    force_zero_scaling = true
+}
 #+end_src
 ** WOFI DMENU
 *** CONFIG
@@ -661,6 +673,10 @@ window#waybar {
 #workspaces button.active label{
     color: #11111b;
     font-weight: bolder;
+}
+
+#workspaces button.empty label{
+    color: #ffffff;
 }
 
 #workspaces{
@@ -1051,7 +1067,7 @@ bind = $mainMod, A, submap, apps
 submap = apps
 binde = , a, exec, pamac-manager
 binde = , a, submap, reset
-binde = , s, exec, flameshot gui
+binde = , s, exec, hyprshot -m region
 binde = , s, submap, reset
 binde = , d, exec, manjaro-settings-manager
 binde = , d, submap, reset
@@ -1061,6 +1077,8 @@ binde = , e, exec, $fileManager
 binde = , e, submap, reset
 binde = , m, exec, yandex-music
 binde = , m, submap, reset
+binde = , w, exec, /home/arthur/Applications/hyprpaper.sh
+binde = , w, submap, reset
 bind = , escape, submap, reset
 submap = reset
 
