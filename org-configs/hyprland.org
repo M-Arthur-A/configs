@@ -19,6 +19,8 @@ hyprpm enable split-monitor-workspaces
   hyprshot
 - LOCK-SESSION
   hyprlock
+- LAYOUT FOR EACH APP
+  hyprland-per-window-layout
 - GTK-THEMING
   nwg-look
 - BAR
@@ -59,7 +61,7 @@ env = QT_QPA_PLATFORMTHEME,qt5ct
 ### NVIDIA VARIABLES ###
 ########################
 
-env = SDL_VIDEODRIVER,wayland
+# env = SDL_VIDEODRIVER,wayland
 env = GBM_BACKEND,nvidia-drm
 env = __GLX_VENDOR_LIBRARY_NAME,nvidia
 env = LIBVA_DRIVER_NAME,nvidia
@@ -96,9 +98,7 @@ exec-once = killall -s SIGTERM Kglobalaccel5
 #exec-once = pgrep -x lxpolkit > /dev/null || lxpolkit &
 exec-once = pgrep -x dunst > /dev/null || dunst &
 exec-once = pgrep -x nm-applet > /dev/null || nm-applet &
-#exec-once = pgrep -x numlockx > /dev/null || numlockx &
-# exec-once = pgrep -x greenclip > /dev/null || greenclip daemon &
-exec-once = pgrep -x kbdd > /dev/null || kbdd &
+exec-once = pgrep -x hyprland-per-window-layout > /dev/null || hyprland-per-window-layout &
 exec-once = pgrep -x kdeconnectd > /dev/null || kdeconnect-cli &
 exec-once = pgrep -x emacs > /dev/null || /usr/bin/emacs --daemon &
 exec-once = /home/arthur/Applications/Kensington_Expert_Setup.sh &
@@ -171,6 +171,7 @@ input {
     kb_model =
     kb_options = grp:alt_space_toggle
     kb_rules =
+    numlock_by_default = true
 
     follow_mouse = 1
 
