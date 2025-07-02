@@ -33,6 +33,14 @@ hyprpm enable split-monitor-workspaces
   wofi
 - FONTS
   FiraCode
+- FIXES
+  + electron fixes
+    install: libva-nvidia-driver
+    #+begin_src ~/.config/electron-flags.conf
+  --enable-features=UseOzonePlatform,WaylandWindowDecorations
+  --ozone-platform-hint=auto
+    #+end_src
+  + oth
 ** VARS
 https://wiki.hypr.land/Configuring/Keywords/
 https://wiki.hypr.land/Configuring/Environment-variables/
@@ -306,6 +314,7 @@ master {
 misc {
     force_default_wallpaper = -1 # Set to 0 or 1 to disable the anime mascot wallpapers
     disable_hyprland_logo = false # If true disables the random hyprland logo / anime girl background. :(
+    vrr = 1
 }
 
 xwayland {
