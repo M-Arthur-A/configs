@@ -896,7 +896,8 @@ window#waybar {
     animation: gradient_f 4s ease infinite;
     text-shadow: 0 0 5px rgba(0, 0, 0, 0.377);
     font-weight: bolder;
-    color: #fff;
+    color: #404040;
+    /* color: #fff; */
 }
 
 #window{
@@ -943,7 +944,8 @@ window#waybar {
 
 #clock.sec {
     background: rgb(205,214,244);
-    background: linear-gradient(118deg, rgba(205,214,244,1) 5%, rgba(243,139,168,1) 5%, rgba(243,139,168,1) 20%, rgba(205,214,244,1) 20%, rgba(205,214,244,1) 40%, rgba(243,139,168,1) 40%, rgba(243,139,168,1) 60%, rgba(205,214,244,1) 60%, rgba(205,214,244,1) 80%, rgba(243,139,168,1) 80%, rgba(243,139,168,1) 95%, rgba(205,214,244,1) 95%);
+    background:
+linear-gradient(118deg, rgba(205,214,244,1) 5%, rgba(243,139,168,1) 5%, rgba(243,139,168,1) 20%, rgba(205,214,244,1) 20%, rgba(205,214,244,1) 40%, rgba(243,139,168,1) 40%, rgba(243,139,168,1) 60%, rgba(205,214,244,1) 60%, rgba(205,214,244,1) 80%, rgba(243,139,168,1) 80%, rgba(243,139,168,1) 95%, rgba(205,214,244,1) 95%);
 
     background-size: 200% 300%;
 
@@ -1042,7 +1044,8 @@ window#waybar {
 
 #pulseaudio {
     background-color:  	#fab387;
-    color: #fff;
+    /* color: #fff; */
+    color: #404040;
     font-weight: bolder;
 }
 
@@ -1052,7 +1055,8 @@ window#waybar {
 
 #bluetooth {
     background-color:  	#fab387;
-    color: #bf7d54;
+    /* color: #bf7d54; */
+    color: #404040;
     font-weight: bolder;
 }
 
