@@ -41,7 +41,7 @@ hyprpm enable split-monitor-workspaces
   --ozone-platform-hint=auto
     #+end_src
   + oth
-** game
+*** game
 - to enable HDR
 ENABLE_HDR_WSI=1 gamescope --fullscreen -w 2560 -h 1440 --hdr-enabled --hdr-debug-force-output --hdr-sdr-content-nits 600 --mangoapp -- env ENABLE_GAMESCOPE_WSI=1 DXVK_HDR=1 DISABLE_HDR_WSI=1 %command%
 ** VARS
@@ -438,6 +438,116 @@ window {
     border: none;
     border-radius: 15px;
     background: linear-gradient(45deg, rgba(203,166,247,1) 30%, rgba(245,194,231,1) 100%);
+}
+#+end_src
+** HYPRLOCK
+*** config
+#+begin_src json :tangle "/home/arthur/.config/hypr/hyprlock.conf" :mkdirp yes
+
+background {
+    monitor =
+    path = /usr/share/backgrounds/dtos-backgrounds/0258.jpg   # only png supported for now
+    # color = $color1
+
+    # all these options are taken from hyprland, see https://wiki.hyprland.org/Configuring/Variables/#blur for explanations
+    blur_size = 4
+    blur_passes = 3 # 0 disables blurring
+    noise = 0.0117
+    contrast = 1.3000 # Vibrant!!!
+    brightness = 0.8000
+    vibrancy = 0.2100
+    vibrancy_darkness = 0.0
+}
+
+# Hours
+label {
+    monitor =
+    text = cmd[update:1000] echo "<b><big> $(date +"%H") </big></b>"
+    color = $color6
+    font_size = 112
+    font_family = Geist Mono 10
+    shadow_passes = 3
+    shadow_size = 4
+
+    position = 0, 220
+    halign = center
+    valign = center
+}
+
+# Minutes
+label {
+    monitor =
+    text = cmd[update:1000] echo "<b><big> $(date +"%M") </big></b>"
+    color = $color6
+    font_size = 112
+    font_family = Geist Mono 10
+    shadow_passes = 3
+    shadow_size = 4
+
+    position = 0, 80
+    halign = center
+    valign = center
+}
+
+# Today
+label {
+    monitor =
+    text = cmd[update:18000000] echo "<b><big> "$(date +'%A')" </big></b>"
+    color = $color7
+    font_size = 22
+    font_family = JetBrainsMono Nerd Font 10
+
+    position = 0, 0
+    halign = center
+    valign = center
+}
+
+# Week
+label {
+    monitor =
+    text = cmd[update:18000000] echo "<b> "$(date +'%d %b')" </b>"
+    color = $color7
+    font_size = 18
+    font_family = JetBrainsMono Nerd Font 10
+
+    position = 0, -30
+    halign = center
+    valign = center
+}
+
+# Degrees
+label {
+    monitor =
+    text = cmd[update:18000000] echo "<b>Feels like<big> $(curl -s 'wttr.in?format=%t' | tr -d '+') </big></b>"
+    color = $color7
+    font_size = 18
+    font_family = Geist Mono 10
+
+    position = 0, 40
+    halign = center
+    valign = bottom
+}
+
+input-field {
+    monitor =
+    size = 250, 50
+    outline_thickness = 3
+
+    dots_size = 0.26 # Scale of input-field height, 0.2 - 0.8
+    dots_spacing = 0.64 # Scale of dots' absolute size, 0.0 - 1.0
+    dots_center = true
+    dots_rouding = -1
+
+    rounding = 22
+    outer_color = $color0
+    inner_color = $color0
+    font_color = $color6
+    fade_on_empty = true
+    placeholder_text = <i>Password...</i> # Text rendered in the input box when it's empty.
+
+    position = 0, 120
+    halign = center
+    valign = bottom
 }
 #+end_src
 ** HYPRPAPER BACKGROUNDS
@@ -1110,6 +1220,8 @@ binde = , m, exec, XDG_SESSION_TYPE=x11 yandex-music
 binde = , m, submap, reset
 binde = , w, exec, /home/arthur/Applications/hyprpaper.sh
 binde = , w, submap, reset
+binde = , l, exec, hyprlock
+binde = , l, submap, reset
 bind = , escape, submap, reset
 submap = reset
 
