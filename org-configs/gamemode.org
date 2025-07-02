@@ -10,7 +10,7 @@
 balooctl6 suspend;
 killall -s SIGKILL picom ;
 # conky -d -t '$time' -m 1 -a middle_middle -f 'Hack:size=72' -c '/home/arthur/Applications/conky.conf';
-conky -d -m 2 -t '$time' -a middle_right -f 'Hack:size=72' -c '/home/arthur/Applications/conky.conf' -x 700 -y 150
+# conky -d -m 2 -t '$time' -a middle_right -f 'Hack:size=72' -c '/home/arthur/Applications/conky.conf' -x 700 -y 150
 killall -s SIGKILL xmobar ;
 killall -s SIGKILL polybar;
 if [[ $(pgrep -x "dwm") -gt 1 ]]

@@ -1102,6 +1102,34 @@ window#waybar {
 #+begin_src json :tangle "/home/arthur/.config/waybar/scripts/xclip" :mkdirp yes
 waybar-wttr.py sel -c
 #+end_src
+* APPS
+for wofi
+** poweroff
+#+begin_src conf /usr/share/applications/poweroff.desktop
+[Desktop Entry]
+Name=poweroff
+Name[ru]=Выключить ПК
+Comment=Turn PC off
+Comment[ru]=Выключение ПК
+GenericName=poweroff
+Exec=systemctl poweroff
+Icon=/usr/share/icons/HighContrast/scalable/actions/system-shutdown.svg
+Type=Application
+Categories=system
+#+end_src
+** suspend
+#+begin_src conf /usr/share/applications/suspend.desktop
+[Desktop Entry]
+Name=suspend
+Name[ru]=Режим сна
+Comment=suspend PC
+Comment[ru]=Перевести ПК в режим сна
+GenericName=suspend
+Exec=systemctl suspend
+Icon=/usr/share/icons/HighContrast/scalable/actions/system-lock-screen.svg
+Type=Application
+Categories=system
+#+end_src
 * HOTKEYS
 https://wiki.hypr.land/Configuring/Binds/
 bind = MODS, key, dispatcher, params
