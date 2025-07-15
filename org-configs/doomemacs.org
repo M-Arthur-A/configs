@@ -1440,4 +1440,5 @@ Emacs provides a 'zap-to-char' command that kills from the current point to a ch
 * LAST
 #+BEGIN_SRC emacs-lisp :tangle /home/arthur/.config/doom/config.el
 (dashboard-open)
+(setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
 #+END_SRC

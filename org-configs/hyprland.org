@@ -103,6 +103,7 @@ monitor = DP-2, 2560x1080@75, 2560x360, 1
 exec-once = hyprpm reload -n
 exec-once = waybar
 exec-once = hyprpaper
+exec-once = hyprctl setcursor breeze 32
 exec-once = xrandr --output DP-3 --primary
 exec-once = /home/arthur/Applications/hyprpaper.sh &
 exec-once = killall -s SIGTERM Kglobalaccel5
