@@ -36,6 +36,7 @@
 - [[#evaluate-elisp-expressions][EVALUATE ELISP EXPRESSIONS]]
 - [[#eww][EWW]]
 - [[#fonts][FONTS]]
+- [[#go][GO]]
 - [[#insert-date][INSERT DATE]]
 - [[#ivy][IVY]]
   - [[#ivy-posframe][IVY-POSFRAME]]
@@ -786,7 +787,50 @@ Settings related to fonts within Doom Emacs:
   '(font-lock-comment-face :family "Hack" :slant italic)
   '(font-lock-keyword-face :family "Hack" :slant italic))
 #+END_SRC
+* GO
+#+begin_src bash
+go get -u github.com/nsf/gocode
+go get -u github.com/rogpeppe/godef
+go get -u github.com/jstemmer/gotags
+go get -u github.com/kisielk/errcheck
+go get -u golang.org/x/tools/cmd/guru
+go get -u github.com/golang/lint/golint
+go get -u golang.org/x/tools/cmd/gorename
+go get -u golang.org/x/tools/cmd/goimports
+sudo go get -u golang.org/x/tools/cmd/godoc
+#+end_src
 
+#+BEGIN_SRC emacs-lisp :tangle /home/arthur/.config/doom/config.el
+(after! go-mode
+  (if (and (modulep! :lang go +lsp) (executable-find "gofumpt"))
+      (setq lsp-go-use-gofumpt t)
+    (message "gofumpt not installed")))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :tangle /home/arthur/.config/doom/config.el
+;; (require 'company)
+;; (require 'flycheck)
+;; (require 'yasnippet)
+;; (require 'multi-compile)
+;; (require 'go-eldoc)
+;; (require 'company-go)
+;;
+;; (add-hook 'before-save-hook 'gofmt-before-save)
+;; (setq-default gofmt-command "goimports")
+;; (add-hook 'go-mode-hook 'go-eldoc-setup)
+;; (add-hook 'go-mode-hook (lambda ()
+                            ;; (set (make-local-variable 'company-backends) '(company-go))
+                            ;; (company-mode)))
+;; (add-hook 'go-mode-hook 'yas-minor-mode)
+;; (add-hook 'go-mode-hook 'flycheck-mode)
+;; (setq multi-compile-alist '(
+    ;; (go-mode . (
+;; ("go-build" "go build -v"
+   ;; (locate-dominating-file buffer-file-name ".git"))
+;; ("go-build-and-run" "go build -v && echo 'build finish' && eval ./${PWD##*/}"
+   ;; (multi-compile-locate-file-dir ".git"))))
+    ;; ))
+#+END_SRC
 * INSERT DATE
 Some custom functions to insert the date.  The function 'insert-todays-date' can be used one of three different ways: (1) just the keybinding without the universal argument prefix, (2) with one universal argument prefix, or (3) with two universal argument prefixes.  The universal argument prefix is 'SPC-u' in Doom Emacs (C-u in standard GNU Emacs).  The function 'insert-any-date' only outputs to one format, which is the same format as 'insert-todays-date' without a prefix.
 

@@ -55,7 +55,8 @@ https://wiki.hypr.land/Configuring/Environment-variables/
 # Set programs that you use
 $terminal = alacritty
 $browser = firefox
-$fileManager = dolphin
+# $fileManager = dolphin
+$fileManager = doublecmd
 $menu = wofi --show drun
 
 #############################
@@ -364,12 +365,39 @@ XOFF=-30
 FIELDS=SSID,IN-USE,BARS,SECURITY
 #+end_src
 
-#+begin_src json :tangle "/home/arthur/.config/wofi/menu.css" :mkdirp yes
-@import ".config/wofi/style.css";
-window {
-	font-family: "FiraCode Nerd Font Mono";
-	font-size: 13px;
+VPN changer
+#+begin_src json :tangle "/home/arthur/Applications/wofi-vpn.sh" :mkdirp yes
+#!/bin/bash
+
+# Получаем список VPN-подключений
+get_vpn_list() {
+    nmcli -t -f NAME,TYPE,DEVICE connection show | grep :vpn: | while IFS=: read -r name type device; do
+        # Проверяем активные подключения
+        if nmcli -t -f NAME connection show --active | grep -q "^$name$"; then
+            echo "🟢 $name"
+        else
+            echo "🔴 $name"
+        fi
+    done
 }
+
+# Основной скрипт
+selected=$(get_vpn_list | wofi -d -p "VPN" -W 300 -H 400)
+
+if [[ -n "$selected" ]]; then
+    vpn_name=$(echo "$selected" | sed 's/^[🔴🟢] //')
+    current_status=$(echo "$selected" | cut -d' ' -f1)
+
+    if [[ "$current_status" == "🔴" ]]; then
+        # Подключаемся к VPN
+        nmcli connection up "$vpn_name"
+        notify-send "VPN" "Подключение к $vpn_name установлено" -i network-vpn
+    else
+        # Отключаем VPN
+        nmcli connection down "$vpn_name"
+        notify-send "VPN" "Подключение $vpn_name отключено" -i network-vpn
+    fi
+fi
 #+end_src
 *** STYLE
 #+begin_src css :tangle "/home/arthur/.config/wofi/style.css" :mkdirp yes
@@ -388,7 +416,6 @@ window {
     font-weight: bold;
     background-color: #fff;
     background: linear-gradient(90deg, rgba(203,166,247,1) 0%, rgba(245,194,231,1) 100%);
-   	outline: none;
     border-radius: 15px;
     margin: 10px;
     margin-bottom: 2px;
@@ -1255,6 +1282,8 @@ binde = , w, exec, /home/arthur/Applications/hyprpaper.sh
 binde = , w, submap, reset
 binde = , l, exec, hyprlock
 binde = , l, submap, reset
+binde = , v, exec, /home/arthur/Applications/wofi-vpn.sh
+binde = , v, submap, reset
 bind = , escape, submap, reset
 submap = reset
 
