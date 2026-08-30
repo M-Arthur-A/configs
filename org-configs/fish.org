@@ -282,6 +282,8 @@ alias mirrora="sudo reflector --latest 50 --number 20 --sort age --save /etc/pac
 
 # activate vpn
 alias pvpn="nmcli c up nl-free-20.protonvpn.net.udp"
+alias awgvpn="source ~/Applications/preClaude.fish"
+
 
 # Colorize grep output (good for log files)
 alias grep='grep --color=auto'

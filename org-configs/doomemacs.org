@@ -95,9 +95,8 @@ Bookmarks are somewhat like registers in that they record positions you can jump
 
 #+BEGIN_SRC emacs-lisp :tangle /home/arthur/.config/doom/config.el
 (map! :leader
-      (:prefix ("b". "buffer")
-       :desc "List bookmarks" "L" #'list-bookmarks
-       :desc "Save current bookmarks to bookmark file" "w" #'bookmark-save))
+      :desc "List bookmarks" "b L" #'list-bookmarks
+      :desc "Save current bookmarks to bookmark file" "b w" #'bookmark-save)
 #+END_SRC
 
 ** Buffers
@@ -1454,9 +1453,8 @@ Winner mode has been included with GNU Emacs since version 20.  This is a global
 
 #+BEGIN_SRC emacs-lisp :tangle /home/arthur/.config/doom/config.el
 (map! :leader
-      (:prefix ("w" . "window")
-       :desc "Winner redo" "<right>" #'winner-redo
-       :desc "Winner undo" "<left>" #'winner-undo))
+      :desc "Winner redo" "w <right>" #'winner-redo
+      :desc "Winner undo" "w <left>" #'winner-undo)
 #+END_SRC
 
 * ZAP TO CHAR

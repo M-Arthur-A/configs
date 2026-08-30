@@ -6,12 +6,14 @@ https://wiki.hypr.land/Configuring/
 * INIT
 ** DEPS
 - WORKSPACES BEHAVIOR
-  make multiple monitors to have each own workspaces
-  https://github.com/Duckonaut/split-monitor-workspaces
+  make multiple monitors to have each own workspaces (awesome/dwm-like per-monitor workspaces)
+  Duckonaut/split-monitor-workspaces (the old hyprpm C++ plugin) is superseded by its
+  official Lua-package successor for Hyprland >=0.55 / the new Lua config:
+  https://github.com/zjeffer/split-monitor-workspaces
 #+begin_src bash
-hyprpm update
-hyprpm add https://github.com/Duckonaut/split-monitor-workspaces
-hyprpm enable split-monitor-workspaces
+mkdir -p ~/.config/hypr/plugins
+cd ~/.config/hypr/plugins
+git clone https://github.com/zjeffer/split-monitor-workspaces
 #+end_src
 - BACKGROUNDS
   hyprpaper
@@ -47,284 +49,354 @@ ENABLE_HDR_WSI=1 gamescope --fullscreen -w 2560 -h 1440 --hdr-enabled --hdr-debu
 ** VARS
 https://wiki.hypr.land/Configuring/Keywords/
 https://wiki.hypr.land/Configuring/Environment-variables/
-#+begin_src bash :tangle "/home/arthur/.config/hypr/hyprland.conf"
-###################
-### MY PROGRAMS ###
-###################
+#+begin_src lua :tangle "/home/arthur/.config/hypr/hyprland.lua"
+-- Migrated to Hyprland's new Lua config (0.55+, hyprlang/.conf deprecated).
+-- See https://wiki.hypr.land/Configuring/Start/
 
-# Set programs that you use
-$terminal = alacritty
-$browser = firefox
-# $fileManager = dolphin
-$fileManager = doublecmd
-$menu = wofi --show drun
+---------------------
+---- MY PROGRAMS ----
+---------------------
 
-#############################
-### ENVIRONMENT VARIABLES ###
-#############################
+-- Set programs that you use
+local terminal = "alacritty"
+local browser = "firefox"
+-- local fileManager = "dolphin"
+local fileManager = "doublecmd"
+local menu = "wofi --show drun"
 
-env = XCURSOR_SIZE,24
-env = HYPRCURSOR_SIZE,24
-env = xx_color_management_v4,true
-env = QT_QPA_PLATFORM,wayland;xcb
-env = QT_QPA_PLATFORMTHEME,qt5ct
+-------------------------------
+---- ENVIRONMENT VARIABLES ----
+-------------------------------
 
-########################
-### NVIDIA VARIABLES ###
-########################
+hl.env("XCURSOR_SIZE", "24")
+hl.env("HYPRCURSOR_SIZE", "24")
+hl.env("xx_color_management_v4", "true")
+hl.env("QT_QPA_PLATFORM", "wayland;xcb")
+hl.env("QT_QPA_PLATFORMTHEME", "qt5ct")
 
-# env = SDL_VIDEODRIVER,wayland
-env = GBM_BACKEND,nvidia-drm
-env = __GLX_VENDOR_LIBRARY_NAME,nvidia
-env = LIBVA_DRIVER_NAME,nvidia
-env = __GL_GSYNC_ALLOWED,1
+-----------------------
+---- NVIDIA VARS ------
+-----------------------
+
+-- hl.env("SDL_VIDEODRIVER", "wayland")
+hl.env("GBM_BACKEND", "nvidia-drm")
+hl.env("__GLX_VENDOR_LIBRARY_NAME", "nvidia")
+hl.env("LIBVA_DRIVER_NAME", "nvidia")
+hl.env("__GL_GSYNC_ALLOWED", "1")
 
 #+end_src
 ** MONITORS
 https://wiki.hypr.land/Configuring/Monitors/
 
 exec-once=wlr-randr --output DP-2 --off && sleep 3 && wlr-randr --output DP-2 --on --pos 2560x360
-#+begin_src bash :tangle "/home/arthur/.config/hypr/hyprland.conf"
-################
-### MONITORS ###
-################
+#+begin_src lua :tangle "/home/arthur/.config/hypr/hyprland.lua"
+----------------
+---- MONITORS ----
+----------------
 
-# monitor=,preferred,auto,auto
-# monitor = DP-2, 2560x1440@165, 0x0, 1
-# monitor = DP-0, 2560x1080, 2560x360, 1
-monitor = DP-3, 2560x1440@165, 0x0, 1
-monitor = DP-2, 2560x1080@75, 2560x360, 1
+-- hl.monitor({ output = "", mode = "preferred", position = "auto", scale = "auto" })
+-- hl.monitor({ output = "DP-2", mode = "2560x1440@165", position = "0x0", scale = 1 })
+-- hl.monitor({ output = "DP-0", mode = "2560x1080", position = "2560x360", scale = 1 })
+
+hl.monitor({
+    output   = "DP-3",
+    mode     = "2560x1440@165",
+    position = "0x0",
+    scale    = 1,
+})
+hl.monitor({
+    output   = "DP-2",
+    mode     = "2560x1080@75",
+    position = "2560x360",
+    scale    = 1,
+})
+-- hl.monitor({ output = "DP-2", mode = "2560x1440@165", position = "0x0", scale = 1 })
 #+end_src
 ** AUTOSTART
-#+begin_src bash :tangle "/home/arthur/.config/hypr/hyprland.conf"
-#################
-### AUTOSTART ###
-#################
+#+begin_src lua :tangle "/home/arthur/.config/hypr/hyprland.lua"
+-------------------
+---- AUTOSTART ----
+-------------------
 
-exec-once = hyprpm reload -n
-exec-once = waybar
-exec-once = hyprpaper
-exec-once = hyprctl setcursor breeze 32
-exec-once = xrandr --output DP-3 --primary
-exec-once = /home/arthur/Applications/hyprpaper.sh &
-exec-once = killall -s SIGTERM Kglobalaccel5
-#exec-once = pgrep -x lxpolkit > /dev/null || lxpolkit &
-exec-once = pgrep -x dunst > /dev/null || dunst &
-exec-once = pgrep -x nm-applet > /dev/null || nm-applet &
-exec-once = pgrep -x hyprland-per-window-layout > /dev/null || hyprland-per-window-layout &
-exec-once = pgrep -x kdeconnectd > /dev/null || kdeconnect-cli &
-exec-once = pgrep -x emacs > /dev/null || /usr/bin/emacs --daemon &
-exec-once = /home/arthur/Applications/Kensington_Expert_Setup.sh &
-exec-once = /usr/bin/syncthing serve --no-browser --logflags=0 &
-exec-once= wl-paste --type text --watch cliphist store &  #Stores only text data
-exec-once= wl-paste --type image --watch cliphist store & #Stores only image data
+-- exec-once equivalent: hl.on("hyprland.start", ...) fires once, not on reloads
+hl.on("hyprland.start", function()
+    hl.exec_cmd("hyprpm reload -n")
+    hl.exec_cmd("waybar")
+    hl.exec_cmd("hyprpaper")
+    hl.exec_cmd("hyprctl setcursor breeze 32")
+    hl.exec_cmd("xrandr --output DP-3 --primary")
+    hl.exec_cmd("/home/arthur/Applications/hyprpaper.sh &")
+    hl.exec_cmd("killall -s SIGTERM Kglobalaccel5")
+    -- hl.exec_cmd("pgrep -x lxpolkit > /dev/null || lxpolkit &")
+    hl.exec_cmd("pgrep -x dunst > /dev/null || dunst &")
+    hl.exec_cmd("pgrep -x nm-applet > /dev/null || nm-applet &")
+    hl.exec_cmd("pgrep -x hyprland-per-window-layout > /dev/null || hyprland-per-window-layout &")
+    hl.exec_cmd("pgrep -x kdeconnectd > /dev/null || kdeconnect-cli &")
+    hl.exec_cmd("pgrep -x emacs > /dev/null || /usr/bin/emacs --daemon &")
+    hl.exec_cmd("/home/arthur/Applications/Kensington_Expert_Setup.sh &")
+    hl.exec_cmd("/usr/bin/syncthing serve --no-browser --logflags=0 &")
+    hl.exec_cmd("vicinae server &")
+    -- hl.exec_cmd("wl-paste --type text --watch cliphist store &")  -- Stores only text data
+    -- hl.exec_cmd("wl-paste --type image --watch cliphist store &") -- Stores only image data
+end)
 
 #+end_src
 ** PERMISSIONS
 https://wiki.hypr.land/Configuring/Permissions/
 Please note permission changes here require a Hyprland restart and are not applied on-the-fly for security reasons
 
-#+begin_src bash :tangle "/home/arthur/.config/hypr/hyprland.conf"
-###################
-### PERMISSIONS ###
-###################
+#+begin_src lua :tangle "/home/arthur/.config/hypr/hyprland.lua"
+-----------------------
+----- PERMISSIONS -----
+-----------------------
 
-# ecosystem {
-#   enforce_permissions = 1
-# }
+-- hl.config({
+--   ecosystem = {
+--     enforce_permissions = true,
+--   },
+-- })
 
-# permission = /usr/(bin|local/bin)/grim, screencopy, allow
-# permission = /usr/(lib|libexec|lib64)/xdg-desktop-portal-hyprland, screencopy, allow
-# permission = /usr/(bin|local/bin)/hyprpm, plugin, allow
+-- hl.permission("/usr/(bin|local/bin)/grim", "screencopy", "allow")
+-- hl.permission("/usr/(lib|libexec|lib64)/xdg-desktop-portal-hyprland", "screencopy", "allow")
+-- hl.permission("/usr/(bin|local/bin)/hyprpm", "plugin", "allow")
 
 #+end_src
 ** WORKSPACES AND RULES
 https://wiki.hypr.land/Configuring/Window-Rules/
 for workspace rules https://wiki.hypr.land/Configuring/Workspace-Rules/
 
-Example windowrule
+Example windowrule (DEPRECATED)
    =windowrule = float,class:^(kitty)$,title:^(kitty)$=
 
-#+begin_src bash :tangle "/home/arthur/.config/hypr/hyprland.conf"
-##############################
-### WINDOWS AND WORKSPACES ###
-##############################
+#+begin_src lua :tangle "/home/arthur/.config/hypr/hyprland.lua"
+--------------------------------
+---- WINDOWS AND WORKSPACES ----
+--------------------------------
 
-workspace = special:scratchpadterminal, on-created-empty:[float; size 2000 900] alacritty, persistent:false
-windowrule = float,class:^(io.github.Qalculate.qalculate-qt)$,title:^(Qalculate!)$
+hl.workspace_rule({
+    workspace        = "special:scratchpadterminal",
+    on_created_empty = "[float; size 2000 900] alacritty",
+    persistent       = false,
+})
+-- hl.window_rule({ match = { class = "^(io.github.Qalculate.qalculate-qt)$" }, float = true })
 
-# Ignore maximize requests from apps. You'll probably like this.
-windowrule = suppressevent maximize, class:.*
+-- Ignore maximize requests from apps. You'll probably like this.
+-- hl.window_rule({ match = { class = ".*" }, suppress_event = "maximize" })
 
-# Fix some dragging issues with XWayland
-windowrule = nofocus,class:^$,title:^$,xwayland:1,floating:1,fullscreen:0,pinned:0
+-- Fix some dragging issues with XWayland
+-- hl.window_rule({ match = { class = "^$", title = "^$", xwayland = true, float = true, fullscreen = false, pin = false }, no_focus = true })
 
-# scratchpads
-windowrule = float,class:^(scratchpad)$,title:^(alacritty)$
+-- scratchpads
+-- hl.window_rule({ match = { class = "^(scratchpad)$", title = "^(alacritty)$" }, float = true })
 
-plugin {
-    split-monitor-workspaces {
-        count = 9
-        keep_focused = 0
-        enable_notifications = 0
-        enable_persistent_workspaces = 1
-    }
-}
+-- Float Qalculate!
+hl.window_rule({
+    name  = "float-qalculate",
+    match = { class = "^(io.github.Qalculate.qalculate-qt)$", title = "^(Qalculate!)$" },
+    float = true,
+})
+
+-- Игнорировать запросы maximize от приложений
+hl.window_rule({
+    name  = "suppressevent-maximize",
+    match = { class = ".*" },
+
+    suppress_event = "maximize",
+})
+
+-- Исправить некоторые проблемы с перетаскиванием в XWayland
+hl.window_rule({
+    name  = "fix-xwayland-drags",
+    match = {
+        class      = "^$",
+        title      = "^$",
+        xwayland   = true,
+        float      = true,
+        fullscreen = false,
+        pin        = false,
+    },
+    no_focus = true,
+})
+
+-- Scratchpads
+hl.window_rule({
+    name  = "scratchpad-float",
+    match = { class = "^(scratchpad)$", title = "^(alacritty)$" },
+    float = true,
+})
+
+-- split-monitor-workspaces is now a Lua package (not a hyprpm C++ plugin),
+-- cloned into ~/.config/hypr/plugins (see the DEPS section at the top of
+-- this file). See https://github.com/zjeffer/split-monitor-workspaces
+package.path = package.path .. ";./?.lua;./?/init.lua"
+local smw = require("plugins.split-monitor-workspaces")
+
+smw.setup({
+    workspace_count               = 9,
+    keep_focused                  = false,
+    enable_notifications          = false,
+    enable_persistent_workspaces  = true,
+})
 #+end_src
 ** INPUT
 https://wiki.hypr.land/Configuring/Variables/#input
-#+begin_src bash :tangle "/home/arthur/.config/hypr/hyprland.conf"
-#############
-### INPUT ###
-#############
+#+begin_src lua :tangle "/home/arthur/.config/hypr/hyprland.lua"
+---------------
+---- INPUT ----
+---------------
 
-input {
-    kb_layout = us,ru
-    kb_variant =
-    kb_model =
-    kb_options = grp:alt_space_toggle
-    kb_rules =
-    numlock_by_default = true
+hl.config({
+    input = {
+        kb_layout  = "us,ru",
+        kb_variant = "",
+        kb_model   = "",
+        kb_options = "grp:alt_space_toggle",
+        kb_rules   = "",
+        numlock_by_default = true,
 
-    follow_mouse = 1
+        follow_mouse = 1,
 
-    sensitivity = 0 # -1.0 - 1.0, 0 means no modification.
+        sensitivity = 0, -- -1.0 - 1.0, 0 means no modification.
 
-    touchpad {
-        natural_scroll = false
-    }
-}
+        touchpad = {
+            natural_scroll = false,
+        },
+    },
+})
 
-# https://wiki.hypr.land/Configuring/Variables/#gestures
-gestures {
-    workspace_swipe = false
-}
+-- https://wiki.hypr.land/Configuring/Core/Config-Options/#gestures
+-- hl.config({
+--     gestures = {
+--         workspace_swipe = false,
+--     },
+-- })
 
-# Example per-device config
-# See https://wiki.hypr.land/Configuring/Keywords/#per-device-input-configs for more
-# device {
-    # name = epic-mouse-v1
-    # sensitivity = -0.5
-# }
+-- Example per-device config
+-- See https://wiki.hypr.land/Configuring/Advanced-and-Cool/Devices/ for more
+-- hl.device({
+--     name        = "epic-mouse-v1",
+--     sensitivity = -0.5,
+-- })
 
 #+end_src
 * STYLE
 ** HYPRLAND COMMON
-#+begin_src bash :tangle "/home/arthur/.config/hypr/hyprland.conf"
-#####################
-### LOOK AND FEEL ###
-#####################
+#+begin_src lua :tangle "/home/arthur/.config/hypr/hyprland.lua"
+-----------------------
+---- LOOK AND FEEL ----
+-----------------------
 
-# Refer to https://wiki.hypr.land/Configuring/Variables/
+-- Refer to https://wiki.hypr.land/Configuring/Core/Config-Options/
 
-# https://wiki.hypr.land/Configuring/Variables/#general
-general {
-    gaps_in = 5
-    gaps_out = 10
+hl.config({
+    general = {
+        gaps_in  = 5,
+        gaps_out = 10,
 
-    border_size = 2
+        border_size = 2,
 
-    # https://wiki.hypr.land/Configuring/Variables/#variable-types for info about colors
-    col.active_border = rgba(33ccffee) rgba(00ff99ee) 45deg
-    col.inactive_border = rgba(595959aa)
+        -- https://wiki.hypr.land/Configuring/Core/Config-Options/ for info about colors
+        col = {
+            active_border   = { colors = {"rgba(33ccffee)", "rgba(00ff99ee)"}, angle = 45 },
+            inactive_border = "rgba(595959aa)",
+        },
 
-    # Set to true enable resizing windows by clicking and dragging on borders and gaps
-    resize_on_border = false
+        -- Set to true to enable resizing windows by clicking and dragging on borders and gaps
+        resize_on_border = false,
 
-    # Please see https://wiki.hypr.land/Configuring/Tearing/ before you turn this on
-    allow_tearing = true
+        -- Please see https://wiki.hypr.land/Configuring/Advanced-and-Cool/Tearing/ before you turn this on
+        allow_tearing = true,
 
-    layout = dwindle # bspwm-like binary-tree
-}
+        layout = "dwindle", -- bspwm-like binary-tree
+    },
 
+    decoration = {
+        rounding       = 10,
+        rounding_power = 2,
 
-# https://wiki.hypr.land/Configuring/Variables/#decoration
-decoration {
-    rounding = 10
-    rounding_power = 2
+        -- Change transparency of focused and unfocused windows
+        active_opacity   = 1.0,
+        inactive_opacity = 1.0,
 
-    # Change transparency of focused and unfocused windows
-    active_opacity = 1.0
-    inactive_opacity = 1.0
+        shadow = {
+            enabled      = true,
+            range        = 4,
+            render_power = 3,
+            color        = 0xee1a1a1a,
+        },
 
-    shadow {
-        enabled = true
-        range = 4
-        render_power = 3
-        color = rgba(1a1a1aee)
-    }
+        blur = {
+            enabled  = true,
+            size     = 3,
+            passes   = 1,
 
-    # https://wiki.hypr.land/Configuring/Variables/#blur
-    blur {
-        enabled = true
-        size = 3
-        passes = 1
+            vibrancy = 0.1696,
+        },
+    },
 
-        vibrancy = 0.1696
-    }
-}
+    animations = {
+        enabled = true,
+    },
+})
 
-# https://wiki.hypr.land/Configuring/Variables/#animations
-animations {
-    enabled = yes, please :)
+-- Default curves, see https://wiki.hypr.land/Configuring/Advanced-and-Cool/Animations/ for more
+hl.curve("easeOutQuint",   { type = "bezier", points = { {0.23, 1},    {0.32, 1}    } })
+hl.curve("easeInOutCubic", { type = "bezier", points = { {0.65, 0.05}, {0.36, 1}    } })
+hl.curve("linear",         { type = "bezier", points = { {0, 0},       {1, 1}       } })
+hl.curve("almostLinear",   { type = "bezier", points = { {0.5, 0.5},   {0.75, 1}    } })
+hl.curve("quick",          { type = "bezier", points = { {0.15, 0},    {0.1, 1}     } })
 
-    # Default animations, see https://wiki.hypr.land/Configuring/Animations/ for more
+hl.animation({ leaf = "global",        enabled = true, speed = 10,   bezier = "default" })
+hl.animation({ leaf = "border",        enabled = true, speed = 5.39, bezier = "easeOutQuint" })
+hl.animation({ leaf = "windows",       enabled = true, speed = 4.79, bezier = "easeOutQuint" })
+hl.animation({ leaf = "windowsIn",     enabled = true, speed = 4.1,  bezier = "easeOutQuint", style = "popin 87%" })
+hl.animation({ leaf = "windowsOut",    enabled = true, speed = 1.49, bezier = "linear",       style = "popin 87%" })
+hl.animation({ leaf = "fadeIn",        enabled = true, speed = 1.73, bezier = "almostLinear" })
+hl.animation({ leaf = "fadeOut",       enabled = true, speed = 1.46, bezier = "almostLinear" })
+hl.animation({ leaf = "fade",          enabled = true, speed = 3.03, bezier = "quick" })
+hl.animation({ leaf = "layers",        enabled = true, speed = 3.81, bezier = "easeOutQuint" })
+hl.animation({ leaf = "layersIn",      enabled = true, speed = 4,    bezier = "easeOutQuint", style = "fade" })
+hl.animation({ leaf = "layersOut",     enabled = true, speed = 1.5,  bezier = "linear",       style = "fade" })
+hl.animation({ leaf = "fadeLayersIn",  enabled = true, speed = 1.79, bezier = "almostLinear" })
+hl.animation({ leaf = "fadeLayersOut", enabled = true, speed = 1.39, bezier = "almostLinear" })
+hl.animation({ leaf = "workspaces",    enabled = true, speed = 1.94, bezier = "almostLinear", style = "fade" })
+hl.animation({ leaf = "workspacesIn",  enabled = true, speed = 1.21, bezier = "almostLinear", style = "fade" })
+hl.animation({ leaf = "workspacesOut", enabled = true, speed = 1.94, bezier = "almostLinear", style = "fade" })
 
-    bezier = easeOutQuint,0.23,1,0.32,1
-    bezier = easeInOutCubic,0.65,0.05,0.36,1
-    bezier = linear,0,0,1,1
-    bezier = almostLinear,0.5,0.5,0.75,1.0
-    bezier = quick,0.15,0,0.1,1
+-- Ref https://wiki.hypr.land/Configuring/Basics/Workspace-Rules/
+-- "Smart gaps" / "No gaps when only"
+-- uncomment all if you wish to use that.
+-- hl.workspace_rule({ workspace = "w[tv1]", gaps_out = 0, gaps_in = 0 })
+-- hl.workspace_rule({ workspace = "f[1]",   gaps_out = 0, gaps_in = 0 })
+-- hl.window_rule({ name = "no-gaps-wtv1", match = { float = false, workspace = "w[tv1]" }, border_size = 0, rounding = 0 })
+-- hl.window_rule({ name = "no-gaps-f1",   match = { float = false, workspace = "f[1]" },   border_size = 0, rounding = 0 })
 
-    animation = global, 1, 10, default
-    animation = border, 1, 5.39, easeOutQuint
-    animation = windows, 1, 4.79, easeOutQuint
-    animation = windowsIn, 1, 4.1, easeOutQuint, popin 87%
-    animation = windowsOut, 1, 1.49, linear, popin 87%
-    animation = fadeIn, 1, 1.73, almostLinear
-    animation = fadeOut, 1, 1.46, almostLinear
-    animation = fade, 1, 3.03, quick
-    animation = layers, 1, 3.81, easeOutQuint
-    animation = layersIn, 1, 4, easeOutQuint, fade
-    animation = layersOut, 1, 1.5, linear, fade
-    animation = fadeLayersIn, 1, 1.79, almostLinear
-    animation = fadeLayersOut, 1, 1.39, almostLinear
-    animation = workspaces, 1, 1.94, almostLinear, fade
-    animation = workspacesIn, 1, 1.21, almostLinear, fade
-    animation = workspacesOut, 1, 1.94, almostLinear, fade
-}
+-- See https://wiki.hypr.land/Configuring/Layouts/Dwindle-Layout/ for more
+hl.config({
+    dwindle = {
+        -- pseudotile = true, -- Master switch for pseudotiling. Enabling is bound to mainMod + P in the keybinds section below
+        preserve_split = true, -- You probably want this
+    },
+})
 
-# Ref https://wiki.hypr.land/Configuring/Workspace-Rules/
-# "Smart gaps" / "No gaps when only"
-# uncomment all if you wish to use that.
-# workspace = w[tv1], gapsout:0, gapsin:0
-# workspace = f[1], gapsout:0, gapsin:0
-# windowrule = bordersize 0, floating:0, onworkspace:w[tv1]
-# windowrule = rounding 0, floating:0, onworkspace:w[tv1]
-# windowrule = bordersize 0, floating:0, onworkspace:f[1]
-# windowrule = rounding 0, floating:0, onworkspace:f[1]
+-- See https://wiki.hypr.land/Configuring/Layouts/Master-Layout/ for more
+hl.config({
+    master = {
+        new_status = "master",
+    },
+})
 
-# See https://wiki.hypr.land/Configuring/Dwindle-Layout/ for more
-dwindle {
-    pseudotile = true # Master switch for pseudotiling. Enabling is bound to mainMod + P in the keybinds section below
-    preserve_split = true # You probably want this
-}
+hl.config({
+    misc = {
+        force_default_wallpaper = -1,    -- Set to 0 or 1 to disable the anime mascot wallpapers
+        disable_hyprland_logo   = false, -- If true disables the random hyprland logo / anime girl background. :(
+        vrr = 1,
+    },
 
-# See https://wiki.hypr.land/Configuring/Master-Layout/ for more
-master {
-    new_status = master
-}
-
-# https://wiki.hypr.land/Configuring/Variables/#misc
-misc {
-    force_default_wallpaper = -1 # Set to 0 or 1 to disable the anime mascot wallpapers
-    disable_hyprland_logo = false # If true disables the random hyprland logo / anime girl background. :(
-    vrr = 1
-}
-
-xwayland {
-    force_zero_scaling = true
-}
+    xwayland = {
+        force_zero_scaling = true,
+    },
+})
 #+end_src
 ** WOFI DMENU
 *** CONFIG
@@ -416,6 +488,7 @@ window {
     font-weight: bold;
     background-color: #fff;
     background: linear-gradient(90deg, rgba(203,166,247,1) 0%, rgba(245,194,231,1) 100%);
+   outline: none;
     border-radius: 15px;
     margin: 10px;
     margin-bottom: 2px;
@@ -878,7 +951,7 @@ window#waybar {
     background: rgb(203,166,247);
     background: radial-gradient(circle, rgba(203,166,247,1) 0%, rgba(193,168,247,1) 12%, rgba(249,226,175,1) 19%, rgba(189,169,247,1) 20%, rgba(182,171,247,1) 24%, rgba(198,255,194,1) 36%, rgba(177,172,247,1) 37%, rgba(170,173,248,1) 48%, rgba(255,255,255,1) 52%, rgba(166,174,248,1) 52%, rgba(160,175,248,1) 59%, rgba(148,226,213,1) 66%, rgba(155,176,248,1) 67%, rgba(152,177,248,1) 68%, rgba(205,214,244,1) 77%, rgba(148,178,249,1) 78%, rgba(144,179,250,1) 82%, rgba(180,190,254,1) 83%, rgba(141,179,250,1) 90%, rgba(137,180,250,1) 100%);
     background-size: 400% 400%;
-    animation: gradient_f 20s ease-in-out infinite;
+    /* animation: gradient_f 20s ease-in-out infinite; */
     transition: all 0.3s cubic-bezier(.55,-0.68,.48,1.682);
 }
 
@@ -921,7 +994,7 @@ window#waybar {
     background: rgb(148,226,213);
     background: radial-gradient(circle, rgba(148,226,213,1) 0%, rgba(156,227,191,1) 21%, rgba(249,226,175,1) 34%, rgba(158,227,186,1) 35%, rgba(163,227,169,1) 59%, rgba(148,226,213,1) 74%, rgba(164,227,167,1) 74%, rgba(166,227,161,1) 100%);
     background-size: 400% 400%;
-    animation: gradient_f 4s ease infinite;
+    /* animation: gradient_f 4s ease infinite; */
     text-shadow: 0 0 5px rgba(0, 0, 0, 0.377);
     font-weight: bolder;
     color: #404040;
@@ -932,7 +1005,7 @@ window#waybar {
     background: rgb(137,180,250);
     background: radial-gradient(circle, rgba(137,180,250,120) 0%, rgba(142,179,250,120) 6%, rgba(148,226,213,1) 14%, rgba(147,178,250,1) 14%, rgba(155,176,249,1) 18%, rgba(245,194,231,1) 28%, rgba(158,175,249,1) 28%, rgba(181,170,248,1) 58%, rgba(205,214,244,1) 69%, rgba(186,169,248,1) 69%, rgba(195,167,247,1) 72%, rgba(137,220,235,1) 73%, rgba(198,167,247,1) 78%, rgba(203,166,247,1) 100%);
     background-size: 400% 400%;
-    animation: gradient_f 9s cubic-bezier(.72,.39,.21,1) infinite;
+    /* animation: gradient_f 9s cubic-bezier(.72,.39,.21,1) infinite; */
     text-shadow: 0 0 5px rgba(0, 0, 0, 0.377);
     font-weight: bold;
     color: #fff ;
@@ -960,7 +1033,7 @@ window#waybar {
     background: linear-gradient(45deg, rgba(245,194,231,1) 0%, rgba(203,166,247,1) 0%, rgba(243,139,168,1) 13%, rgba(235,160,172,1) 26%, rgba(250,179,135,1) 34%, rgba(249,226,175,1) 49%, rgba(166,227,161,1) 65%, rgba(148,226,213,1) 77%, rgba(137,220,235,1) 82%, rgba(116,199,236,1) 88%, rgba(137,180,250,1) 95%);
     color: #fff;
     background-size: 500% 500%;
-    animation: gradient 7s linear infinite;
+    /* animation: gradient 7s linear infinite; */
     font-weight:  bolder;
     border-radius: 15px;
 }
@@ -977,7 +1050,7 @@ linear-gradient(118deg, rgba(205,214,244,1) 5%, rgba(243,139,168,1) 5%, rgba(243
 
     background-size: 200% 300%;
 
-    animation: gradient_f_nh 4s linear infinite;
+    /* animation: gradient_f_nh 4s linear infinite; */
     margin-right: 25px;
     color: #fff ;
     text-shadow: 0 0 5px rgba(0, 0, 0, 0.377);
@@ -1166,135 +1239,109 @@ Categories=system
 https://wiki.hypr.land/Configuring/Binds/
 bind = MODS, key, dispatcher, params
 ** COMMON
-#+begin_src bash :tangle "/home/arthur/.config/hypr/hyprland.conf"
-###################
-### KEYBINDINGS ###
-###################
+#+begin_src lua :tangle "/home/arthur/.config/hypr/hyprland.lua"
+---------------------
+---- KEYBINDINGS ----
+---------------------
 
-# See https://wiki.hypr.land/Configuring/Keywords/
-$mainMod = SUPER # Sets "Windows" key as main modifier
+-- See https://wiki.hypr.land/Configuring/Basics/Binds/
+local mainMod = "SUPER" -- Sets "Windows" key as main modifier
 
-bind = $mainMod, Q, killactive,
-bind = $mainMod SHIFT, Q, exit,
-bind = $mainMod SHIFT, R, exec, hyprctl reload
-bind = $mainMod, F, togglefloating,
-bind = $mainMod, T, togglesplit, # dwindle
-bind = $mainMod, P, pseudo, # dwindle
-bind = $mainMod SHIFT, M, fullscreen
+hl.bind(mainMod .. " + Q", hl.dsp.window.close())
+hl.bind(mainMod .. " + SHIFT + Q", hl.dsp.exit())
+hl.bind(mainMod .. " + SHIFT + R", hl.dsp.exec_cmd("hyprctl reload"))
+hl.bind(mainMod .. " + F", hl.dsp.window.float({ action = "toggle" }))
+hl.bind(mainMod .. " + T", hl.dsp.layout("togglesplit")) -- dwindle
+hl.bind(mainMod .. " + P", hl.dsp.window.pseudo())       -- dwindle
+hl.bind(mainMod .. " + SHIFT + M", hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }))
 
-# Move focus with mainMod + arrow keys
-bind = $mainMod, L, movefocus, l
-bind = $mainMod, R, movefocus, r
-bind = $mainMod, K, movefocus, u
-bind = $mainMod, J, movefocus, d
+-- Move focus with mainMod + arrow keys
+hl.bind(mainMod .. " + L", hl.dsp.focus({ direction = "left" }))
+hl.bind(mainMod .. " + H", hl.dsp.focus({ direction = "right" }))
+hl.bind(mainMod .. " + K", hl.dsp.focus({ direction = "up" }))
+hl.bind(mainMod .. " + J", hl.dsp.focus({ direction = "down" }))
 
-# Switch workspaces with mainMod + [0-9]
-# bind = $mainMod, 1, workspace, 1
-bind = $mainMod, 1, split-workspace, 1
-bind = $mainMod, 2, split-workspace, 2
-bind = $mainMod, 3, split-workspace, 3
-bind = $mainMod, 4, split-workspace, 4
-bind = $mainMod, 5, split-workspace, 5
-bind = $mainMod, 6, split-workspace, 6
-bind = $mainMod, 7, split-workspace, 7
-bind = $mainMod, 8, split-workspace, 8
-bind = $mainMod, 9, split-workspace, 9
-bind = $mainMod, 0, split-workspace, 10
+-- Switch workspaces with mainMod + [0-9], move window with mainMod + SHIFT + [0-9]
+-- (uses smw.* from split-monitor-workspaces, required in the WORKSPACES AND RULES section above)
+for i = 1, 10 do
+    local key = i % 10 -- 10 maps to key 0
+    hl.bind(mainMod .. " + " .. key, smw.workspace(tostring(i)))
+    hl.bind(mainMod .. " + SHIFT + " .. key, smw.move_to_workspace_silent(tostring(i)))
+end
 
-# Move active window to a workspace with mainMod + SHIFT + [0-9]
-# bind = $mainMod SHIFT, 1, movetoworkspace, 1
-# bind = $mainMod SHIFT, 1, split-movetoworkspacesilent, 1
-# bind = $mainMod SHIFT, 1, split-movetoworkspace, 1
-bind = $mainMod SHIFT, 1, split-movetoworkspacesilent, 1
-bind = $mainMod SHIFT, 2, split-movetoworkspacesilent, 2
-bind = $mainMod SHIFT, 3, split-movetoworkspacesilent, 3
-bind = $mainMod SHIFT, 4, split-movetoworkspacesilent, 4
-bind = $mainMod SHIFT, 5, split-movetoworkspacesilent, 5
-bind = $mainMod SHIFT, 6, split-movetoworkspacesilent, 6
-bind = $mainMod SHIFT, 7, split-movetoworkspacesilent, 7
-bind = $mainMod SHIFT, 8, split-movetoworkspacesilent, 8
-bind = $mainMod SHIFT, 9, split-movetoworkspacesilent, 9
-bind = $mainMod SHIFT, 0, split-movetoworkspacesilent, 10
+-- split-monitor-workspaces has no silent "move window to other monitor" helper;
+-- this uses Hyprland's native window-move-to-monitor dispatcher instead.
+hl.bind(mainMod .. " + SHIFT + period", hl.dsp.window.move({ monitor = "+1", follow = false }))
+hl.bind(mainMod .. " + SHIFT + comma",  hl.dsp.window.move({ monitor = "-1", follow = false }))
 
-bind = $mainMod SHIFT, period, split-changemonitorsilent, +1
-bind = $mainMod SHIFT, comma, split-changemonitorsilent, -1
+hl.bind(mainMod .. " + period", hl.dsp.focus({ monitor = "+1" }))
+hl.bind(mainMod .. " + comma",  hl.dsp.focus({ monitor = "-1" }))
 
-bind = $mainMod, period, focusmonitor, +1
-bind = $mainMod, comma, focusmonitor, -1
+-- Example special workspace (scratchpad)
+hl.bind(mainMod .. " + S", hl.dsp.workspace.toggle_special("magic"))
+hl.bind(mainMod .. " + SHIFT + S", hl.dsp.window.move({ workspace = "special:magic" }))
 
-# Example special workspace (scratchpad)
-bind = $mainMod, S, togglespecialworkspace, magic
-bind = $mainMod SHIFT, S, movetoworkspace, special:magic
+-- Scroll through existing workspaces with mainMod + scroll
+hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }))
+hl.bind(mainMod .. " + mouse_up",   hl.dsp.focus({ workspace = "e-1" }))
 
-# Scroll through existing workspaces with mainMod + scroll
-bind = $mainMod, mouse_down, workspace, e+1
-bind = $mainMod, mouse_up, workspace, e-1
+-- Move/resize windows with mainMod + LMB/RMB and dragging
+hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(),   { mouse = true })
+hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
 
-# Move/resize windows with mainMod + LMB/RMB and dragging
-bindm = $mainMod, mouse:272, movewindow
-bindm = $mainMod, mouse:273, resizewindow
+-- Laptop multimedia keys for volume and LCD brightness
+hl.bind("XF86AudioRaiseVolume",  hl.dsp.exec_cmd("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"), { locked = true, repeating = true })
+hl.bind("XF86AudioLowerVolume",  hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"),      { locked = true, repeating = true })
+hl.bind("XF86AudioMute",         hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"),     { locked = true, repeating = true })
+hl.bind("XF86AudioMicMute",      hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"),   { locked = true, repeating = true })
+hl.bind("XF86MonBrightnessUp",   hl.dsp.exec_cmd("brightnessctl -e4 -n2 set 5%+"),                  { locked = true, repeating = true })
+hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl -e4 -n2 set 5%-"),                  { locked = true, repeating = true })
 
-# Laptop multimedia keys for volume and LCD brightness
-bindel = ,XF86AudioRaiseVolume, exec, wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+
-bindel = ,XF86AudioLowerVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-
-bindel = ,XF86AudioMute, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
-bindel = ,XF86AudioMicMute, exec, wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
-bindel = ,XF86MonBrightnessUp, exec, brightnessctl -e4 -n2 set 5%+
-bindel = ,XF86MonBrightnessDown, exec, brightnessctl -e4 -n2 set 5%-
-
-# Requires playerctl
-bindl = , XF86AudioNext, exec, playerctl next
-bindl = , XF86AudioPause, exec, playerctl play-pause
-bindl = , XF86AudioPlay, exec, playerctl play-pause
-bindl = , XF86AudioPrev, exec, playerctl previous
+-- Requires playerctl
+hl.bind("XF86AudioNext",  hl.dsp.exec_cmd("playerctl next"),       { locked = true })
+hl.bind("XF86AudioPause", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
+hl.bind("XF86AudioPlay",  hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
+hl.bind("XF86AudioPrev",  hl.dsp.exec_cmd("playerctl previous"),   { locked = true })
 
 #+end_src
 ** APPS
-#+begin_src bash :tangle "/home/arthur/.config/hypr/hyprland.conf"
-# bind = $mainMod, E, exec, $fileManager
-bind = $mainMod, return, exec, $terminal
-bind = $mainMod, B, exec, $browser
-bind = $mainMod, space, exec, $menu
-bind = $mainMod, D, exec, dunstctl close-all
-# bind = $mainMod, V, exec, rofi -modi "clipboard:greenclip print" -show clipboard -run-command '{cmd}'
-bind = $mainMod, V, exec, cliphist list | wofi -dmenu | cliphist decode | wl-copy && wtype -M ctrl -P v -m ctrl
-bind = $mainMod CTRL, W, togglespecialworkspace, scratchpadterminal
+#+begin_src lua :tangle "/home/arthur/.config/hypr/hyprland.lua"
+-- hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager))
+hl.bind(mainMod .. " + return", hl.dsp.exec_cmd(terminal))
+hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(browser))
+hl.bind(mainMod .. " + space", hl.dsp.exec_cmd("vicinae open"))
+hl.bind(mainMod .. " + D", hl.dsp.exec_cmd("dunstctl close-all"))
+-- hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("rofi -modi \"clipboard:greenclip print\" -show clipboard -run-command '{cmd}'"))
+-- hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("cliphist list | wofi -dmenu | cliphist decode | wl-copy && wtype -M ctrl -P v -m ctrl"))
+hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("vicinae deeplink vicinae://launch/clipboard/history"))
+hl.bind(mainMod .. " + CTRL + W", hl.dsp.workspace.toggle_special("scratchpadterminal"))
 
-# bind = $mainMod, S, togglespecialworkspace, magic
-# bind = $mainMod SHIFT, S, movetoworkspace, special:magic
+-- hl.bind(mainMod .. " + S", hl.dsp.workspace.toggle_special("magic"))
+-- hl.bind(mainMod .. " + SHIFT + S", hl.dsp.window.move({ workspace = "special:magic" }))
 
 
-bind = $mainMod, A, submap, apps
-submap = apps
-binde = , a, exec, pamac-manager
-binde = , a, submap, reset
-binde = , s, exec, hyprshot -m region
-binde = , s, submap, reset
-binde = , d, exec, manjaro-settings-manager
-binde = , d, submap, reset
-binde = , c, exec, qalculate-qt
-binde = , c, submap, reset
-binde = , e, exec, $fileManager
-binde = , e, submap, reset
-binde = , m, exec, XDG_SESSION_TYPE=x11 yandex-music
-binde = , m, submap, reset
-binde = , w, exec, /home/arthur/Applications/hyprpaper.sh
-binde = , w, submap, reset
-binde = , l, exec, hyprlock
-binde = , l, submap, reset
-binde = , v, exec, /home/arthur/Applications/wofi-vpn.sh
-binde = , v, submap, reset
-bind = , escape, submap, reset
-submap = reset
+-- Submaps: the reset target passed to hl.define_submap auto-resets after any
+-- bind inside fires, so per-key "submap, reset" calls (needed in old .conf)
+-- are no longer required. See https://github.com/hyprwm/Hyprland/discussions/14216
+hl.bind(mainMod .. " + A", hl.dsp.submap("apps"))
+hl.define_submap("apps", "reset", function()
+    hl.bind("a", hl.dsp.exec_cmd("pamac-manager"), { repeating = true })
+    hl.bind("s", hl.dsp.exec_cmd("hyprshot -m region"), { repeating = true })
+    hl.bind("d", hl.dsp.exec_cmd("manjaro-settings-manager"), { repeating = true })
+    hl.bind("c", hl.dsp.exec_cmd("qalculate-qt"), { repeating = true })
+    hl.bind("e", hl.dsp.exec_cmd(fileManager), { repeating = true })
+    hl.bind("m", hl.dsp.exec_cmd("XDG_SESSION_TYPE=x11 yandex-music"), { repeating = true })
+    hl.bind("w", hl.dsp.exec_cmd("/home/arthur/Applications/hyprpaper.sh"), { repeating = true })
+    hl.bind("l", hl.dsp.exec_cmd("hyprlock"), { repeating = true })
+    hl.bind("v", hl.dsp.exec_cmd("/home/arthur/Applications/wofi-vpn.sh"), { repeating = true })
+    hl.bind("escape", hl.dsp.submap("reset"))
+end)
 
-bind = $mainMod, E, submap, emacs
-submap = emacs
-binde = , e, exec, emacsclient -c -a 'emacs'
-binde = , e, submap, reset
-binde = , c, exec, emacsclient -c -a 'emacs' /home/arthur/Project/mySoft/GitSettings/CONFIG.org
-binde = , c, submap, reset
-binde = , n, exec, emacsclient -c -a 'emacs' /home/arthur/Project/Notes/roam/20220507152159-notes.org
-binde = , n, submap, reset
-submap = reset
+hl.bind(mainMod .. " + E", hl.dsp.submap("emacs"))
+hl.define_submap("emacs", "reset", function()
+    hl.bind("e", hl.dsp.exec_cmd("emacsclient -c -a 'emacs'"), { repeating = true })
+    hl.bind("c", hl.dsp.exec_cmd("emacsclient -c -a 'emacs' /home/arthur/Project/mySoft/GitSettings/CONFIG.org"), { repeating = true })
+    hl.bind("n", hl.dsp.exec_cmd("emacsclient -c -a 'emacs' /home/arthur/Project/Notes/roam/20220507152159-notes.org"), { repeating = true })
+end)
 
 #+end_src
