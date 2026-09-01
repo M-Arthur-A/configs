@@ -7,13 +7,17 @@ https://wiki.hypr.land/Configuring/
 ** DEPS
 - WORKSPACES BEHAVIOR
   make multiple monitors to have each own workspaces (awesome/dwm-like per-monitor workspaces)
-  Duckonaut/split-monitor-workspaces (the old hyprpm C++ plugin) is superseded by its
-  official Lua-package successor for Hyprland >=0.55 / the new Lua config:
-  https://github.com/zjeffer/split-monitor-workspaces
+  Duckonaut/split-monitor-workspaces ships a pure-Lua library (init.lua + lua/)
+  next to the old hyprpm C++ plugin; the Lua library is what the new Lua config uses.
+  The clone directory name matters: require("plugins.split-monitor-workspaces")
+  resolves to ~/.config/hypr/plugins/split-monitor-workspaces/init.lua.
+  https://github.com/Duckonaut/split-monitor-workspaces
 #+begin_src bash
 mkdir -p ~/.config/hypr/plugins
-cd ~/.config/hypr/plugins
-git clone https://github.com/zjeffer/split-monitor-workspaces
+git clone https://github.com/Duckonaut/split-monitor-workspaces \
+  ~/.config/hypr/plugins/split-monitor-workspaces
+# and drop the old C++ plugin so the two don't fight over workspaces:
+hyprpm disable split-monitor-workspaces
 #+end_src
 - BACKGROUNDS
   hyprpaper
@@ -120,8 +124,14 @@ hl.monitor({
 
 -- exec-once equivalent: hl.on("hyprland.start", ...) fires once, not on reloads
 hl.on("hyprland.start", function()
-    hl.exec_cmd("hyprpm reload -n")
-    hl.exec_cmd("waybar")
+    -- No hyprpm reload: the only hyprpm plugin was split-monitor-workspaces,
+    -- which is now loaded as a Lua package. Loading both would double-manage
+    -- workspaces. Run `hyprpm disable split-monitor-workspaces` once to be sure.
+    -- Not plain "waybar": its hyprland/workspaces buttons send the legacy
+    -- hyprlang "dispatch workspace <id>", which this Lua config turns into a
+    -- Lua syntax error. The shim rewrites those requests and starts waybar
+    -- against its own instance socket; it exits when waybar does.
+    hl.exec_cmd("/home/arthur/Applications/hypr-ipc-shim.py waybar")
     hl.exec_cmd("hyprpaper")
     hl.exec_cmd("hyprctl setcursor breeze 32")
     hl.exec_cmd("xrandr --output DP-3 --primary")
@@ -227,12 +237,17 @@ hl.window_rule({
 
 -- split-monitor-workspaces is now a Lua package (not a hyprpm C++ plugin),
 -- cloned into ~/.config/hypr/plugins (see the DEPS section at the top of
--- this file). See https://github.com/zjeffer/split-monitor-workspaces
-package.path = package.path .. ";./?.lua;./?/init.lua"
+-- this file). See https://github.com/Duckonaut/split-monitor-workspaces
+-- Hyprland already puts <config dir>/?.lua and <config dir>/?/init.lua on
+-- package.path, so no package.path fiddling is needed here.
 local smw = require("plugins.split-monitor-workspaces")
 
 smw.setup({
     workspace_count               = 9,
+    -- Left to right, matching the MONITORS section: DP-3 gets workspaces
+    -- 1-9, DP-2 gets 10-18. Without this the order depends on whatever
+    -- sequence Hyprland happens to report the monitors in.
+    monitor_priority              = { "DP-3", "DP-2" },
     keep_focused                  = false,
     enable_notifications          = false,
     enable_persistent_workspaces  = true,
@@ -656,7 +671,7 @@ input-field {
 #!/usr/bin/env bash
 
 WALLPAPER_DIR="/usr/share/backgrounds/dtos-backgrounds/"
-CURRENT_WALL=$(hyprctl hyprpaper listloaded)
+CURRENT_WALL=$(hyprctl hyprpaper listloaded | head -n1)
 
 # Get the name of the focused monitor with hyprctl
 #FOCUSED_MONITOR=$(hyprctl monitors -j | jq -r '.[] | select(.focused) | .name')
@@ -668,7 +683,7 @@ CURRENT_WALL=$(hyprctl hyprpaper listloaded)
 for MONITOR in $(hyprctl monitors -j | jq -r '.[] | select(.name) | .name')
 do
     WALLPAPER=$(find "$WALLPAPER_DIR" -type f ! -name "$(basename "$CURRENT_WALL")" | shuf -n 1)
-    hyprctl hyprpaper reload "$MONITOR","$WALLPAPER"
+    hyprctl hyprpaper wallpaper "$MONITOR,$WALLPAPER"
 done
 #+end_src
 
@@ -706,10 +721,20 @@ https://github.com/flickowoa/dotfiles/tree/aurora
         "clock",
         "tray"
     ],
+    // Clicks on this module go out as the legacy hyprlang string
+    // "dispatch workspace <id>", which is compiled into waybar and which
+    // Hyprland's Lua config rejects as a Lua syntax error - so the buttons do
+    // nothing unless waybar is started through ~/Applications/hypr-ipc-shim.py
+    // (see the AUTOSTART section of hyprland.lua). The alternative,
+    // "ext/workspaces", clicks fine on its own but cannot tell an empty
+    // workspace from an occupied one, which is what the .empty styling needs.
     "hyprland/workspaces": {
         "format": "{icon}",
-        "on-scroll-up": "hyprctl dispatch workspace e+1",
-        "on-scroll-down": "hyprctl dispatch workspace e-1",
+        // "m+1"/"m-1" stay on the current monitor, which is what
+        // split-monitor-workspaces wants ("e+1" would wrap onto the other
+        // monitor's block).
+        "on-scroll-up": "hyprctl dispatch 'hl.dsp.focus({workspace=\"m+1\"})'",
+        "on-scroll-down": "hyprctl dispatch 'hl.dsp.focus({workspace=\"m-1\"})'",
         "format-icons": {
             // ❶ ❷ ❸ ❹ ❺ ❻ ❼ ❽ ❾
             "1": "❶",
@@ -735,9 +760,6 @@ https://github.com/flickowoa/dotfiles/tree/aurora
             "visible": "", // focused workspace on other monitors
             "default": "",
             "empty": "" // persistent (created by this plugin)
-        },
-        "persistent_workspaces": {
-            "*": 1
         }
     },
     "hyprland/window": {
@@ -855,6 +877,132 @@ https://github.com/flickowoa/dotfiles/tree/aurora
         "on-click": "blueberry"
     }
 }
+#+end_src
+** ipc shim
+Waybar 0.15 predates Hyprland's Lua config: the click handler of its
+hyprland/workspaces module is the compiled-in literal "dispatch workspace <id>",
+and a Lua config parses everything sent to `hyprctl dispatch` as Lua, so the
+request dies with a syntax error and the button does nothing. Waybar exposes no
+setting for this. Swapping in the compositor-agnostic ext/workspaces module fixes
+clicking but loses the empty/occupied distinction (ext-workspace-v1 only carries
+active/urgent/hidden), so the bar can no longer paint empty workspaces white.
+This shim keeps both: it fronts Hyprland's IPC socket, rewrites the two legacy
+commands waybar sends, and passes everything else through.
+
+#+begin_src python :tangle "/home/arthur/Applications/hypr-ipc-shim.py" :mkdirp yes :tangle-mode (identity #o755)
+#!/usr/bin/env python3
+"""Translate waybar's legacy hyprctl dispatch calls for Hyprland's Lua config.
+
+Hyprland 0.55+ with a Lua config evaluates whatever is sent to the IPC
+`dispatch` command as Lua, so waybar's hardcoded "dispatch workspace 3" is a
+syntax error and clicking a workspace button silently does nothing. The command
+is compiled into the waybar binary, so there is no config knob for it. This shim
+publishes a fake instance directory, rewrites the two legacy commands waybar
+emits, and passes everything else through untouched.
+
+    hypr-ipc-shim.py waybar
+
+Restart it the same way you would restart waybar; it exits when its child does.
+"""
+
+import os
+import re
+import socket
+import subprocess
+import sys
+import threading
+
+HIS = os.environ["HYPRLAND_INSTANCE_SIGNATURE"]
+RUNTIME = os.environ.get("XDG_RUNTIME_DIR", "/run/user/%d" % os.getuid())
+REAL_DIR = "%s/hypr/%s" % (RUNTIME, HIS)
+SHIM_HIS = "%s-shim" % HIS
+SHIM_DIR = "%s/hypr/%s" % (RUNTIME, SHIM_HIS)
+
+# Only what waybar actually sends. focusworkspaceoncurrentmonitor is not here
+# because it is only emitted with "move-to-monitor": true, which we don't set.
+REWRITES = [
+    (re.compile(r"^dispatch workspace (.+)$"),
+     lambda m: 'dispatch hl.dsp.focus({workspace="%s"})' % m.group(1)),
+    (re.compile(r"^dispatch togglespecialworkspace ?(.*)$"),
+     lambda m: 'dispatch hl.dsp.workspace.toggle_special(%s)'
+               % ('"%s"' % m.group(1) if m.group(1) else "")),
+]
+
+
+def split_flags(request):
+    """Peel off Hyprland's output-format flags ("/dispatch ...", "j/monitors").
+
+    Only a leading run of letters directly followed by "/" counts, so a path in
+    something like "dispatch exec /usr/bin/foo" is never mistaken for flags.
+    """
+    head, sep, rest = request.partition("/")
+    if sep and (head == "" or head.isalpha()):
+        return head + sep, rest
+    return "", request
+
+
+def translate(request):
+    flags, command = split_flags(request)
+    for pattern, rewrite in REWRITES:
+        match = pattern.match(command)
+        if match:
+            return flags + rewrite(match)
+    return request
+
+
+def relay(conn):
+    with conn:
+        request = conn.recv(65536).decode(errors="replace")
+        if not request:
+            return
+        with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as upstream:
+            upstream.connect("%s/.socket.sock" % REAL_DIR)
+            upstream.sendall(translate(request).encode())
+            while True:
+                chunk = upstream.recv(65536)
+                if not chunk:
+                    return
+                conn.sendall(chunk)
+
+
+def serve(server):
+    while True:
+        conn, _ = server.accept()
+        threading.Thread(target=relay, args=(conn,), daemon=True).start()
+
+
+def main():
+    if len(sys.argv) < 2:
+        sys.exit("usage: %s <command> [args...]" % sys.argv[0])
+
+    os.makedirs(SHIM_DIR, exist_ok=True)
+    request_sock = "%s/.socket.sock" % SHIM_DIR
+    event_sock = "%s/.socket2.sock" % SHIM_DIR
+    for path in (request_sock, event_sock):
+        if os.path.lexists(path):
+            os.unlink(path)
+    # The event stream needs no rewriting, so hand out the real socket.
+    os.symlink("%s/.socket2.sock" % REAL_DIR, event_sock)
+
+    server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    server.bind(request_sock)
+    server.listen(16)
+    threading.Thread(target=serve, args=(server,), daemon=True).start()
+
+    child = subprocess.Popen(
+        sys.argv[1:], env=dict(os.environ, HYPRLAND_INSTANCE_SIGNATURE=SHIM_HIS)
+    )
+    try:
+        return child.wait()
+    finally:
+        server.close()
+        for path in (request_sock, event_sock):
+            if os.path.lexists(path):
+                os.unlink(path)
+
+
+if __name__ == "__main__":
+    sys.exit(main())
 #+end_src
 ** style
 #+begin_src css :tangle "/home/arthur/.config/waybar/style.css" :mkdirp yes
