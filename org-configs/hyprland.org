@@ -132,6 +132,15 @@ hl.on("hyprland.start", function()
     -- Lua syntax error. The shim rewrites those requests and starts waybar
     -- against its own instance socket; it exits when waybar does.
     hl.exec_cmd("/home/arthur/Applications/hypr-ipc-shim.py waybar")
+    -- config.reloaded (and so split-monitor-workspaces' remap_all_monitors)
+    -- fires during this very first config parse, before Aquamarine has
+    -- enumerated any physical outputs, so hl.get_monitors() is still empty
+    -- and no monitor gets its persistent workspace range mapped. The
+    -- monitor.added hook that's supposed to catch monitors appearing after
+    -- that doesn't reliably finish the job for every output at boot (seen:
+    -- the second monitor stuck without its persistent workspaces). A reload
+    -- once outputs are up re-runs the mapping with real monitors present.
+    hl.exec_cmd("sleep 2 && hyprctl reload &")
     hl.exec_cmd("hyprpaper")
     hl.exec_cmd("hyprctl setcursor breeze 32")
     hl.exec_cmd("xrandr --output DP-3 --primary")
