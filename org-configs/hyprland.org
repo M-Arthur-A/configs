@@ -143,10 +143,9 @@ hl.on("hyprland.start", function()
     -- the second monitor stuck without its persistent workspaces). A reload
     -- once outputs are up re-runs the mapping with real monitors present.
     hl.exec_cmd("sleep 2 && hyprctl reload &")
-    hl.exec_cmd("hyprpaper")
+    hl.exec_cmd("hyprpaper && /home/arthur/Applications/hyprpaper.sh &")
     hl.exec_cmd("hyprctl setcursor breeze 32")
     hl.exec_cmd("xrandr --output DP-3 --primary")
-    hl.exec_cmd("/home/arthur/Applications/hyprpaper.sh &")
     hl.exec_cmd("killall -s SIGTERM Kglobalaccel5")
     -- hl.exec_cmd("pgrep -x lxpolkit > /dev/null || lxpolkit &")
     hl.exec_cmd("pgrep -x dunst > /dev/null || dunst &")
