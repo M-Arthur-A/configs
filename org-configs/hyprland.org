@@ -165,31 +165,19 @@ hl.on("hyprland.start", function()
 end)
 
 #+end_src
-** FCITX5 TRAY
-fcitx5 publishes its own status-notifier icon (the current layout) in waybar's
-tray, which duplicates the hyprland/language module. =DisabledAddons= in
-~/.config/fcitx5/config does not stop it: notificationitem is an on-demand
-module pulled in by classicui, and only the =--disable= command-line flag keeps
-it from loading. fcitx5 is started from the system file
-/etc/xdg/autostart/org.fcitx.Fcitx5.desktop, so this user-level file with the
-same name overrides it with the flag added.
+** FCITX5 AUTOSTART
+fcitx5 is disabled. It was only used to switch us/ru, and as the compositor's
+main (virtual) keyboard it handed XWayland a us-only keymap, so X11 clients such
+as Steam could not type Russian (layout switching is done by Hyprland's own
+us,ru group, see INPUT). fcitx5 is started from the system file
+/etc/xdg/autostart/org.fcitx.Fcitx5.desktop, so deleting the user file is not
+enough: this user-level file with the same name overrides it with Hidden=true.
+Start it by hand with =fcitx5 -d= if it is ever needed.
 #+begin_src conf :tangle "/home/arthur/.config/autostart/org.fcitx.Fcitx5.desktop" :mkdirp yes
 [Desktop Entry]
 Name=Fcitx 5
-GenericName=Input Method
-Comment=Start Input Method
-Exec=/usr/bin/fcitx5 --disable notificationitem
-Icon=fcitx
-Terminal=false
 Type=Application
-Categories=System;Utility;
-StartupNotify=false
-X-GNOME-AutoRestart=false
-X-GNOME-Autostart-Notify=false
-X-KDE-autostart-after=panel
-X-KDE-StartupNotify=false
-X-KDE-Wayland-VirtualKeyboard=true
-X-KDE-Wayland-Interfaces=org_kde_plasma_window_management
+Hidden=true
 #+end_src
 ** PERMISSIONS
 https://wiki.hypr.land/Configuring/Permissions/
