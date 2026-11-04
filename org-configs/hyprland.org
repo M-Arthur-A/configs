@@ -64,8 +64,8 @@ https://wiki.hypr.land/Configuring/Environment-variables/
 -- Set programs that you use
 local terminal = "alacritty"
 local browser = "firefox"
--- local fileManager = "dolphin"
-local fileManager = "doublecmd"
+local fileManager = "dolphin"
+-- local fileManager = "doublecmd"
 local menu = "wofi --show drun"
 
 -------------------------------
@@ -482,7 +482,7 @@ FIELDS=SSID,IN-USE,BARS,SECURITY
 #+end_src
 
 VPN changer
-#+begin_src json :tangle "/home/arthur/Applications/wofi-vpn.sh" :mkdirp yes
+#+begin_src bash :tangle "/home/arthur/Applications/vicinae-vpn.sh" :mkdirp yes :tangle-mode (identity #o755)
 #!/bin/bash
 
 # Получаем список VPN-подключений
@@ -497,10 +497,38 @@ get_vpn_list() {
     done
 }
 
+AWG_NAME="awg2"
+FULL_NAME="awg2 + proxy + docker"
+
+# Статус awg2 и полного набора (awg2 + tinyproxy)
+awg_up() { ip link show awg2 &>/dev/null; }
+full_up() { awg_up && pgrep -x tinyproxy &>/dev/null; }
+
+get_awg_list() {
+    if awg_up; then echo "🟢 $AWG_NAME"; else echo "🔴 $AWG_NAME"; fi
+    if full_up; then echo "🟢 $FULL_NAME"; else echo "🔴 $FULL_NAME"; fi
+}
+
+# sudo просит пароль, поэтому запускаем в терминале
+run_in_term() { alacritty -e bash -c "$1"; }
+
 # Основной скрипт
-selected=$(get_vpn_list | wofi -d -p "VPN" -W 300 -H 400)
+selected=$( { get_awg_list; get_vpn_list; } | vicinae dmenu -p "VPN" -W 300 -H 400)
 
 if [[ -n "$selected" ]]; then
+    case "${selected#* }" in
+        "$AWG_NAME")
+            if awg_up; then run_in_term 'sudo awg-quick down awg2'
+            else run_in_term 'sudo awg-quick up awg2'; fi
+            exit 0 ;;
+        "$FULL_NAME")
+            if full_up; then
+                run_in_term 'sudo awg-quick down awg2; sudo pkill -x tinyproxy; sudo pkill -x dockerd'
+            else
+                run_in_term 'sudo awg-quick up awg2 && sudo tinyproxy && export NODE_OPTIONS="--dns-result-order=ipv4first" && export https_proxy="http://127.0.0.1:8888" && export http_proxy="http://127.0.0.1:8888" && { nohup sudo dockerd >/dev/null 2>&1 & }; exec fish'
+            fi
+            exit 0 ;;
+    esac
     vpn_name=$(echo "$selected" | sed 's/^[🔴🟢] //')
     current_status=$(echo "$selected" | cut -d' ' -f1)
 
@@ -1550,7 +1578,7 @@ hl.define_submap("apps", "reset", function()
     hl.bind("m", hl.dsp.exec_cmd("XDG_SESSION_TYPE=x11 yandex-music"), { repeating = true })
     hl.bind("w", hl.dsp.exec_cmd("/home/arthur/Applications/hyprpaper.sh"), { repeating = true })
     hl.bind("l", hl.dsp.exec_cmd("hyprlock"), { repeating = true })
-    hl.bind("v", hl.dsp.exec_cmd("/home/arthur/Applications/wofi-vpn.sh"), { repeating = true })
+    hl.bind("v", hl.dsp.exec_cmd("/home/arthur/Applications/vicinae-vpn.sh"), { repeating = true })
     hl.bind("escape", hl.dsp.submap("reset"))
 end)
 
