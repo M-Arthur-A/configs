@@ -1406,6 +1406,52 @@ Icon=/usr/share/icons/HighContrast/scalable/actions/system-lock-screen.svg
 Type=Application
 Categories=system
 #+end_src
+** monitors off
+Гасит мониторы без сна ПК, пробуждение мышью/клавиатурой
+#+begin_src bash :tangle "/home/arthur/Applications/monitors-off.sh" :mkdirp yes :tangle-mode (identity #o755)
+#!/usr/bin/env bash
+# Turn monitors off without suspending the PC. Mouse move / key press wakes them.
+
+# Hold a sleep/idle inhibitor for the whole run
+if [[ $1 != --inhibited ]]; then
+    exec systemd-inhibit --what=sleep:idle --who=monitors-off \
+        --why="Monitors off, PC stays awake" "$0" --inhibited
+fi
+
+dpms() { hyprctl eval "hl.dispatch(hl.dsp.dpms({ action = \"$1\" }))" >/dev/null; }
+wake_on_input() {
+    hyprctl eval "hl.config({ misc = { mouse_move_enables_dpms = $1, key_press_enables_dpms = $1 } })" >/dev/null
+}
+
+trap 'wake_on_input false' EXIT
+wake_on_input true
+
+count=$(hyprctl monitors -j | jq length)
+sleep 1 # let go of the keys/mouse that launched this
+dpms off
+
+# Wait until input wakes any monitor
+until hyprctl monitors -j | jq -e 'any(.dpmsStatus)' >/dev/null; do sleep 1; done
+
+# DP monitors re-handshake on wake and can miss the first "on" -- retry until all are lit
+for _ in {1..10}; do
+    hyprctl monitors -j | jq -e --argjson n "$count" 'length >= $n and all(.dpmsStatus)' >/dev/null && break
+    dpms on
+    sleep 1
+done
+#+end_src
+#+begin_src conf :tangle "/home/arthur/.local/share/applications/monitors-off.desktop" :mkdirp yes
+[Desktop Entry]
+Name=monitors off
+Name[ru]=Выключить мониторы
+Comment=Turn monitors off, PC stays awake
+Comment[ru]=Погасить мониторы без сна ПК
+GenericName=monitors off
+Exec=/home/arthur/Applications/monitors-off.sh
+Icon=/usr/share/icons/breeze-dark/devices/32/video-display-brightness-symbolic.svg
+Type=Application
+Categories=system
+#+end_src
 * HOTKEYS
 https://wiki.hypr.land/Configuring/Binds/
 bind = MODS, key, dispatcher, params
