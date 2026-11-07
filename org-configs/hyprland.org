@@ -487,7 +487,7 @@ VPN changer
 
 # Получаем список VPN-подключений
 get_vpn_list() {
-    nmcli -t -f NAME,TYPE,DEVICE connection show | grep :vpn: | while IFS=: read -r name type device; do
+    nmcli -t -f NAME,TYPE,DEVICE connection show | grep -E ':(vpn|wireguard):' | while IFS=: read -r name type device; do
         # Проверяем активные подключения
         if nmcli -t -f NAME connection show --active | grep -q "^$name$"; then
             echo "🟢 $name"
@@ -498,11 +498,12 @@ get_vpn_list() {
 }
 
 AWG_NAME="awg2"
-FULL_NAME="awg2 + proxy + docker"
+FULL_NAME="awg2 + proxy + docker + ssh"
+TMUX_SESSION="ai"
 
-# Статус awg2 и полного набора (awg2 + tinyproxy)
+# Статус awg2 и полного набора (awg2 + tinyproxy + sshd)
 awg_up() { ip link show awg2 &>/dev/null; }
-full_up() { awg_up && pgrep -x tinyproxy &>/dev/null; }
+full_up() { awg_up && pgrep -x tinyproxy &>/dev/null && systemctl is-active --quiet sshd.service; }
 
 get_awg_list() {
     if awg_up; then echo "🟢 $AWG_NAME"; else echo "🔴 $AWG_NAME"; fi
@@ -511,6 +512,16 @@ get_awg_list() {
 
 # sudo просит пароль, поэтому запускаем в терминале
 run_in_term() { alacritty -e bash -c "$1"; }
+
+# То же, но в tmux-сессии $TMUX_SESSION: если она есть — новое окно в ней, иначе создаём
+run_in_tmux() {
+    if tmux has-session -t "$TMUX_SESSION" 2>/dev/null; then
+        tmux new-window -t "$TMUX_SESSION" bash -c "$1"
+        alacritty -e tmux attach -t "$TMUX_SESSION"
+    else
+        alacritty -e tmux new-session -s "$TMUX_SESSION" bash -c "$1"
+    fi
+}
 
 # Основной скрипт
 selected=$( { get_awg_list; get_vpn_list; } | vicinae dmenu -p "VPN" -W 300 -H 400)
@@ -523,9 +534,9 @@ if [[ -n "$selected" ]]; then
             exit 0 ;;
         "$FULL_NAME")
             if full_up; then
-                run_in_term 'sudo awg-quick down awg2; sudo pkill -x tinyproxy; sudo pkill -x dockerd'
+                run_in_term 'sudo awg-quick down awg2; sudo pkill -x tinyproxy; sudo pkill -x dockerd; sudo systemctl stop sshd.service; for v in NODE_OPTIONS https_proxy http_proxy; do tmux set-environment -t ai -r $v 2>/dev/null; done'
             else
-                run_in_term 'sudo awg-quick up awg2 && sudo tinyproxy && export NODE_OPTIONS="--dns-result-order=ipv4first" && export https_proxy="http://127.0.0.1:8888" && export http_proxy="http://127.0.0.1:8888" && { nohup sudo dockerd >/dev/null 2>&1 & }; exec fish'
+                run_in_tmux 'sudo awg-quick up awg2 && sudo tinyproxy && sudo systemctl start sshd.service && export NODE_OPTIONS="--dns-result-order=ipv4first" && export https_proxy="http://127.0.0.1:8888" && export http_proxy="http://127.0.0.1:8888" && for v in NODE_OPTIONS https_proxy http_proxy; do tmux set-environment -t ai $v "${!v}"; done && { nohup sudo dockerd >/dev/null 2>&1 & }; exec fish'
             fi
             exit 0 ;;
     esac
